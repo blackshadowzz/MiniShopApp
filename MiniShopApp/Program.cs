@@ -1,3 +1,4 @@
+using MiniShopApp;
 using MiniShopApp.Components;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
@@ -12,6 +13,13 @@ var webappUrl = builder.Configuration["BotWebAppUrl"];
 
 
 // Add services to the container.
+
+//insert token to botService
+builder.Services.AddSingleton<ITelegramBotClient>(new TelegramBotClient("7823822574:AAFm2SzyMoepbVa6kMTElqlsbgr8JSUkkM4"));
+//Register background server when App Start
+builder.Services.AddHostedService<botService>();
+
+
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
