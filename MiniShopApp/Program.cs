@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using MiniShopApp;
 using MiniShopApp.Components;
 using MiniShopApp.Data;
+using MiniShopApp.Infrastructures;
 using MiniShopApp.Services.Implements;
 using MiniShopApp.Services.Interfaces;
 using Telegram.Bot;
@@ -26,13 +27,17 @@ builder.Services.AddHostedService<botService>();
 
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
-builder.Services.AddScoped<IProductService, ProductService>();
-///Add Service by Constructor
+
+/// Add any services in AddInfraServices class 
+builder.Services.AddInfraServices(builder.Configuration);
+
+///Add Service connection string by Constructor
 var connectionString = builder.Configuration.GetConnectionString("MyConection");
 builder.Services.AddDbContext<AppDbContext>(option =>
 {
     option.UseSqlServer(connectionString);
 });
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
