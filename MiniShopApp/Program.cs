@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using MiniShopApp;
 using MiniShopApp.Components;
 using MiniShopApp.Data;
@@ -19,10 +20,14 @@ var webappUrl = builder.Configuration["BotWebAppUrl"];
 
 // Add services to the container.
 
+builder.Services.AddHttpClient("tgwebhook").RemoveAllLoggers().AddTypedClient(httpClient => new TelegramBotClient("7823822574:AAFm2SzyMoepbVa6kMTElqlsbgr8JSUkkM4", httpClient));
 //insert token to botService
 builder.Services.AddSingleton<ITelegramBotClient>(new TelegramBotClient("7823822574:AAFm2SzyMoepbVa6kMTElqlsbgr8JSUkkM4"));
 //Register background server when App Start
 builder.Services.AddHostedService<botService>();
+builder.Services.AddScoped<UserState>();
+
+//builder.Services.AddHostedService<ProductService>();
 
 
 builder.Services.AddRazorComponents()

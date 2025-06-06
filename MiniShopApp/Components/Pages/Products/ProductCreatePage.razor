@@ -1,0 +1,13 @@
+﻿@page "/products/create"
+@using MiniShopApp.Data
+@rendermode InteractiveServer
+
+<PageTitle>Create Product</PageTitle>
+
+<p class="">Create a new product @userState.UserId</p>
+<button class="btn btn-primary" value="button" @onclick="CreateProduct">Create Product</button>
+<br />
+
+<p class="">Product created: @message</p>
+
+

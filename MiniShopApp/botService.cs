@@ -1,9 +1,11 @@
-﻿using System.Threading;
+﻿using MiniShopApp.Data;
+using System.Threading;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+using Telegram.Bot.Types.ReplyMarkups;
 
 namespace MiniShopApp
 {
@@ -11,6 +13,8 @@ namespace MiniShopApp
     {
         private readonly ILogger<botService> _logger;
         private readonly ITelegramBotClient _botClient;
+        public UserState userState = new UserState();
+
         public botService(ILogger<botService> logger, ITelegramBotClient botClient)
         {
             _logger = logger;
@@ -48,7 +52,35 @@ namespace MiniShopApp
         private async Task OnMessage(ITelegramBotClient telegramBot, Update update, CancellationToken cancellationToken)
         {
             //if (update.Message is Message message) await _botClient.SendTextMessageAsync(message.Chat.Id, "I am kunpeng");
-            if (update.Message is Message message) await _botClient.SendMessage(message.Chat.Id, "I am kunpeng");
+            userState.UserId = update.Message!.Chat.Id;
+            if (update.Message!.Text == "/start")
+            {
+
+                string webappUrl = "https://www.youtube.com/";
+                await _botClient.SendMessage(
+                    update.Message.Chat.Id, 
+                    $"Welcome to our Mini App Online! {update.Message.Chat.FirstName}",
+                    replyMarkup: new InlineKeyboardButton[]
+                        {
+                            InlineKeyboardButton.WithWebApp("Open App",webappUrl),
+                           
+                        }
+                        
+
+                        );
+            }
+            else if (update.Message.Text == "/help")
+            {
+                await _botClient.SendMessage(update.Message.Chat.Id, "Please contact us for more informations");
+            }
+            else if (update.Message.Text == "/about")
+            {
+                await _botClient.SendMessage(update.Message.Chat.Id, "This is a mini app for learning Blazor Server and Telegram Bot integration.");
+            }
+            else
+            {
+                await _botClient.SendMessage(update.Message.Chat.Id, $"You said: {update.Message.Text}");
+            }
         }
         private async Task ErrorMsg(ITelegramBotClient telegramBot, Exception exp, CancellationToken cancellationToken)
         {
