@@ -2,6 +2,6 @@
 {
     public class UserState
     {
-        public long UserId { get; set; }
+        public long? UserId { get; set; }
     }
 }

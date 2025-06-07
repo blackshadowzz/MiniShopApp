@@ -1,10 +1,15 @@
 ﻿@page "/products/create"
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
+@using MiniShopApp.Components.Layout
 @using MiniShopApp.Data
 @rendermode InteractiveServer
+@layout MainLayout2
+@inject UserState userState
+
 
 <PageTitle>Create Product</PageTitle>
 
-<p class="">Create a new product @userState.UserId</p>
+<p class="">User Id: @userId</p>
 <button class="btn btn-primary" value="button" @onclick="CreateProduct">Create Product</button>
 <br />
 

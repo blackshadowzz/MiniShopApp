@@ -1,0 +1,29 @@
+﻿@page "/products"
+@using MiniShopApp.Components.Layout
+@layout MainLayout2
+@rendermode InteractiveServer
+<PageTitle>Products</PageTitle>
+<div>
+    <div class="row row-cols-3 row-cols-md-6 g-2">
+        @foreach(var list in _products)
+        {
+            <div class="col">
+                <div class="card h-100">
+                    <img src="..." class="card-img-top" alt="...">
+                    <div class="card-body">
+                        <h5 class="card-title">Name: @list?.ProductName</h5>
+                        <p class="card-text">@list?.Decription</p>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <button class="btn btn-primary">Add</button>
+                    </div>
+                </div>
+                
+            </div>
+        }
+        
+       
+    </div>
+</div>
+
+

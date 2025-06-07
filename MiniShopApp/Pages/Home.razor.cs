@@ -1,7 +1,7 @@
 using MiniShopApp.Models.Items;
 using MiniShopApp.Services.Interfaces;
 
-namespace MiniShopApp.Components.Pages
+namespace MiniShopApp.Pages
 {
     public partial class Home
     {

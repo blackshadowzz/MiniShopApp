@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using MiniShopApp;
@@ -25,7 +26,8 @@ builder.Services.AddHttpClient("tgwebhook").RemoveAllLoggers().AddTypedClient(ht
 builder.Services.AddSingleton<ITelegramBotClient>(new TelegramBotClient("7823822574:AAFm2SzyMoepbVa6kMTElqlsbgr8JSUkkM4"));
 //Register background server when App Start
 builder.Services.AddHostedService<botService>();
-builder.Services.AddScoped<UserState>();
+
+builder.Services.AddSingleton<UserState>();
 
 //builder.Services.AddHostedService<ProductService>();
 
