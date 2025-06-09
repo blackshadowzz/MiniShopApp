@@ -18,8 +18,10 @@ namespace MiniShopApp.Pages.Products
             // Constructor logic can be added here if needed
         }
         string? message = null;
+        string? alert = null;
 
         string? userId = null;
+        protected Product model = new Product();
         protected override async Task OnInitializedAsync()
         {
             if(userState.UserId == null)
@@ -37,23 +39,19 @@ namespace MiniShopApp.Pages.Products
         {
             try
             {
+                alert = null;
                 if (string.IsNullOrEmpty(userId))
                 {
                     await OnInitializedAsync();
                 }
-                var model = new Product
-                {
-                    ProductName = "Sample Product",
-                    ProductCode = "SP001",
-                    Price = 19.99,
-                    Decription = "This is a sample product."
-                };
+                
                 var result = await productService.CreateAsync(long.Parse(userId!), model);
                 if (string.IsNullOrEmpty(result))
                 {
                     throw new Exception("Product creation failed.");
                 }
-                string message = result;
+                alert = result+ ": " + model.ProductName;
+                model = new Product(); // Reset the model after successful creation
                 // Handle success, e.g., show a message or redirect
             }
             catch (Exception ex)

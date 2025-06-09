@@ -29,12 +29,16 @@ namespace MiniShopApp.Services.Implements
 
                 await _botClient.SendMessage(
                         chatId:  userId, // Replace with your chat ID
-                        text: $"Creating product: {model.ProductName}"
+                        text: $"Product Code: {model.ProductCode}" +
+                        $"\nProduct Name: {model.ProductName}" +
+                        $"\n Price: {model.Price}" +
+                        $"\n Description: {model.Decription}"
                     );
-               
+                
+
                 _context.Products.Add(model);
                 
-                //await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync();
                 
                 return "Product created successfully";
 

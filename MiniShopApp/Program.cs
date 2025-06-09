@@ -39,7 +39,7 @@ builder.Services.AddRazorComponents()
 builder.Services.AddInfraServices(builder.Configuration);
 
 ///Add Service connection string by Constructor
-var connectionString = builder.Configuration.GetConnectionString("MyConection");
+var connectionString = builder.Configuration.GetConnectionString("MyServerConection");
 builder.Services.AddDbContext<AppDbContext>(option =>
 {
     option.UseSqlServer(connectionString);

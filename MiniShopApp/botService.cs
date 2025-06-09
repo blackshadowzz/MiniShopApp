@@ -71,7 +71,7 @@ namespace MiniShopApp
                 if (update.Message!.Text == "/start")
                 {
 
-                    string webappUrl = "https://google.com/";
+                    string webappUrl = "https://minishopapp.runasp.net/";
                     await _botClient.SendMessage(
                         update.Message.Chat.Id,
                         $"Welcome to our Mini App Online! {update.Message.Chat.FirstName}",

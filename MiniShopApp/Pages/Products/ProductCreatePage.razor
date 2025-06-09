@@ -9,10 +9,45 @@
 
 <PageTitle>Create Product</PageTitle>
 
+<div>
+    <span> @alert </span>
+    <form >
+        <div class="mb-3">
+            <label for="exampleInputEmail1" class="form-label">Product Code</label>
+            <input type="text" class="form-control" @bind="@model.ProductCode">
+            
+        </div>
+        <div class="mb-3">
+            <label for="exampleInputEmail1" class="form-label">Product Name</label>
+            <input type="text" class="form-control" @bind="@model.ProductName">
+            
+        </div>
+        <div class="mb-3">
+            <label for="exampleInputEmail1" class="form-label">Product Price</label>
+            <InputNumber  class="form-control"
+                          
+                            TValue="double?"
+                         @bind-value="@model.Price"/>
+            
+        </div>
+        <div class="mb-3">
+            <label for="exampleInputEmail1" class="form-label">Description</label>
+            <textarea class="form-control" @bind="@model.Decription" />
+            
+        </div>
+       
+       
+        <button type="button" @onclick="CreateProduct" class="btn btn-primary">Create Product</button>
+    </form>
+</div>
+
 <p class="">User Id: @userId</p>
-<button class="btn btn-primary" value="button" @onclick="CreateProduct">Create Product</button>
+<div>
+    <NavLink class="btn btn-primary" href="/products">Back to Products</NavLink>
+</div>
+@* <button class="btn btn-primary" value="button" @onclick="CreateProduct">Create Product</button>
 <br />
 
-<p class="">Product created: @message</p>
+<p class="">Product created: @message</p> *@
 
 
