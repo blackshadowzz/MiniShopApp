@@ -72,7 +72,7 @@ namespace MiniShopApp
                 {
 
                     string webappUrl = "https://minishopapp.runasp.net/";
-                    await _botClient.SendMessage(
+                    await _botClient.SendMessage( 
                         update.Message.Chat.Id,
                         $"Welcome to our Mini App Online! {update.Message.Chat.FirstName}",
                         replyMarkup: new InlineKeyboardButton[]
