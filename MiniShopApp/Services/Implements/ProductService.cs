@@ -29,14 +29,17 @@ namespace MiniShopApp.Services.Implements
 
                 await _botClient.SendMessage(
                         chatId:  userId, // Replace with your chat ID
-                        text: $"Product Code: {model.ProductCode}" +
+                        
+                        text: 
+                        $"Product Code: {model.ProductCode}" +
                         $"\nProduct Name: {model.ProductName}" +
                         $"\n Price: {model.Price}" +
-                        $"\n Description: {model.Decription}"
+                        $"\n Description: {model.Decription}",
+                        parseMode:ParseMode.Html
                     );
                 
 
-                _context.Products.Add(model);
+                _context.TbProducts.Add(model);
                 
                 await _context.SaveChangesAsync();
                 
@@ -52,11 +55,11 @@ namespace MiniShopApp.Services.Implements
         {
             if (string.IsNullOrEmpty(filter))
             {
-                return await _context.Products.ToListAsync();
+                return await _context.TbProducts.ToListAsync();
             }
             else
             {
-                return await _context.Products
+                return await _context.TbProducts
                     .Where(p => p.ProductName.Contains(filter) || p.ProductCode.Contains(filter))
                     .ToListAsync();
             }

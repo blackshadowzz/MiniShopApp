@@ -71,7 +71,7 @@ namespace MiniShopApp
                 if (update.Message!.Text == "/start")
                 {
 
-                    string webappUrl = "https://minishopapp.runasp.net/";
+                    string webappUrl = "https://minishopapp.runasp.net/index";
                     await _botClient.SendMessage( 
                         update.Message.Chat.Id,
                         $"Welcome to our Mini App Online! {update.Message.Chat.FirstName}",
@@ -99,7 +99,7 @@ namespace MiniShopApp
             }
             catch(Exception ex)
             {
-                _logger.LogError(ex, "Error processing update: {Update}", update);
+                _logger.LogError(ex,  "Error processing update: {Update}", update);
                 return;
             }
             

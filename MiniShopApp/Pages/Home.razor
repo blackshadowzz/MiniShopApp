@@ -1,6 +1,20 @@
 ﻿@page "/"
-@using Microsoft.AspNetCore.Components.Web
+@rendermode InteractiveServer
+@inject UserState userState
+@layout MainLayout
+
 
 <PageTitle>Home</PageTitle>
+<div class="">
 
+        <div class="text-center my-4">
+            <img src="/images/minilogo.jpg" alt="MiniShopApp Logo" class="img-fluid" style="max-width: 200px;" />
+            <h1 class="mb-4">Welcome to Mini Order!</h1>
+            <p>This is a simple Blazor application to demonstrate basic features.</p>
+            <p>Use the navigation menu to explore the app.</p>
+            
+        </div>
+    
+
+</div>
 

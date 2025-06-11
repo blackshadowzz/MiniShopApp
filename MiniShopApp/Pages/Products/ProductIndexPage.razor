@@ -1,6 +1,7 @@
 ﻿@page "/products"
 @using MiniShopApp.Components.Layout
-@layout MainLayout2
+@layout MainLayout
+
 @rendermode InteractiveServer
 <PageTitle>Products</PageTitle>
 <div>
@@ -11,7 +12,7 @@
                 <div class="card h-100">
                     <img src="..." class="card-img-top" alt="...">
                     <div class="card-body">
-                        <h5 class="card-title">Name: @list?.ProductName</h5>
+                        <h5 class="card-title">@list?.ProductName</h5>
                         <p class="card-text">@list?.Decription</p>
                     </div>
                     <div class="d-flex justify-content-between">
@@ -26,6 +27,9 @@
     </div>
 
     <br />
+    <div class="foot">
+
+    </div>
     <div class="d-flex justify-content-center">
         <NavLink class="btn btn-primary" href="/products/create">Create Product</NavLink>
 

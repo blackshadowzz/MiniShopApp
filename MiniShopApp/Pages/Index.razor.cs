@@ -1,11 +1,9 @@
 using MiniShopApp.Models.Items;
-using MiniShopApp.Services.Interfaces;
 
 namespace MiniShopApp.Pages
 {
-    public partial class Home
+    public partial class Index
     {
-        
         long? userId = null;
         protected List<Product> products = new List<Product>();
         protected override async Task OnInitializedAsync()
