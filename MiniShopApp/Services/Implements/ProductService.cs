@@ -27,16 +27,16 @@ namespace MiniShopApp.Services.Implements
             try
             {
 
-                await _botClient.SendMessage(
-                        chatId:  userId, // Replace with your chat ID
+                //await _botClient.SendMessage(
+                //        chatId:  userId, // Replace with your chat ID
                         
-                        text: 
-                        $"Product Code: {model.ProductCode}" +
-                        $"\nProduct Name: {model.ProductName}" +
-                        $"\n Price: {model.Price}" +
-                        $"\n Description: {model.Decription}",
-                        parseMode:ParseMode.Html
-                    );
+                //        text: 
+                //        $"Product Code: {model.ProductCode}" +
+                //        $"\nProduct Name: {model.ProductName}" +
+                //        $"\n Price: {model.Price}" +
+                //        $"\n Description: {model.Decription}",
+                //        parseMode:ParseMode.Html
+                //    );
                 
 
                 _context.TbProducts.Add(model);

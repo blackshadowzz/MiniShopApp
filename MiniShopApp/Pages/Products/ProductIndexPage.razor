@@ -5,35 +5,50 @@
 @rendermode InteractiveServer
 <PageTitle>Products</PageTitle>
 <div>
-    <div class="row row-cols-3 row-cols-md-6 g-2">
-        @foreach(var list in _products)
-        {
-            <div class="col">
-                <div class="card h-100">
-                    <img src="..." class="card-img-top" alt="...">
-                    <div class="card-body">
-                        <h5 class="card-title">@list?.ProductName</h5>
-                        <p class="card-text">@list?.Decription</p>
-                    </div>
-                    <div class="d-flex justify-content-between">
-                        <button class="btn btn-primary">Add</button>
-                    </div>
-                </div>
-                
-            </div>
-        }
-        
-       
-    </div>
-
-    <br />
-    <div class="foot">
-
-    </div>
     <div class="d-flex justify-content-center">
         <NavLink class="btn btn-primary" href="/products/create">Create Product</NavLink>
 
     </div>
+    <table class="table caption-top table-bordered table-hover table-responsive">
+        
+        <caption>List of Products</caption>
+        <thead class="">
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Product Name</th>
+                <th scope="col">Price</th>
+                <th scope="col">SubPrice</th>
+                <th scope="col">Category</th>
+                <th scope="col">Active</th>
+                <th scope="col">Image</th>
+                <th scope="col">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var list in _products)
+            {
+                <tr>
+                    <th scope="row">@list?.ProductCode</th>
+                    <td>@list?.ProductName</td>
+                    <td>@list?.Price</td>
+                    <td>@list?.SubPrice</td>
+                    <td>@list?.CatgoryId</td>
+                    <td>@list?.IsActive</td>
+                    <td>@list?.ImageUrl</td>
+                    <td>
+
+                    </td>
+                </tr>
+            }
+            
+            
+        </tbody>
+    </table>
+   
+        
+        
+    
+   
 </div>
 
 

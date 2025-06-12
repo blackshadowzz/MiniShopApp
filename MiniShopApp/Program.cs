@@ -14,16 +14,16 @@ using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 
 var builder = WebApplication.CreateBuilder(args);
-var token = builder.Configuration["7823822574:AAFm2SzyMoepbVa6kMTElqlsbgr8JSUkkM4"];
+var token = builder.Configuration["BotTokenTest"];
 var webappUrl = builder.Configuration["BotWebAppUrl"];
 
 
 
 // Add services to the container.
 
-builder.Services.AddHttpClient("tgwebhook").RemoveAllLoggers().AddTypedClient(httpClient => new TelegramBotClient("7823822574:AAFm2SzyMoepbVa6kMTElqlsbgr8JSUkkM4", httpClient));
+builder.Services.AddHttpClient("tgwebhook").RemoveAllLoggers().AddTypedClient(httpClient => new TelegramBotClient(token!, httpClient));
 //insert token to botService
-builder.Services.AddSingleton<ITelegramBotClient>(new TelegramBotClient("7823822574:AAFm2SzyMoepbVa6kMTElqlsbgr8JSUkkM4"));
+builder.Services.AddSingleton<ITelegramBotClient>(new TelegramBotClient(token!));
 //Register background server when App Start
 builder.Services.AddHostedService<botService>();
 

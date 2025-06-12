@@ -2,6 +2,7 @@
 using MiniShopApp.Models;
 using MiniShopApp.Models.Items;
 using MiniShopApp.Models.Orders;
+using System.Reflection;
 
 namespace MiniShopApp.Data
 {
@@ -17,9 +18,14 @@ namespace MiniShopApp.Data
                 .WithMany(g => g.TbOrderDetails)
                 .HasForeignKey(s => s.OrderId);
             // Add any custom model configurations here
+            //modelBuilder.Entity<Product>()
+            //    .HasKey(p => p.Id; // Define primary key for Product entity
+
+            modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+
         }
-        
-       
+
+
         // Define DbSets for your entities here, e.g.:
         // public DbSet<Product> Products { get; set; }
 
