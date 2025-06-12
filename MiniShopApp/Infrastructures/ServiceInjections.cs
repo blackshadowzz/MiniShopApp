@@ -13,6 +13,7 @@ namespace MiniShopApp.Infrastructures
 
             // Add any services below
             services.TryAddTransient<IProductService, ProductService>();
+            services.TryAddTransient<IOrderService, OrderService>();
             return services;
         }
     }

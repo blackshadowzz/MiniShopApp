@@ -22,7 +22,7 @@ namespace MiniShopApp.Pages
                 {
                     // Simulate fetching user ID from a service or storage
                     userId = userState.UserId; // Replace with actual user ID retrieval logic
-                    await localStorage.SetAsync("customerId", userId!);
+                    await localStorage.SetAsync("customerId", userId.ToString()!);
                 }
                 //products = (await productService.GetAllAsync()).ToList();
             }

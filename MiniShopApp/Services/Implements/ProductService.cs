@@ -12,14 +12,15 @@ namespace MiniShopApp.Services.Implements
 {
     public class ProductService : IProductService
     {
-        private readonly AppDbContext _context;
+        private readonly IDbContextFactory<AppDbContext> _context;
         private readonly ITelegramBotClient _botClient;
-     
+        private readonly ILogger<ProductService> logger;
 
-        public ProductService(AppDbContext context,ITelegramBotClient botClient )
+        public ProductService(IDbContextFactory<AppDbContext> context,ITelegramBotClient botClient, ILogger<ProductService> logger)
         {
             _context = context;
             _botClient = botClient;
+            this.logger = logger;
         }
 
         public async Task<string> CreateAsync(long userId, Product model)
@@ -38,10 +39,10 @@ namespace MiniShopApp.Services.Implements
                 //        parseMode:ParseMode.Html
                 //    );
                 
-
-                _context.TbProducts.Add(model);
+                await using var dbContext = _context.CreateDbContext();
+                dbContext.TbProducts.Add(model);
                 
-                await _context.SaveChangesAsync();
+                await dbContext.SaveChangesAsync();
                 
                 return "Product created successfully";
 
@@ -53,14 +54,17 @@ namespace MiniShopApp.Services.Implements
 
         public async Task<IEnumerable<Product>> GetAllAsync(string? filter = null)
         {
+            await using var dbContext = _context.CreateDbContext();
             if (string.IsNullOrEmpty(filter))
             {
-                return await _context.TbProducts.ToListAsync();
+                
+                return await dbContext.TbProducts.ToListAsync();
             }
             else
             {
-                return await _context.TbProducts
+                return await dbContext.TbProducts
                     .Where(p => p.ProductName.Contains(filter) || p.ProductCode.Contains(filter))
+                    .AsNoTracking()
                     .ToListAsync();
             }
         }
