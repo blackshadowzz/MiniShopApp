@@ -4,16 +4,30 @@
     <RadzenHeader>
         <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0">
             <RadzenSidebarToggle Click="@(() => sidebarExpanded = !sidebarExpanded)" />
-            <RadzenLabel Text="Header" />
+            <RadzenLabel Text="Mini App" />
         </RadzenStack>
     </RadzenHeader>
-    <RadzenSidebar @bind-Expanded="@sidebarExpanded">
+    <RadzenSidebar Responsive="false" Style="width: max-content">
         <RadzenPanelMenu DisplayStyle="@(sidebarExpanded? MenuItemDisplayStyle.IconAndText: MenuItemDisplayStyle.Icon)" ShowArrow="false">
-            <RadzenPanelMenuItem Text="Home" Icon="home" />
+            <RadzenPanelMenuItem Text="Home" Icon="home" Path="/"/>
             <RadzenPanelMenuItem Text="Dashboard" Icon="dashboard" />
-            <RadzenPanelMenuItem Text="Orders" Icon="auto_awesome">
-                <RadzenPanelMenuItem Text="Order" Path="/orders/views" Icon="product" />
-                <RadzenPanelMenuItem Text="Order Details" Icon="product" />
+            <RadzenPanelMenuItem Text="Orders" Icon="lan">
+                <RadzenPanelMenuItem Text="Order" Path="/orders/views" Icon="storefront" />
+                <RadzenPanelMenuItem Text="Order Details" Icon="receipt_long" />
+            </RadzenPanelMenuItem>
+            <RadzenPanelMenuItem Text="Products" Icon="list_alt">
+                <RadzenPanelMenuItem Text="Product" Path="/products" Icon="list_alt" />
+                <RadzenPanelMenuItem Text="Category" Icon="category" Path="#"/>
+            </RadzenPanelMenuItem>
+            <RadzenPanelMenuItem Text="Table" Icon="table" Path="#" />
+            <RadzenPanelMenuItem Text="Customer" Icon="groups_2" Path="#" />
+            <RadzenPanelMenuItem Text="User Management" Icon="group">
+                <RadzenPanelMenuItem Text="User" Path="#" Icon="manage_accounts" />
+                <RadzenPanelMenuItem Text="Role" Icon="receipt_long" Path="#" />
+            </RadzenPanelMenuItem>
+            <RadzenPanelMenuItem Text="Settings" Icon="settings">
+                <RadzenPanelMenuItem Text="Service" Path="#" Icon="" />
+                <RadzenPanelMenuItem Text="About" Icon="" Path="#" />
             </RadzenPanelMenuItem>
         </RadzenPanelMenu>
     </RadzenSidebar>
