@@ -21,10 +21,10 @@ builder.Services.AddHostedService<botService>();
 builder.Services.AddSingleton<UserState>();
 
 
-
+builder.Services.AddRadzenComponents();
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
-builder.Services.AddRadzenComponents();
+
 
 //Add Service connection string by Constructor
 var connectionString = builder.Configuration.GetConnectionString("MyConnection");
