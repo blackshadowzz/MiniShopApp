@@ -5,7 +5,6 @@ namespace MiniShopApp.Models
 {
     public class UserCustomer
     {
-        [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
         public long CustomerId { get; set; }
         public string? FirstName { get; set; }

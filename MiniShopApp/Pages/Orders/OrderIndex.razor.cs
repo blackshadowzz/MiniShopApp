@@ -1,7 +1,8 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
+using MiniShopApp.Infrastructures.Services.Interfaces;
 using MiniShopApp.Models.Items;
-using MiniShopApp.Services.Interfaces;
+using MiniShopApp.Models.Orders;
 using System.Threading.Tasks;
 using Telegram.Bot.Types;
 namespace MiniShopApp.Pages.Orders
@@ -17,23 +18,21 @@ namespace MiniShopApp.Pages.Orders
             this.productService = productService;
            
         }
-        protected IEnumerable<Product> _products = [];
+        protected List<Product> _products = [];
+        protected List<TbOrderDetails> orderDetails = [];
         private string? _filter = null;
         string? customerId = null;
-        //protected override async Task OnAfterRenderAsync(bool firstRender)
-        //{
-        //    if (firstRender)
-        //    {
-                
-        //    }
-        //    await base.OnAfterRenderAsync(firstRender);
-        //}
+
         protected override async Task OnInitializedAsync()
         {
             
 
             await FilterProducts();
             await base.OnInitializedAsync();
+        }
+        protected async Task OnGetSearchRefresh()
+        {
+            await OnInitializedAsync();
         }
         protected async Task FilterProducts(string? filter = null)
         {
@@ -82,17 +81,57 @@ namespace MiniShopApp.Pages.Orders
                 throw new Exception($"Get local data: {ex.Message}");
             }
         }
+        protected void AddProduct(int productId)
+        {
+            try
+            {
+                var product = _products.FirstOrDefault(p => p.Id == productId);
+                if (product != null)
+                {
+                    if (orderDetails.Any(od => od.ItemId == product.Id))
+                    {
+                        // If the product already exists in the order, increase the quantity
+                        var existingOrderDetail = orderDetails.First(od => od.ItemId == product.Id);
+    
+                        existingOrderDetail.Quantity += 1;
+                        existingOrderDetail.TotalPrice = existingOrderDetail.Price * existingOrderDetail.Quantity;
+                        StateHasChanged();
+                    }
+                    else
+                    {
+                        // If the product does not exist in the order, add it
+                        orderDetails.Add(new TbOrderDetails
+                        {
+                            ItemId = product.Id,
+                            ItemName = product.ProductName,
+                            Price = product.Price,
+                            Quantity = 1, // Default quantity to 1, can be adjusted later
+                            TotalPrice = product.Price // Initial total price based on quantity of 1
+                        });
+                    }
+                    
+                }
+                else
+                {
+                    Console.WriteLine("Product not found.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error adding product: {ex.Message}");
+            }
+        }
         protected async Task CreateOrderAsync(Product product)
         {
             try
             {
                 if (product != null)
                 {
-                    long? userId = (await localStorage.GetAsync<long>("customerId")).Value;
-                    if (userId.HasValue)
+                    await GetCustomerData();
+                    if (customerId!=null)
                     {
-                        var result = await productService.CreateAsync(userId.Value, product);
-                        Console.WriteLine($"Order created: {result}");
+                        //var result = await productService.CreateAsync(long.Parse(customerId), product);
+                        //Console.WriteLine($"Order created: {result}");
                     }
                     else
                     {

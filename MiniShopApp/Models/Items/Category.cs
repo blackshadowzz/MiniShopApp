@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace MiniShopApp.Models
+namespace MiniShopApp.Models.Items
 {
     public class Category
     {

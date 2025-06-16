@@ -1,7 +1,7 @@
 ﻿using MiniShopApp.Models.Items;
 using System.Diagnostics;
 
-namespace MiniShopApp.Services.Interfaces
+namespace MiniShopApp.Infrastructures.Services.Interfaces
 {
     public interface IProductService
     {

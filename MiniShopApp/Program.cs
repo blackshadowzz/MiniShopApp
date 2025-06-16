@@ -1,18 +1,13 @@
-using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
+
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using MiniShopApp;
 using MiniShopApp.Components;
 using MiniShopApp.Data;
 using MiniShopApp.Infrastructures;
-using MiniShopApp.Services.Implements;
-using MiniShopApp.Services.Interfaces;
 using Radzen;
 using Telegram.Bot;
-using Telegram.Bot.Polling;
-using Telegram.Bot.Types;
-using Telegram.Bot.Types.Enums;
-using Telegram.Bot.Types.ReplyMarkups;
+
 
 var builder = WebApplication.CreateBuilder(args);
 var token = builder.Configuration["BotTokenTest"];
@@ -31,15 +26,17 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 builder.Services.AddRadzenComponents();
 
+//Add Service connection string by Constructor
+var connectionString = builder.Configuration.GetConnectionString("MyConnection");
+builder.Services.AddDbContextFactory<AppDbContext>(options =>
+{
+    
+    options.UseSqlServer(connectionString);
+    options.ConfigureWarnings(w => w.Ignore(RelationalEventId.MigrationsUserTransactionWarning));
+});
+
 /// Add any services in AddInfraServices class 
 builder.Services.AddInfraServices(builder.Configuration);
-
-//Add Service connection string by Constructor
-//var connectionString = builder.Configuration.GetConnectionString("MyConnection");
-//builder.Services.AddDbContext<AppDbContext>(option =>
-//{
-//    option.UseSqlServer(connectionString);
-//});
 
 var app = builder.Build();
 

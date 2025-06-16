@@ -1,14 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MiniShopApp.Data;
+using MiniShopApp.Infrastructures.Services.Interfaces;
 using MiniShopApp.Models.Items;
-using MiniShopApp.Services.Interfaces;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 
-namespace MiniShopApp.Services.Implements
+namespace MiniShopApp.Infrastructures.Services.Implements
 {
     public class ProductService : IProductService
     {

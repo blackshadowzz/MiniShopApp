@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 using MiniShopApp.Data;
+using MiniShopApp.Infrastructures.Services.Interfaces;
 using MiniShopApp.Models.Items;
-using MiniShopApp.Services.Interfaces;
 
 namespace MiniShopApp.Pages.Products
 {

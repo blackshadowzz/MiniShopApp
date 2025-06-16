@@ -1,4 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.Extensions.Options;
 using MiniShopApp.Models;
 using MiniShopApp.Models.Items;
 using MiniShopApp.Models.Orders;
@@ -10,16 +12,14 @@ namespace MiniShopApp.Data
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
+
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<TbOrderDetails>()
-                .HasOne<TbOrder>(s => s.TbOrder)
-                .WithMany(g => g.TbOrderDetails)
-                .HasForeignKey(s => s.OrderId);
-            // Add any custom model configurations here
-            //modelBuilder.Entity<Product>()
-            //    .HasKey(p => p.Id; // Define primary key for Product entity
+            
+         
+          
+    
 
             modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
 
@@ -27,7 +27,6 @@ namespace MiniShopApp.Data
 
 
         // Define DbSets for your entities here, e.g.:
-        // public DbSet<Product> Products { get; set; }
 
         public DbSet<Product> TbProducts { get; set; } = null!;
         public DbSet<TbTable> TbTables { get; set; } = null!;

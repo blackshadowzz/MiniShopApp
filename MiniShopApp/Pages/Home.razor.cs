@@ -1,5 +1,5 @@
 using MiniShopApp.Models.Items;
-using MiniShopApp.Services.Interfaces;
+using MiniShopApp.Infrastructures.Services.Interfaces;
 
 namespace MiniShopApp.Pages
 {

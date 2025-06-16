@@ -2,7 +2,7 @@
 using MiniShopApp.Models;
 using MiniShopApp.Models.Orders;
 
-namespace MiniShopApp.Services.Interfaces
+namespace MiniShopApp.Infrastructures.Services.Interfaces
 {
     public interface IOrderService
     {

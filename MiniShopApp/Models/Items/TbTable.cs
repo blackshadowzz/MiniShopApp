@@ -6,12 +6,9 @@ namespace MiniShopApp.Models.Items
 {
     public class TbTable
     {
-        [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int TableId { get; set; }
-        [Column(TypeName = "nvarchar(30)")]
-        public string? TableNumber { get; set; }
-        [Column(TypeName = "nvarchar(100)")]
 
+        public int TableId { get; set; }
+        public string? TableNumber { get; set; }
         public string? Description { get; set; }
       
     }
