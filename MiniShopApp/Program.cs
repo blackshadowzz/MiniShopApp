@@ -7,6 +7,7 @@ using MiniShopApp.Data;
 using MiniShopApp.Infrastructures;
 using MiniShopApp.Services.Implements;
 using MiniShopApp.Services.Interfaces;
+using Radzen;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
@@ -17,11 +18,6 @@ var builder = WebApplication.CreateBuilder(args);
 var token = builder.Configuration["BotTokenTest"];
 var webappUrl = builder.Configuration["BotWebAppUrl"];
 
-
-
-// Add services to the container.
-
-builder.Services.AddHttpClient("tgwebhook").RemoveAllLoggers().AddTypedClient(httpClient => new TelegramBotClient(token!, httpClient));
 //insert token to botService
 builder.Services.AddSingleton<ITelegramBotClient>(new TelegramBotClient(token!));
 //Register background server when App Start
@@ -29,29 +25,27 @@ builder.Services.AddHostedService<botService>();
 
 builder.Services.AddSingleton<UserState>();
 
-//builder.Services.AddHostedService<ProductService>();
 
 
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+builder.Services.AddRadzenComponents();
 
 /// Add any services in AddInfraServices class 
 builder.Services.AddInfraServices(builder.Configuration);
 
-///Add Service connection string by Constructor
-var connectionString = builder.Configuration.GetConnectionString("MyConection");
-builder.Services.AddDbContext<AppDbContext>(option =>
-{
-    option.UseSqlServer(connectionString);
-});
+//Add Service connection string by Constructor
+//var connectionString = builder.Configuration.GetConnectionString("MyConnection");
+//builder.Services.AddDbContext<AppDbContext>(option =>
+//{
+//    option.UseSqlServer(connectionString);
+//});
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 

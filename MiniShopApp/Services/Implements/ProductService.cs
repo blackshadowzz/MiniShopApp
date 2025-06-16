@@ -13,13 +13,11 @@ namespace MiniShopApp.Services.Implements
     public class ProductService : IProductService
     {
         private readonly IDbContextFactory<AppDbContext> _context;
-        private readonly ITelegramBotClient _botClient;
         private readonly ILogger<ProductService> logger;
 
-        public ProductService(IDbContextFactory<AppDbContext> context,ITelegramBotClient botClient, ILogger<ProductService> logger)
+        public ProductService(IDbContextFactory<AppDbContext> context, ILogger<ProductService> logger)
         {
             _context = context;
-            _botClient = botClient;
             this.logger = logger;
         }
 
