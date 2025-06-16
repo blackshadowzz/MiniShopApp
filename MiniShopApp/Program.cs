@@ -26,10 +26,10 @@ builder.Services.AddHostedService<botService>();
 builder.Services.AddSingleton<UserState>();
 
 
-
+builder.Services.AddRadzenComponents();
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
-builder.Services.AddRadzenComponents();
+
 
 /// Add any services in AddInfraServices class 
 builder.Services.AddInfraServices(builder.Configuration);
