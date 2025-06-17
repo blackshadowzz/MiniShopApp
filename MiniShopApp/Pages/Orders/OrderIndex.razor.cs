@@ -9,6 +9,7 @@ namespace MiniShopApp.Pages.Orders
 {
     public partial class OrderIndex
     {
+        [Inject] NavigationManager navigation { get; set; } = default!;
         private readonly IProductService productService;
         [Inject]
         protected ProtectedLocalStorage localStorage { get; set; } = default!;
@@ -20,6 +21,7 @@ namespace MiniShopApp.Pages.Orders
         }
         protected List<ViewProductOrders> _products = [];
         protected List<TbOrderDetails> orderDetails = [];
+        protected OrderCreateModel order = new OrderCreateModel();
         private string? _filter = null;
         string? customerId = null;
 
@@ -42,7 +44,7 @@ namespace MiniShopApp.Pages.Orders
                 _filter = filter;
                 var products = await productService.GetOrderAllAsync(_filter);
                 if(products.IsSuccess) {
-                    _products = products.Data!.ToList();
+                    _products = products.Data!.OrderByDescending(x=>x.CategoryName).ToList();
                 }
                 else
                 {
@@ -208,22 +210,31 @@ namespace MiniShopApp.Pages.Orders
         {
 
         }
-        protected async Task CreateOrderAsync(Product product)
+        protected async Task PlaceOrderAsync()
         {
             try
             {
-                if (product != null)
+                await GetCustomerData();
+                if (!string.IsNullOrEmpty(customerId))
                 {
-                    await GetCustomerData();
-                    if (customerId!=null)
-                    {
-                        //var result = await productService.CreateAsync(long.Parse(customerId), product);
-                        //Console.WriteLine($"Order created: {result}");
-                    }
-                    else
-                    {
-                        Console.WriteLine("User ID is not available.");
-                    }
+                    Console.WriteLine($"\n\n Customer ID: {customerId} \n\n");
+                    order.CustomerId = long.Parse(customerId);
+                    order.ItemCount = orderDetails.Count;
+                    order.SubPrice = orderDetails.Sum(od => od.TotalPrice);
+                    order.DiscountPrice = 0; // Set discount price to 0 for now, can be adjusted later
+                    order.TotalPrice = order.SubPrice - order.DiscountPrice;
+                    //order.TableNumber = "Table 1"; // Set a default table number, can be adjusted later
+                    //order.Notes = "bla bla"; // Set a default table number, can be adjusted later
+                    order.CreatedDT = DateTime.Now;
+                    order.TbOrderDetails = orderDetails;
+                    // Save order to local storage
+                    await localStorage.SetAsync("orderToCreate", order);
+                    //OrderCreatePage orderCreatePage = new OrderCreatePage(order);
+                    navigation.NavigateTo("/orders/create");
+                }
+                else
+                {
+                    NotificationService.Notify(Radzen.NotificationSeverity.Warning, "Empty User", "User ID is not available.");
                 }
             }
             catch (Exception ex)
