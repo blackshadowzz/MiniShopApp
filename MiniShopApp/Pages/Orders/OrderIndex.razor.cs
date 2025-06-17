@@ -18,7 +18,7 @@ namespace MiniShopApp.Pages.Orders
             this.productService = productService;
            
         }
-        protected List<Product> _products = [];
+        protected List<ViewProductOrders> _products = [];
         protected List<TbOrderDetails> orderDetails = [];
         private string? _filter = null;
         string? customerId = null;
@@ -40,8 +40,16 @@ namespace MiniShopApp.Pages.Orders
             {
                 
                 _filter = filter;
-                var products = await productService.GetAllAsync(_filter);
-                _products = products.ToList();
+                var products = await productService.GetOrderAllAsync(_filter);
+                if(products.IsSuccess) {
+                    _products = products.Data!.ToList();
+                }
+                else
+                {
+                    //NotificationService.Error("Error fetching products", products.ErrorMessage);
+                    Console.WriteLine($"Error fetching products: {products.Errors}");
+                }
+                
             }
             catch (Exception ex)
             {
@@ -81,13 +89,88 @@ namespace MiniShopApp.Pages.Orders
                 throw new Exception($"Get local data: {ex.Message}");
             }
         }
-        protected void AddProduct(int productId)
+        protected void DescreasProduct(int productId)
         {
             try
             {
                 var product = _products.FirstOrDefault(p => p.Id == productId);
                 if (product != null)
                 {
+                    if (_products.Any(_products => _products.Id == product.Id))
+                    {
+                        var existingProduct = _products.FirstOrDefault(p => p.Id == product.Id);
+                        if(existingProduct.QTYIncrease<= 0)
+                        {
+                            existingProduct.QTYIncrease = 0; // Decrease the quantity of the product in the list
+
+                        }
+                        else
+                        {
+                            existingProduct.QTYIncrease -= 1; // Decrease the quantity of the product in the list
+
+                        }
+                        StateHasChanged();
+
+                    }
+
+                    if (orderDetails.Any(od => od.ItemId == product.Id))
+                    {
+                        // If the product already exists in the order, descrease the quantity
+                        var existingOrderDetail = orderDetails.First(od => od.ItemId == product.Id);
+                        if (existingOrderDetail.Quantity == 1)
+                        {
+                            orderDetails.Remove(existingOrderDetail);
+                        }
+                        else
+                        {
+                            existingOrderDetail.Quantity -= 1;
+                            existingOrderDetail.TotalPrice = existingOrderDetail.Price * existingOrderDetail.Quantity;
+                        }
+
+                        
+                        StateHasChanged();
+                    }
+                    //else
+                    //{
+                    //    // If the product does not exist in the order, add it
+                    //    orderDetails.Add(new TbOrderDetails
+                    //    {
+                    //        ItemId = product.Id,
+                    //        ItemName = product.ProductName,
+                    //        Price = product.Price,
+                    //        Quantity = 1, // Default quantity to 1, can be adjusted later
+                    //        TotalPrice = product.Price // Initial total price based on quantity of 1
+                    //    });
+                    //}
+
+                }
+                else
+                {
+                    Console.WriteLine("Product not found.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error adding product: {ex.Message}");
+            }
+        }
+        protected void AddProduct(int productId)
+        {
+            try
+            {
+                var product = _products.FirstOrDefault(p => p.Id == productId);
+                if (_products.Any(_products => _products.Id == product.Id))
+                {
+                    var existingProduct = _products.FirstOrDefault(p => p.Id == product.Id);
+               
+                    existingProduct.QTYIncrease += 1; // Increase the quantity of the product in the list
+                    StateHasChanged();
+
+                }
+                if (product != null)
+                {
+                    
+
                     if (orderDetails.Any(od => od.ItemId == product.Id))
                     {
                         // If the product already exists in the order, increase the quantity
@@ -120,6 +203,10 @@ namespace MiniShopApp.Pages.Orders
             {
                 Console.WriteLine($"Error adding product: {ex.Message}");
             }
+        }
+        protected void GetViewOrder()
+        {
+
         }
         protected async Task CreateOrderAsync(Product product)
         {

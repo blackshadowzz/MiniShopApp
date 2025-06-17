@@ -30,9 +30,9 @@ builder.Services.AddRazorComponents()
 var connectionString = builder.Configuration.GetConnectionString("MyConnection");
 builder.Services.AddDbContextFactory<AppDbContext>(options =>
 {
-    
-    options.UseSqlServer(connectionString);
     options.ConfigureWarnings(w => w.Ignore(RelationalEventId.MigrationsUserTransactionWarning));
+
+    options.UseSqlServer(connectionString);
 });
 
 /// Add any services in AddInfraServices class 

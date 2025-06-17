@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Helpers.Responses;
+using Microsoft.EntityFrameworkCore;
 using MiniShopApp.Data;
 using MiniShopApp.Infrastructures.Services.Interfaces;
 using MiniShopApp.Models.Items;
@@ -21,7 +22,7 @@ namespace MiniShopApp.Infrastructures.Services.Implements
             this.logger = logger;
         }
 
-        public async Task<string> CreateAsync(long userId, Product model)
+        public async Task<string> CreateAsync( Product model)
         {
             try
             {
@@ -67,6 +68,43 @@ namespace MiniShopApp.Infrastructures.Services.Implements
             }
         }
 
-        
+        public async Task<Result<IEnumerable<ViewProductOrders>>> GetOrderAllAsync(string? filter = null)
+        {
+            try
+            {
+                
+
+                logger.LogInformation("Fetching product orders with filter: {Filter}", filter);
+                await using var dbContext = _context.CreateDbContext();
+                IQueryable<ViewProductOrders> results = (from pro in dbContext.TbProducts
+                               join cat in dbContext.TbCategories
+                               on pro.CategoryId equals cat.CategoryId into catg
+                               from cat in catg.DefaultIfEmpty()
+                               where pro.IsActive == true
+                               select new ViewProductOrders
+                               {
+                                   Id = pro.Id,
+                                   ProductCode = pro.ProductCode,
+                                   ProductName = pro.ProductName,
+                                   Price = pro.Price,
+                                   SubPrice = pro.SubPrice,
+                                   Description = pro.Description,
+                                   ImageUrl = pro.ImageUrl,
+                                   IsActive = pro.IsActive,
+                                   CategoryId = pro.CategoryId,
+                                   CategoryName = cat.CategoryName
+                               });
+                var filteredResults = string.IsNullOrEmpty(filter) 
+                    ? results 
+                    : results.Where(p => p.ProductName.Contains(filter) || p.ProductCode.Contains(filter));
+                var productOrders = await filteredResults.AsNoTracking().ToListAsync();
+                return Result.Success<IEnumerable<ViewProductOrders>>(productOrders);
+            }
+            catch(Exception ex)
+            {
+                logger.LogError(ex, "Error fetching product orders");
+                return Result.Failure<IEnumerable<ViewProductOrders>>(ErrorResponse.ServerError(ex.Message));
+            }
+        }
     }
 }

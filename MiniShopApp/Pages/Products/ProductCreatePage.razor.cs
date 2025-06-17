@@ -24,12 +24,13 @@ namespace MiniShopApp.Pages.Products
         protected Product model = new Product();
         protected override async Task OnInitializedAsync()
         {
-            if(userState.UserId == null)
-            {
-                message = "System cannot getting your informations. Please use /start command to refresh bot.";
-                return;
-            }
-            userId =userState.UserId?.ToString();
+            //if(userState.UserId == null)
+            //{
+            //    message = "System cannot getting your informations. Please use /start command to refresh bot.";
+            //    return;
+            //}
+            //userId =userState.UserId?.ToString();
+
             //userId =userState.OnUserIdChanged.ToString();
             //await CreateProduct();
             await base.OnInitializedAsync();
@@ -40,12 +41,8 @@ namespace MiniShopApp.Pages.Products
             try
             {
                 alert = null;
-                if (string.IsNullOrEmpty(userId))
-                {
-                    await OnInitializedAsync();
-                }
-                
-                var result = await productService.CreateAsync(long.Parse(userId!), model);
+         
+                var result = await productService.CreateAsync(model);
                 if (string.IsNullOrEmpty(result))
                 {
                     throw new Exception("Product creation failed.");
