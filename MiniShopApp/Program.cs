@@ -10,7 +10,7 @@ using Telegram.Bot;
 
 
 var builder = WebApplication.CreateBuilder(args);
-var token = builder.Configuration["BotTokenTest"];
+var token = builder.Configuration["BotToken"];
 var webappUrl = builder.Configuration["BotWebAppUrl"];
 
 //insert token to botService
@@ -27,7 +27,7 @@ builder.Services.AddRazorComponents()
 
 
 //Add Service connection string by Constructor
-var connectionString = builder.Configuration.GetConnectionString("MyConnection");
+var connectionString = builder.Configuration.GetConnectionString("MyServerConnection");
 builder.Services.AddDbContextFactory<AppDbContext>(options =>
 {
     options.ConfigureWarnings(w => w.Ignore(RelationalEventId.MigrationsUserTransactionWarning));
