@@ -5,6 +5,8 @@ using MiniShopApp.Infrastructures.Services.Interfaces;
 using MiniShopApp.Models;
 using MiniShopApp.Models.Orders;
 using Telegram.Bot;
+using Telegram.Bot.Types.Enums;
+using Telegram.Bot.Types.ReplyMarkups;
 
 namespace MiniShopApp.Infrastructures.Services.Implements
 {
@@ -27,30 +29,53 @@ namespace MiniShopApp.Infrastructures.Services.Implements
         }
         public async Task<Result<string>> CreateAsync(long customerId, TbOrder model)
         {
+            await using var context = await contextFactory.CreateDbContextAsync();
             try
             {
+                context.Database.BeginTransaction(); // Start transaction
+
                 logger.LogInformation("Creating order for customer {CustomerId}", customerId);
-                await using var context = await contextFactory.CreateDbContextAsync();
                 if(customerId <= 0)
                 {
                     return await Result.FailureAsync<string>(new ErrorResponse("Invalid customer ID."));
                 }
                 context.TbOrders.Add(model);
-                //context.TbOrderDetails.AddRange(model.TbOrderDetails);
-                var affectedRows = await context.SaveChangesAsync();
+
+                await context.SaveChangesAsync();
+
+                string detailsText = "";
+                    detailsText = string.Join("\n", model.TbOrderDetails!.Select(d =>
+                        $"- {d.ItemName} {d.Quantity} x {d.Price?.ToString("c2")} =\t{d.TotalPrice?.ToString("c2")}"
+                    ));
+              
                 await _botClient.SendMessage(
                         chatId: customerId, // Replace with your chat ID
 
-                        text:
-                        $"Product Count: {model.ItemCount}" 
-                       
+                        text: $"\nOrder details:\n{detailsText}" +
+                        $"\n\nOrder summary:" +
+                        $"\nTable:\t {model.TableNumber}" +
+                        $"\nItem count:\t {model.ItemCount}" +
+                        $"\nTotal price:\t {model.TotalPrice?.ToString("c2")}" +
+                        $"\nNotes:\t {model.Notes}" +
+                        $"\n" +
+                        
+                        $"\nThank you for ordering! \nplease enjoy your foods." ,
+                        parseMode: ParseMode.Html,
+                         replyMarkup: new InlineKeyboardButton[]
+                            {
+                            InlineKeyboardButton.WithWebApp("Open App","https://minishopapp.runasp.net/index"),
+
+                            }
+                    // You can specify entities if needed
+
                     );
-                return affectedRows > 0 
-                    ? await Result.SuccessAsync("Ordering was created successful!") 
-                    : await Result.FailureAsync<string>(new ErrorResponse("Failed to create order."));
+                context.Database.CommitTransaction(); // Ensure transaction is committed
+
+                return await Result.SuccessAsync<string>("Order created successfully.");
             }
             catch(Exception ex)
             {
+                context.Database.RollbackTransaction(); // Rollback transaction on error
                 logger.LogError(ex, "Error creating order for customer {CustomerId}", customerId);
                 return await Result.FailureAsync<string>(new ErrorResponse(ex.Message));
             }

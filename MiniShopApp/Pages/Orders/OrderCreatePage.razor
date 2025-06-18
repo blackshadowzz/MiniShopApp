@@ -1,5 +1,90 @@
 ﻿@page "/orders/create"
 @layout MainLayout2
+@rendermode InteractiveServer
+@using MiniShopApp.Models.Orders
+<PageTitle>Create Order</PageTitle>
+
+<div>
+    
+    <table class="table table-hover table-responsive caption-top">
+        <caption>Order details</caption>
+        <thead>
+            <tr>
+                <th scope="col">Product Name</th>
+                <th scope="col">Quantity</th>
+                <th scope="col">Price</th>
+                <th scope="col">Total Price</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in orderDetails)
+            {
+                <tr>
+                    <td>@item.ItemName</td>
+                    <td class="text-end">@item.Quantity</td>
+                    <td class="text-end"> @String.Format("${0:N2}", @item.Price)</td>
+                    <td class="text-end"> @String.Format("${0:N2}", @item.TotalPrice)</td>
+                </tr>
+            }
+
+        </tbody>
+        <tfoot >
+            <tr class="table-active ">
+                <th>Total</th>
+                <th class="text-end">@orderDetails.Sum(x => x.Quantity)</th>
+                <th class="text-end"></th>
+                <th class="text-end text-danger">@String.Format("${0:N2}", @orderDetails.Sum(x => x.TotalPrice))</th>
+            </tr>
+            <tr >
+                <th></th>
+                <th class="text-end"></th>
+                <th class="text-end"></th>
+                <th class="text-end text-danger table-active">@String.Format("R {0:N2}", @orderDetails.Sum(x => x.TotalPrice) * 4050)</th>
+            </tr>
+        </tfoot>
+
+    </table>
+    <hr  class="my-2"/>
+    <RadzenTemplateForm Data="@Order"
+                        TItem="OrderCreateModel"
+                        Submit="@HandleValidSubmit">
+            <RadzenStack >
+
+                
+                <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Table Number <span class="text-danger">*</span></RadzenText>
+                <RadzenTextBox @bind-Value="@Order.TableNumber" Name="TableNumber" Placeholder="Please enter table number" Style="width: 100%;" />
+                <RadzenRequiredValidator Component="TableNumber" Text="Table number is required" Style="position: relative" />
+
+
+            </RadzenStack>
+            <RadzenStack class="mt-3">
+
+            <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Notes</RadzenText>
+                <RadzenTextArea @bind-Value="@Order.Notes" Name="Notes" Placeholder="Notes..." Style="width: 100%;" />
+
+
+            </RadzenStack>
+        
+        <div class="d-flex justify-content-between mt-3">
+            <button class="btn btn-secondary mt-3" @onclick="GetBack"> Back</button>
+            <RadzenButton ButtonStyle="ButtonStyle.Primary"
+                          Text="Confirm order"
+                          Icon="add_circle"
+                          Size="ButtonSize.ExtraSmall"
+                          ButtonType="ButtonType.Submit"
+                           />
+        </div>
+        
+    </RadzenTemplateForm>
+</div>
+
+@code{
+    void GetBack()
+    {
+        NavigationManager.NavigateTo("/orders");
+    }
+}
+
 
 
 
