@@ -5,9 +5,32 @@
 <h3>TableIndex</h3>
 
 
-<div class="rz-p-12 rz-text-align-end">
-    <RadzenButton Text="Show notification at custom position"
-                  Click=@(args => ShowNotification(new NotificationMessage { Style = "position: absolute; inset-inline-start: -1000px;", Severity = NotificationSeverity.Success, Summary = "Success Summary", Detail = "Success Detail", Duration = 4000 })) />
+@* <div class="rz-p-12 rz-text-align-end"> *@
+@*     <RadzenButton Text="Show notification at custom position" *@
+@*                   Click=@(args => ShowNotification(new NotificationMessage { Style = "position: absolute; inset-inline-start: -1000px;", Severity = NotificationSeverity.Success, Summary = "Success Summary", Detail = "Success Detail", Duration = 4000 })) /> *@
+@* </div> *@
+
+
+<div>
+    <div class="d-flex justify-content-end mb-2">
+        <NavLink class="btn btn-primary" href="#">Create Table</NavLink>
+    </div>
+    <table class="table caption-top table-bordered table-hover table-responsive">
+        <thead>
+            <tr>
+                <th>No</th>
+                <th>Table number</th>
+                <th>Descriptions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <th></th>
+                <th></th>
+                <th></th>
+            </tr>
+        </tbody>
+    </table>
 </div>
 
 
