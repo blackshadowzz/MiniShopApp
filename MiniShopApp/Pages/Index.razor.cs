@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 using MiniShopApp.Models.Items;
 
@@ -5,6 +6,7 @@ namespace MiniShopApp.Pages
 {
     public partial class Index
     {
+        [Inject] public ProtectedSessionStorage SessionStorage { get; set; } = default!;
         private readonly ProtectedLocalStorage localStorage;
         public Index(ProtectedLocalStorage localStorage)
         {
