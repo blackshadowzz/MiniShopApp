@@ -19,8 +19,7 @@ builder.Services.AddSingleton<ITelegramBotClient>(new TelegramBotClient(token!))
 builder.Services.AddHostedService<botService>();
 
 builder.Services.AddSingleton<UserState>();
-
-
+builder.Services.AddScoped<NotificationService>();
 builder.Services.AddRadzenComponents();
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
