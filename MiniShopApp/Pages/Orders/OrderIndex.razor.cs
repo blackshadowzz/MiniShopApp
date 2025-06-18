@@ -10,6 +10,7 @@ namespace MiniShopApp.Pages.Orders
     public partial class OrderIndex
     {
         [Inject] NavigationManager navigation { get; set; } = default!;
+        [Inject] ProtectedSessionStorage sessionStorage { get; set; } = default!;
         private readonly IProductService productService;
         [Inject]
         protected ProtectedLocalStorage localStorage { get; set; } = default!;
@@ -76,7 +77,7 @@ namespace MiniShopApp.Pages.Orders
         {
             try
             {
-                var result = await localStorage.GetAsync<string?>("customerId");
+                var result = await sessionStorage.GetAsync<string?>("customerId");
                 if (result.Success && result.Value != null)
                 {
                     customerId = result.Value; // Convert to readable data (already a string in this case)
