@@ -13,7 +13,7 @@ namespace MiniShopApp.Infrastructures
             //Service Injection for DbContextFactory
             services.AddDbContextFactory<AppDbContext>(options =>
             {
-                options.UseSqlServer(configuration.GetConnectionString("MyServerConnection"));
+                options.UseSqlServer(configuration.GetConnectionString("MyConnection"));
             });
 
             // Add any services below
