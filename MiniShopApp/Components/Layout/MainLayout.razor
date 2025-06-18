@@ -1,5 +1,6 @@
 ﻿@inherits LayoutComponentBase
 @attribute [StreamRendering(false)]
+<RadzenNotification @rendermode="RenderMode.InteractiveServer" />
 
 <RadzenLayout>
     <RadzenHeader>
@@ -18,9 +19,9 @@
             </RadzenPanelMenuItem>
             <RadzenPanelMenuItem Text="Products" Icon="list_alt">
                 <RadzenPanelMenuItem Text="Product" Path="/products" Icon="list_alt" />
-                <RadzenPanelMenuItem Text="Category" Icon="category" Path="#"/>
+                <RadzenPanelMenuItem Text="Category" Icon="category" Path="/categories" />
             </RadzenPanelMenuItem>
-            <RadzenPanelMenuItem Text="Table" Icon="table" Path="#" />
+            <RadzenPanelMenuItem Text="Table" Icon="table" Path="/table" />
             <RadzenPanelMenuItem Text="Customer" Icon="groups_2" Path="#" />
             <RadzenPanelMenuItem Text="User Management" Icon="group">
                 <RadzenPanelMenuItem Text="User" Path="#" Icon="manage_accounts" />
