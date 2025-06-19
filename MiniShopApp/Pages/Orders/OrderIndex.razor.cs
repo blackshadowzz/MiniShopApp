@@ -25,6 +25,7 @@ namespace MiniShopApp.Pages.Orders
         protected OrderCreateModel order = new OrderCreateModel();
         private string? _filter = null;
         string? customerId = null;
+        protected bool IsLoading = false;
 
         protected override async Task OnInitializedAsync()
         {
@@ -66,7 +67,8 @@ namespace MiniShopApp.Pages.Orders
                 _filter = e.Value?.ToString();
                 _products= _products.Where(p =>
                 p.ProductName?.Contains(_filter!, StringComparison.InvariantCultureIgnoreCase)==true).ToList();
-                await Task.CompletedTask; // Simulate async operation
+                        StateHasChanged();
+                // Simulate async operation
             }
             catch (Exception ex)
             {
@@ -77,19 +79,25 @@ namespace MiniShopApp.Pages.Orders
         {
             try
             {
-                var result = await sessionStorage.GetAsync<string?>("customerId");
+                var result = await localStorage.GetAsync<string?>("customerId");
                 if (result.Success && result.Value != null)
                 {
                     customerId = result.Value; // Convert to readable data (already a string in this case)
                 }
                 else
                 {
-                    customerId = "No data found or key does not exist.";
+                    customerId = string.Empty;
+                    Console.WriteLine("Customer ID not found in session storage.");
+                    NotificationService.Notify(Radzen.NotificationSeverity.Error, "Empty User", "User invalid! please refresh page or bot /start again.");
+                    return;
                 }
             }
             catch (Exception ex)
             {
+                NotificationService.Notify(Radzen.NotificationSeverity.Error, "Empty User", ex.Message);
+
                 throw new Exception($"Get local data: {ex.Message}");
+
             }
         }
         protected void DescreasProduct(int productId)
@@ -213,34 +221,47 @@ namespace MiniShopApp.Pages.Orders
         }
         protected async Task PlaceOrderAsync()
         {
+            IsLoading = true;
+
             try
             {
                 await GetCustomerData();
+                if( orderDetails.Count <= 0)
+                {
+                    IsLoading = false;
+
+                    NotificationService.Notify(Radzen.NotificationSeverity.Warning, "Empty Order", "Please add products to the order before placing it.");
+                    return;
+                }
                 if (!string.IsNullOrEmpty(customerId))
                 {
                     Console.WriteLine($"\n\n Customer ID: {customerId} \n\n");
                     order.CustomerId = long.Parse(customerId);
                     order.ItemCount = orderDetails.Count;
                     order.SubPrice = orderDetails.Sum(od => od.TotalPrice);
-                    order.DiscountPrice = 0; // Set discount price to 0 for now, can be adjusted later
+                    order.DiscountPrice = 0;
                     order.TotalPrice = order.SubPrice - order.DiscountPrice;
-                    //order.TableNumber = "Table 1"; // Set a default table number, can be adjusted later
-                    //order.Notes = "bla bla"; // Set a default table number, can be adjusted later
+                    
                     order.CreatedDT = DateTime.Now;
                     order.TbOrderDetails = orderDetails;
                     // Save order to local storage
                     await localStorage.SetAsync("orderToCreate", order);
                     //OrderCreatePage orderCreatePage = new OrderCreatePage(order);
+                    IsLoading= false;
                     navigation.NavigateTo("/orders/create");
                 }
                 else
                 {
                     NotificationService.Notify(Radzen.NotificationSeverity.Warning, "Empty User", "User ID is not available.");
+                    IsLoading = false;
+                    return;
                 }
             }
             catch (Exception ex)
             {
+                IsLoading = false;// Handle the error, e.g., log it or show a notification
                 Console.WriteLine($"Error creating order: {ex.Message}");
+                NotificationService.Notify(Radzen.NotificationSeverity.Error, "System Errors", ex.Message);
             }
         }
     }

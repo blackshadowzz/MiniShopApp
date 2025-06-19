@@ -50,13 +50,19 @@
             </div>  
         }  
     </div>  
+    @if(IsLoading==true)  
+    {  
+        <div class="text-center">  
+            <div class="spinner-border" role="status">  
+                <span class="visually-hidden">Loading...</span>  
+            </div>  
+        </div>  
+    }
 
-
-        
     <div class="fixed-bottom">  
 
         <div class="d-flex justify-content-between gap-2">  
-            <button class="btn btn-secondary w-25" data-bs-toggle="modal" data-bs-target="#exampleModal" @onclick="GetViewOrder">View Order @orderDetails.Count()</button>
+            <button class="btn btn-secondary w-25" data-bs-toggle="modal" data-bs-target="#exampleModal" @onclick="GetViewOrder">Ordering @orderDetails.Count()</button>
             <button class="btn btn-primary w-75" @onclick="PlaceOrderAsync">Place Order</button>
         </div>  
     </div>  
@@ -70,11 +76,11 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-               <table class="table table-hover">
+               <table class="table table-hover table-sm">
                     <thead>
                         <tr>
-                            <th scope="col">Product Name</th>
-                            <th scope="col">Quantity</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">QTY</th>
                             <th scope="col">Price</th>
                             <th scope="col">Total Price</th>
                         </tr>
@@ -84,9 +90,9 @@
                         {
                             <tr>
                                 <td>@item.ItemName</td>
-                                <td>@item.Quantity</td>
-                                <td>@item.Price</td>
-                                <td>@item.TotalPrice</td>
+                                <td class="text-end">@item.Quantity</td>
+                                <td class="text-end">@item.Price?.ToString("c2")</td>
+                                <td class="text-end">@item.TotalPrice?.ToString("c2")</td>
                             </tr>
                         }
                         
@@ -94,9 +100,15 @@
                     <tbody>
                         <tr class="table-active">
                             <th></th>
-                            <th>@orderDetails.Sum(x => x.Quantity)</th>
-                            <th>@orderDetails.Sum(x => x.Price)</th>
-                            <th>@orderDetails.Sum(x => x.TotalPrice)</th>
+                            <th class="text-end">@orderDetails.Sum(x => x.Quantity)</th>
+                            <th></th>
+                            <th class="text-end text-danger">@orderDetails.Sum(x => x.TotalPrice)?.ToString("c2")</th>
+                        </tr>
+                        <tr class="table-active">
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th class="text-end text-danger">@String.Format("R {0:N2}", @orderDetails.Sum(x => x.TotalPrice) * 4050)</th>
                         </tr>
                     </tbody>
                </table>

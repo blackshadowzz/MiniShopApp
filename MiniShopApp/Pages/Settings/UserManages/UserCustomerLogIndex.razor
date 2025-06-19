@@ -1,0 +1,60 @@
+﻿@page "/settings/user/customer-log"
+@layout MainLayout
+<PageTitle>Customer Logs</PageTitle>
+@if (IsLoading == true)
+{
+    <div class="text-center">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+}
+    <div class="row">
+        <div class="col-md-12">
+            <h2>Customers</h2>
+            <div class="input-group mb-3">
+                <input type="text" class="form-control" placeholder="Search logs..." />
+                <button class="btn btn-outline-secondary" >Search</button>
+            </div>
+            <table class="table table-hover table-striped-columns caption-top">
+                <caption>Customer Logs</caption>
+                <thead>
+                    <tr>
+                        <th>Customer ID</th>
+                        <th>Fullname</th>
+                        <th>Username</th>
+                        <th>Phone</th>
+                        <th>Login-Date</th>
+                        <th>Last-Login</th>
+                        <th>Details</th>
+                    </tr>
+                </thead>
+            
+                <tbody>
+                    @foreach (var log in userCustomers??default!)
+                    {
+                        <tr>
+                            <td>@log.CustomerId</td>
+                            <td>@log.FirstName @log.LastName</td>
+                        <td>@log.UserName</td>
+                        <td>@log.phoneNumber</td>
+                        <td>@log.loginDateTime</td>
+                        <td>@log.LastLoginDT</td>
+                        <td>
+                            <RadzenButton 
+                                ButtonStyle="ButtonStyle.Secondary" 
+                                Size="ButtonSize.ExtraSmall"
+                                          Click="@(() => ViewDetails(log.CustomerId))"
+                                Icon="visibility" Text="View Details"></RadzenButton>
+                        </td>
+
+                    </tr>
+                    }
+                </tbody>
+            </table>
+            
+        </div>
+    </div>
+
+
+
