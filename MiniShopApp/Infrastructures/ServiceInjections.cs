@@ -17,7 +17,7 @@ namespace MiniShopApp.Infrastructures
             {
                 options.ConfigureWarnings(w => w.Ignore(RelationalEventId.MigrationsUserTransactionWarning));
 
-                options.UseSqlServer(configuration.GetConnectionString("MyConnection"));
+                options.UseSqlServer(configuration.GetConnectionString("MyServerConnection"));
             });
             // Additional services can be added here
             services.AddScoped<NotificationService>();

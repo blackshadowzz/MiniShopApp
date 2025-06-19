@@ -67,7 +67,7 @@ namespace MiniShopApp
         {
             try
             {//string webappUrl = "https://minishopapp.runasp.net/index";
-                string webappUrl = $"https://minishopapp.runasp.net/index?userid={update.Message.Chat.Id}";
+                string webappUrl = $"https://minishopapp.runasp.net/index?userid={update.Message!.Chat.Id}";
                 //if (update.Message is Message message)
                 //{
                 userState.UserId = update.Message!.Chat.Id;
@@ -137,6 +137,7 @@ namespace MiniShopApp
         //    await base.StopAsync(cancellationToken);
         //    _logger.LogInformation("Telegram Bot service stopped.");
         //}
+        private static readonly object _userLogLock = new object();
         private async Task UserCustomerCreateAsync(Update update)
         {
             if (update.Message?.Chat == null) return;
@@ -145,12 +146,13 @@ namespace MiniShopApp
             _logger.LogInformation("New customer created with ID: {UserId}", update.Message.Chat.Id);
             try
             {
+                
                 await using var context = await dbContext.CreateDbContextAsync();
                 var existingUser = await context.TbUserCustomers.AsNoTracking()
                     .FirstOrDefaultAsync(u => u.CustomerId == update.Message.Chat.Id);
                 if(existingUser != null)
                 {
-                    existingUser.LastLoginDT = DateTime.Now;
+                    existingUser.LastLoginDT = update.Message.Date.ToLocalTime();
                     context.Update(existingUser);
 
                 }
@@ -166,11 +168,30 @@ namespace MiniShopApp
                         LastName = update.Message.Chat.LastName,
                         UserName = update.Message.Chat.Username,
                         phoneNumber = update.Message.Contact?.PhoneNumber,
-                        loginDateTime = DateTime.Now,
-                        LastLoginDT = DateTime.Now
+                        loginDateTime = update.Message.Date.ToLocalTime(),
+                        LastLoginDT = update.Message.Date.ToLocalTime()
                     });
                 }
                 await context.SaveChangesAsync();
+                // Write new user info to a plain text file
+                var userInfo = $"" +
+                    $"UserId: {update.Message.Chat.Id}, " +
+                    $"FirstName: {update.Message.Chat.FirstName}, " +
+                    $"LastName: {update.Message.Chat.LastName}, " +
+                    $"Username: {update.Message.Chat.Username}, " +
+                    $"Phone: {update.Message.Contact?.PhoneNumber}, " +
+                    $"Registered: {update.Message.Date.ToLocalTime()}\n";
+                // Ensure the wwwroot directory exists
+                var wwwrootPath = Path.Combine(AppContext.BaseDirectory, "wwwroot");
+                if (!Directory.Exists(wwwrootPath))
+                {
+                    Directory.CreateDirectory(wwwrootPath);
+                }
+                var logFilePath = Path.Combine(wwwrootPath, "UserLog.txt");
+                lock (_userLogLock)
+                {
+                    File.AppendAllText(logFilePath, userInfo);
+                }
                 _logger.LogInformation("\n\nNew user registered successful: {UserId}\n\n", update.Message.Chat.Id);
 
 

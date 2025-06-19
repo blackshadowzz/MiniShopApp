@@ -31,8 +31,10 @@ namespace MiniShopApp.Pages
                     var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
                     if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("userid", out var userIdStr) && long.TryParse(userIdStr, out var userCustId))
                     {
-                        //userState.UserId = userCustId;
+                        userState.UserId = userCustId;
                         userId = userCustId;
+                        //NotificationService.Notify(Radzen.NotificationSeverity.Warning, "User Id By UserState: ", userState.UserId.ToString());
+                        //NotificationService.Notify(Radzen.NotificationSeverity.Warning, "User Id By URL: ", userCustId.ToString());
                     }
                     // Simulate fetching user ID from a service or storage
 
@@ -46,6 +48,13 @@ namespace MiniShopApp.Pages
                 Console.WriteLine($"Error: {ex.Message}");
             }
             await base.OnInitializedAsync();
+        }
+        async Task onCheckOrder()
+        {
+
+            //NotificationService.Notify(Radzen.NotificationSeverity.Warning, "User Id By UserState: ", userState.UserId.ToString());
+            //NotificationService.Notify(Radzen.NotificationSeverity.Warning, "User Id By URL: ", userId.ToString());
+            NavigationManager.NavigateTo($"/orders");
         }
     }
 }

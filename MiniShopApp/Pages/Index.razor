@@ -6,14 +6,14 @@
 
 
 <PageTitle>Home</PageTitle>
-<p>Id @userId</p>
+@* <p>Id @userId</p> *@
 <div class="">
-    @if (userId<=0 || userId==null)
+    @if (userId>0 && userId!=null)
     {
         <div class="text-center my-4">
             <img src="/images/minilogo.jpg" alt="MiniShopApp Logo" class="img-fluid" style="max-width: 200px;" />
             <h1 class="mb-4">Welcome to Mini Order! </h1>
-            <p>This is a simple Blazor application to demonstrate basic features.</p>
+            <p>This is a simple application to demonstrate basic features.</p>
             <p>Use the navigation menu to explore the app.</p>
             <p class="mt-3">Check out the <NavLink class="btn btn-outline-secondary" href="/orders">Check Order</NavLink> page to view order.</p>
         </div>
@@ -26,7 +26,7 @@
                 We couldn't find your information. Please refresh bot /start again to access the application features. Thank you for your patien!!!
             </div>
         </div>
-        <div class="d-flex justify-content-center mt-auto">
+        <div class="text-center">
             <div class="spinner-border" role="status">
                 <span class="visually-hidden">Loading...</span>
             </div>
