@@ -24,6 +24,7 @@ namespace MiniShopApp.Infrastructures
             services.AddScoped<DialogService>();
             services.AddScoped<TooltipService>();
             // Add any services below
+            services.TryAddTransient<ITableListService, TableListService>();
             services.TryAddTransient<IProductService, ProductService>();
             services.TryAddTransient<IOrderService, OrderService>();
             services.TryAddTransient<IUserCustomerService, UserCustomerService>();
