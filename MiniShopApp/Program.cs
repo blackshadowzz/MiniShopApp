@@ -1,9 +1,10 @@
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.Extensions.DependencyInjection;
 using MiniShopApp;
 using MiniShopApp.Components;
-using MiniShopApp.Data;
+using MiniShopApp.Data.TelegramStore;
 using MiniShopApp.Infrastructures;
 using Radzen;
 using Telegram.Bot;
@@ -19,20 +20,9 @@ builder.Services.AddSingleton<ITelegramBotClient>(new TelegramBotClient(token!))
 builder.Services.AddHostedService<botService>();
 
 builder.Services.AddSingleton<UserState>();
-builder.Services.AddScoped<NotificationService>();
 builder.Services.AddRadzenComponents();
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
-
-
-//Add Service connection string by Constructor
-var connectionString = builder.Configuration.GetConnectionString("MyConnection");
-builder.Services.AddDbContextFactory<AppDbContext>(options =>
-{
-    options.ConfigureWarnings(w => w.Ignore(RelationalEventId.MigrationsUserTransactionWarning));
-
-    options.UseSqlServer(connectionString);
-});
 
 /// Add any services in AddInfraServices class 
 builder.Services.AddInfraServices(builder.Configuration);

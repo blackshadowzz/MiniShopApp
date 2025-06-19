@@ -6,7 +6,7 @@
 
 <div>
     
-    <table class="table table-hover table-responsive caption-top">
+    <table class="table table-hover table-responsive table-sm caption-top">
         <caption>Order details</caption>
         <thead>
             <tr>
@@ -66,11 +66,11 @@
             </RadzenStack>
         
         <div class="d-flex justify-content-between mt-3">
-            <button class="btn btn-secondary mt-3" @onclick="GetBack"> Back</button>
-            <RadzenButton ButtonStyle="ButtonStyle.Primary"
+            <button class="btn btn-secondary" type="button" @onclick="GetBack"><i class="bi bi-caret-left-fill"></i> Back</button>
+            <RadzenButton class="btn btn-primary"
                           Text="Confirm order"
                           Icon="add_circle"
-                          Size="ButtonSize.ExtraSmall"
+                         
                           ButtonType="ButtonType.Submit"
                            />
         </div>
@@ -79,9 +79,16 @@
 </div>
 
 @code{
-    void GetBack()
+    async Task GetBack()
     {
-        NavigationManager.NavigateTo("/orders");
+        if (await DialogService.Confirm(
+                    $"This order will lose, are you sure to back?",
+                    "Back",
+                    new Radzen.ConfirmOptions { OkButtonText = "Yes", CancelButtonText = "No" })==true)
+        {
+            NavigationManager.NavigateTo("/orders");
+        }
+        
     }
 }
 

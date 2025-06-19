@@ -1,16 +1,18 @@
 ﻿@page "/Index"
+@using MiniShopApp.Data.TelegramStore
 @rendermode InteractiveServer
-@inject UserState userState
+
 @layout EmptyLayout
 
 
 <PageTitle>Home</PageTitle>
+<p>Id @userId</p>
 <div class="">
-    @if (userId != null)
+    @if (userId<=0 || userId==null)
     {
         <div class="text-center my-4">
             <img src="/images/minilogo.jpg" alt="MiniShopApp Logo" class="img-fluid" style="max-width: 200px;" />
-            <h1 class="mb-4">Welcome to Mini Order!</h1>
+            <h1 class="mb-4">Welcome to Mini Order! </h1>
             <p>This is a simple Blazor application to demonstrate basic features.</p>
             <p>Use the navigation menu to explore the app.</p>
             <p class="mt-3">Check out the <NavLink class="btn btn-outline-secondary" href="/orders">Check Order</NavLink> page to view order.</p>

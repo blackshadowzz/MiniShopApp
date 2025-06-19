@@ -59,7 +59,7 @@ namespace MiniShopApp.Infrastructures.Services.Implements
                         $"\nNotes:\t {model.Notes}" +
                         $"\n" +
                         
-                        $"\nThank you for ordering! \nplease enjoy your foods." ,
+                        $"\nThank you for ordering! please enjoy." ,
                         parseMode: ParseMode.Html,
                          replyMarkup: new InlineKeyboardButton[]
                             {
