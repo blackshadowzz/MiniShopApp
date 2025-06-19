@@ -11,7 +11,7 @@ using Telegram.Bot;
 
 
 var builder = WebApplication.CreateBuilder(args);
-var token = builder.Configuration["BotToken"];
+var token = builder.Configuration["BotTokenTest"];
 var webappUrl = builder.Configuration["BotWebAppUrl"];
 
 //insert token to botService
