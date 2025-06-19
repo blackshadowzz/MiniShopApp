@@ -9,52 +9,67 @@
         </div>
     </div>
 }
-    <div class="row">
-        <div class="col-md-12">
-            <h2>Customers</h2>
-            <div class="input-group mb-3">
-                <input type="text" class="form-control" placeholder="Search logs..." />
-                <button class="btn btn-outline-secondary" >Search</button>
-            </div>
-            <table class="table table-hover table-striped-columns caption-top">
-                <caption>Customer Logs</caption>
-                <thead>
+<div class="row">
+    <div class="col-md-12">
+        <div class="d-flex justify-content-start mb-2">
+            <h5 class="">Customers</h5>
+            <RadzenButton 
+               
+                Size="ButtonSize.Small" 
+                Click="@(() => ReadUserLog())" 
+                Icon="add" 
+                class="mx-3 btn btn-info"
+                Text="Read Log"></RadzenButton>
+        </div>
+        
+        <div class="input-group mb-3">
+            <input type="text" class="form-control" placeholder="Search logs..." />
+            <button class="btn btn-outline-secondary">Search</button>
+        </div>
+        <table class="table table-hover table-striped-columns caption-top">
+            <caption>Customer Logs</caption>
+            <thead>
+                <tr>
+                    <th>Customer ID</th>
+                    <th>Fullname</th>
+                    <th>Username</th>
+                    <th>Phone</th>
+                    <th>Login-Date</th>
+                    <th>Last-Login</th>
+                    <th>Details</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var log in userCustomers ?? default!)
+                {
                     <tr>
-                        <th>Customer ID</th>
-                        <th>Fullname</th>
-                        <th>Username</th>
-                        <th>Phone</th>
-                        <th>Login-Date</th>
-                        <th>Last-Login</th>
-                        <th>Details</th>
-                    </tr>
-                </thead>
-            
-                <tbody>
-                    @foreach (var log in userCustomers??default!)
-                    {
-                        <tr>
-                            <td>@log.CustomerId</td>
-                            <td>@log.FirstName @log.LastName</td>
+                        <td>@log.CustomerId</td>
+                        <td>@log.FirstName @log.LastName</td>
                         <td>@log.UserName</td>
                         <td>@log.phoneNumber</td>
                         <td>@log.loginDateTime</td>
                         <td>@log.LastLoginDT</td>
                         <td>
-                            <RadzenButton 
-                                ButtonStyle="ButtonStyle.Secondary" 
-                                Size="ButtonSize.ExtraSmall"
+                            <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                          Size="ButtonSize.ExtraSmall"
                                           Click="@(() => ViewDetails(log.CustomerId))"
-                                Icon="visibility" Text="View Details"></RadzenButton>
+                                          Icon="visibility" Text="View Details"></RadzenButton>
                         </td>
 
                     </tr>
-                    }
-                </tbody>
-            </table>
-            
-        </div>
+                }
+            </tbody>
+        </table>
+
     </div>
-
-
+    @if (UserLogContent is not null)
+    {
+        <pre style="max-height:400px;overflow:auto;">@UserLogContent</pre>
+    }
+    else
+    {
+        <p>No log loaded yet.</p>
+    }
+</div>
 

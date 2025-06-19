@@ -48,6 +48,7 @@ namespace MiniShopApp.Pages
                 Console.WriteLine($"Error: {ex.Message}");
             }
             await base.OnInitializedAsync();
+            StateHasChanged();
         }
         async Task onCheckOrder()
         {

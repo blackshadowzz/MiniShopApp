@@ -30,16 +30,18 @@ namespace MiniShopApp.Pages.Orders
         protected override async Task OnInitializedAsync()
         {
             
-
+            GetCustomerData();
             await FilterProducts();
+            StateHasChanged();
             await base.OnInitializedAsync();
         }
-        protected async Task OnGetSearchRefresh()
+        protected async void OnGetSearchRefresh()
         {
             await OnInitializedAsync();
         }
         protected async Task FilterProducts(string? filter = null)
         {
+            IsLoading = true;
             try
             {
                 
@@ -47,16 +49,19 @@ namespace MiniShopApp.Pages.Orders
                 var products = await productService.GetOrderAllAsync(_filter);
                 if(products.IsSuccess) {
                     _products = products.Data!.OrderByDescending(x=>x.CategoryName).ToList();
+                    IsLoading = false;
                 }
                 else
                 {
-                    //NotificationService.Error("Error fetching products", products.ErrorMessage);
+                    NotificationService.Notify(Radzen.NotificationSeverity.Error, "Error Fetching Products", products.ErrMessage);
                     Console.WriteLine($"Error fetching products: {products.Errors}");
+                    IsLoading = false;
                 }
                 
             }
             catch (Exception ex)
             {
+                IsLoading = false;
                 throw new Exception($"Error filtering products: {ex.Message}");
             }
         }
@@ -65,9 +70,12 @@ namespace MiniShopApp.Pages.Orders
             try
             {
                 _filter = e.Value?.ToString();
-                _products= _products.Where(p =>
-                p.ProductName?.Contains(_filter!, StringComparison.InvariantCultureIgnoreCase)==true).ToList();
-                        StateHasChanged();
+                //_products = _products.Where(p =>
+                //p.ProductName?.Contains(_filter!, StringComparison.InvariantCultureIgnoreCase) == true ||
+                //p.CategoryName?.Contains(_filter!, StringComparison.InvariantCultureIgnoreCase) == true ||
+                //p.ProductCode?.Contains(_filter!, StringComparison.InvariantCultureIgnoreCase) == true).ToList();
+                await FilterProducts(_filter);
+                StateHasChanged();
                 // Simulate async operation
             }
             catch (Exception ex)
@@ -75,7 +83,7 @@ namespace MiniShopApp.Pages.Orders
                 Console.WriteLine($"Error during search: {ex.Message}");
             }
         }
-        protected async Task GetCustomerData()
+        protected async void GetCustomerData()
         {
             try
             {
@@ -94,10 +102,10 @@ namespace MiniShopApp.Pages.Orders
             }
             catch (Exception ex)
             {
-                NotificationService.Notify(Radzen.NotificationSeverity.Error, "Empty User", ex.Message);
+                //NotificationService.Notify(Radzen.NotificationSeverity.Error, "Empty User", ex.Message);
 
                 throw new Exception($"Get local data: {ex.Message}");
-
+                
             }
         }
         protected void DescreasProduct(int productId)
@@ -225,7 +233,7 @@ namespace MiniShopApp.Pages.Orders
 
             try
             {
-                await GetCustomerData();
+                GetCustomerData();
                 if( orderDetails.Count <= 0)
                 {
                     IsLoading = false;
@@ -252,7 +260,7 @@ namespace MiniShopApp.Pages.Orders
                 }
                 else
                 {
-                    NotificationService.Notify(Radzen.NotificationSeverity.Warning, "Empty User", "User ID is not available.");
+                    NotificationService.Notify(Radzen.NotificationSeverity.Warning, "Empty User", "User invalid! please refresh page or bot by use command /start again.");
                     IsLoading = false;
                     return;
                 }

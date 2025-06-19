@@ -81,7 +81,7 @@ namespace MiniShopApp.Pages.Orders
                     if (message.IsSuccess)
                     {
                         // Clear the order details after successful submission
-                        orderDetails.Clear();
+                        orderDetails!.Clear();
                         Order = new OrderCreateModel(); // Reset the order model
                         await localStorage.SetAsync("orderToCreate", Order);
                         NotificationService.Notify(Radzen.NotificationSeverity.Success, "Order Created", "Your order has been successfully created.");
