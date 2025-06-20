@@ -1,6 +1,7 @@
 ﻿@inherits LayoutComponentBase
 @attribute [StreamRendering(false)]
 <RadzenNotification @rendermode="RenderMode.InteractiveServer" />
+<RadzenDialog @rendermode="RenderMode.InteractiveServer" />
 
 <RadzenLayout>
     <RadzenHeader>
@@ -28,6 +29,7 @@
                 <RadzenPanelMenuItem Text="Role" Icon="receipt_long" Path="#" />
             </RadzenPanelMenuItem>
             <RadzenPanelMenuItem Text="Settings" Icon="settings">
+                <RadzenPanelMenuItem Text="Customer log" Path="/settings/user/customer-log" Icon="passkey" />
                 <RadzenPanelMenuItem Text="Service" Path="#" Icon="" />
                 <RadzenPanelMenuItem Text="About" Icon="" Path="#" />
             </RadzenPanelMenuItem>

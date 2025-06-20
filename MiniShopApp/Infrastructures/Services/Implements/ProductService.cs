@@ -94,9 +94,13 @@ namespace MiniShopApp.Infrastructures.Services.Implements
                                    CategoryId = pro.CategoryId,
                                    CategoryName = cat.CategoryName
                                });
-                var filteredResults = string.IsNullOrEmpty(filter) 
-                    ? results 
-                    : results.Where(p => p.ProductName.Contains(filter) || p.ProductCode.Contains(filter));
+                var filteredResults = string.IsNullOrEmpty(filter)
+                    ? results
+                    : results.Where(x =>
+                EF.Functions.Like(x.CategoryName, $"%{filter}%") ||
+                EF.Functions.Like(x.ProductCode, $"%{filter}%") ||
+                EF.Functions.Like(x.ProductName, $"%{filter}%") ||
+                EF.Functions.Like(x.Description, $"%{filter}%"));
                 var productOrders = await filteredResults.AsNoTracking().ToListAsync();
                 return Result.Success<IEnumerable<ViewProductOrders>>(productOrders);
             }

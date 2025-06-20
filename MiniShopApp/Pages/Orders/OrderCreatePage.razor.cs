@@ -59,33 +59,40 @@ namespace MiniShopApp.Pages.Orders
                     NotificationService.Notify(Radzen.NotificationSeverity.Error, "Invalid Table Number", "Please enter a valid table number.");
                     return;
                 }
-                TbOrder order = new TbOrder
+                if(await DialogService.Confirm(
+                    $"Are you sure you want to submit this order with total price: {Order.TotalPrice?.ToString("c2")}?", 
+                    "Confirm Submission", 
+                    new Radzen.ConfirmOptions { OkButtonText = "Yes", CancelButtonText = "No" }) == true)
                 {
-                    CustomerId = Order.CustomerId,
-                    TableNumber = Order.TableNumber,
-                    ItemCount = Order.ItemCount,
-                    SubPrice = Order.SubPrice,
-                    DiscountPrice = Order.DiscountPrice,
-                    TotalPrice = Order.TotalPrice,
-                    Notes = Order.Notes,
-                    CreatedDT = DateTime.Now,
-                    TbOrderDetails = orderDetails,
-                };
-                var message = await orderService.CreateAsync(Order.CustomerId, order);
+                    TbOrder order = new TbOrder
+                    {
+                        CustomerId = Order.CustomerId,
+                        TableNumber = Order.TableNumber,
+                        ItemCount = Order.ItemCount,
+                        SubPrice = Order.SubPrice,
+                        DiscountPrice = Order.DiscountPrice,
+                        TotalPrice = Order.TotalPrice,
+                        Notes = Order.Notes,
+                        CreatedDT = DateTime.Now,
+                        TbOrderDetails = orderDetails,
+                    };
+                    var message = await orderService.CreateAsync(Order.CustomerId, order);
 
-                if (message.IsSuccess)
-                {
-                    // Clear the order details after successful submission
-                    orderDetails.Clear();
-                    Order = new OrderCreateModel(); // Reset the order model
-                    await localStorage.SetAsync("orderToCreate", Order);
-                    NotificationService.Notify(Radzen.NotificationSeverity.Success, "Order Created", "Your order has been successfully created.");
-                    NavigationManager.NavigateTo("/orders");
+                    if (message.IsSuccess)
+                    {
+                        // Clear the order details after successful submission
+                        orderDetails!.Clear();
+                        Order = new OrderCreateModel(); // Reset the order model
+                        await localStorage.SetAsync("orderToCreate", Order);
+                        NotificationService.Notify(Radzen.NotificationSeverity.Success, "Order Created", "Your order has been successfully created.");
+                        NavigationManager.NavigateTo("/orders");
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Error creating order: {message.Errors}");
+                    }
                 }
-                else
-                {
-                    Console.WriteLine($"Error creating order: {message.Errors}");
-                }
+                
             }
             catch (Exception ex)
             {

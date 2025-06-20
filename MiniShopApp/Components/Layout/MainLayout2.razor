@@ -1,6 +1,7 @@
 ﻿@inherits LayoutComponentBase
 @attribute [StreamRendering(false)]
 <RadzenNotification @rendermode="RenderMode.InteractiveServer"/>
+<RadzenDialog @rendermode="RenderMode.InteractiveServer"/>
     <div class="sticky-top bg-body-secondary">
 
         <ul class="nav justify-content-between">
@@ -8,7 +9,7 @@
                 <NavLink class="nav-link" aria-current="page" href="/orders">Products</NavLink>
             </li>
             <li class="nav-item">
-                <NavLink class="nav-link" href="/order/services">Services</NavLink>
+                <NavLink class="nav-link" href="/order/histories">History</NavLink>
             </li>
            
             <li class="nav-item">

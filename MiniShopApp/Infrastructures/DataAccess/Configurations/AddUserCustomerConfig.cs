@@ -14,8 +14,10 @@ namespace MiniShopApp.Infrastructures.DataAccess.Configurations
             builder.Property(x => x.CustomerId).IsRequired(true);
             builder.Property(x => x.FirstName).HasColumnType("nvarchar(50)").IsRequired(false);
             builder.Property(x => x.LastName).HasColumnType("nvarchar(50)").IsRequired(false);
+            builder.Property(x => x.UserName).HasColumnType("nvarchar(100)").IsRequired(false);
             builder.Property(x => x.phoneNumber).HasColumnType("nvarchar(20)").IsRequired(false);
             builder.Property(x => x.loginDateTime).HasColumnType("datetime");
+            builder.Property(x => x.LastLoginDT).HasColumnType("datetime");
 
         }
     }

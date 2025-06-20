@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MiniShopApp.Data;
 
@@ -11,9 +12,11 @@ using MiniShopApp.Data;
 namespace MiniShopApp.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250618180835_M2")]
+    partial class M2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -194,9 +197,6 @@ namespace MiniShopApp.Migrations
 
                     b.Property<string>("LastName")
                         .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("UserName")
-                        .HasColumnType("nvarchar(100)");
 
                     b.Property<DateTime?>("loginDateTime")
                         .HasColumnType("datetime");

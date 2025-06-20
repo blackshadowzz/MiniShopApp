@@ -12,11 +12,11 @@ namespace MiniShopApp.Pages
         {
             try
             {
-                if (userId == null)
-                {
-                    // Simulate fetching user ID from a service or storage
-                    userId = userState.UserId; // Replace with actual user ID retrieval logic
-                }
+                //if (userId == null)
+                //{
+                //    // Simulate fetching user ID from a service or storage
+                //    userId = userState.UserId; // Replace with actual user ID retrieval logic
+                //}
                 //products = (await productService.GetAllAsync()).ToList();
             }
             catch (Exception ex)

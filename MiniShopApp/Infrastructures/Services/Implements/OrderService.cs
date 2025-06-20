@@ -59,13 +59,13 @@ namespace MiniShopApp.Infrastructures.Services.Implements
                         $"\nNotes:\t {model.Notes}" +
                         $"\n" +
                         
-                        $"\nThank you for ordering! \nplease enjoy your foods." ,
-                        parseMode: ParseMode.Html,
-                         replyMarkup: new InlineKeyboardButton[]
-                            {
-                            InlineKeyboardButton.WithWebApp("Open App","https://minishopapp.runasp.net/index"),
+                        $"\nThank you for ordering! please enjoy." ,
+                        parseMode: ParseMode.Html
+                         //replyMarkup: new InlineKeyboardButton[]
+                         //   {
+                         //   InlineKeyboardButton.WithWebApp("Open App","https://minishopapp.runasp.net/index"),
 
-                            }
+                         //   }
                     // You can specify entities if needed
 
                     );
