@@ -1,50 +1,81 @@
 ﻿@inherits LayoutComponentBase
 @attribute [StreamRendering(false)]
-<RadzenNotification @rendermode="RenderMode.InteractiveServer" />
-<RadzenDialog @rendermode="RenderMode.InteractiveServer" />
+@* Required *@
+<MudThemeProvider />
+<MudPopoverProvider />
+@* Needed for dialogs *@
+<MudDialogProvider />
+@* Needed for snackbars *@
+<MudSnackbarProvider />
 
-<RadzenLayout>
-    <RadzenHeader>
-        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0">
-            <RadzenSidebarToggle Click="@(() => sidebarExpanded = !sidebarExpanded)" />
-            <RadzenLabel Text="Mini App" />
-        </RadzenStack>
-    </RadzenHeader>
-    <RadzenSidebar Responsive="false" Style="width: max-content">
-        <RadzenPanelMenu DisplayStyle="@(sidebarExpanded? MenuItemDisplayStyle.IconAndText: MenuItemDisplayStyle.Icon)" ShowArrow="false">
-            <RadzenPanelMenuItem Text="Home" Icon="home" Path="/"/>
-            <RadzenPanelMenuItem Text="Dashboard" Icon="dashboard" />
-            <RadzenPanelMenuItem Text="Orders" Icon="lan">
-                <RadzenPanelMenuItem Text="Order" Path="/orders/views" Icon="storefront" />
-                <RadzenPanelMenuItem Text="Order Details" Icon="receipt_long" />
-            </RadzenPanelMenuItem>
-            <RadzenPanelMenuItem Text="Products" Icon="list_alt">
-                <RadzenPanelMenuItem Text="Product" Path="/products" Icon="list_alt" />
-                <RadzenPanelMenuItem Text="Category" Icon="category" Path="/categories" />
-            </RadzenPanelMenuItem>
-            <RadzenPanelMenuItem Text="Table" Icon="table" Path="/table" />
-            <RadzenPanelMenuItem Text="Customer" Icon="groups_2" Path="#" />
-            <RadzenPanelMenuItem Text="User Management" Icon="group">
-                <RadzenPanelMenuItem Text="User" Path="#" Icon="manage_accounts" />
-                <RadzenPanelMenuItem Text="Role" Icon="receipt_long" Path="#" />
-            </RadzenPanelMenuItem>
-            <RadzenPanelMenuItem Text="Settings" Icon="settings">
-                <RadzenPanelMenuItem Text="Customer log" Path="/settings/user/customer-log" Icon="passkey" />
-                <RadzenPanelMenuItem Text="Service" Path="#" Icon="" />
-                <RadzenPanelMenuItem Text="About" Icon="" Path="#" />
-            </RadzenPanelMenuItem>
-        </RadzenPanelMenu>
-    </RadzenSidebar>
-    <RadzenBody>
-        <div class="content">
-            @Body
-        </div>
-    </RadzenBody>
-    <RadzenFooter>
-        Footer
-    </RadzenFooter>
-</RadzenLayout>
 
+
+<MudLayout>
+    <MudAppBar>
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
+        Mini Order App
+        <MudSpacer />
+        <MudMenu>
+            <ActivatorContent>
+                <MudAvatar>
+                    <MudImage Src="images/MiniLogo.jpg" />
+                </MudAvatar>
+            </ActivatorContent>
+            <ChildContent>
+                <MudMenuItem Label="Profile" />
+                <MudMenuItem Label="My account" />
+                <MudMenuItem Label="Logout" />
+            </ChildContent>
+        </MudMenu>
+    </MudAppBar>
+    <MudDrawer @bind-Open="@_drawerOpen" >
+        
+        <MudPaper Width="250px" Class="d-inline-flex py-3" Elevation="0">
+            <MudNavMenu Class="mud-width-full">
+                <MudText Typo="Typo.h6" Class="px-4">Mini App</MudText>
+                <MudText Typo="Typo.body2" Class="px-4 mud-text-secondary">Mini Order App</MudText>
+                <MudDivider Class="my-2" />
+                <MudNavLink Href="/" Icon="@Icons.Material.Filled.Dashboard">Dashboard</MudNavLink>
+                <MudNavGroup Title="Orders" Icon="@Icons.Material.Filled.Lan">
+                    <MudNavLink Href="/orders/views" Icon="@Icons.Material.Filled.Storefront" IconColor="Color.Success">Orders</MudNavLink>
+                    <MudNavLink Icon="@Icons.Material.Filled.ReceiptLong" IconColor="Color.Info">Order Details</MudNavLink>
+                </MudNavGroup>
+                <MudNavGroup Title="Products" Icon="@Icons.Material.Filled.ListAlt">
+                    <MudNavLink Href="/products" Icon="@Icons.Material.Filled.ListAlt" IconColor="Color.Success">Product</MudNavLink>
+                    <MudNavLink Href="/categories" Icon="@Icons.Material.Filled.Category" IconColor="Color.Info">Category</MudNavLink>
+                </MudNavGroup>
+                <MudNavLink Href="/table" Icon="@Icons.Material.Filled.TableBar">Table</MudNavLink>
+                
+                <MudNavGroup Title="Customers" Icon="@Icons.Material.Filled.Groups2">
+                    <MudNavLink Href="/" Icon="@Icons.Material.Filled.Groups3" IconColor="Color.Success">Customer</MudNavLink>
+                    <MudNavLink Href="/" Icon="@Icons.Material.Filled.Security" IconColor="Color.Info">Security</MudNavLink>
+                </MudNavGroup>
+                <MudNavGroup Title="User management" Icon="@Icons.Material.Filled.Group">
+                    <MudNavLink Href="/" Icon="@Icons.Material.Filled.ManageAccounts" IconColor="Color.Success">User</MudNavLink>
+                    <MudNavLink Href="/" Icon="@Icons.Material.Filled.Security" IconColor="Color.Info">Security</MudNavLink>
+                </MudNavGroup>
+                <MudNavGroup Title="Settings" Icon="@Icons.Material.Filled.Settings">
+                    <MudNavLink Href="/settings/user/customer-log" Icon="@Icons.Material.Filled.LockPerson">Customer log</MudNavLink>
+                    <MudNavLink Href="/" Icon="@Icons.Material.Filled.RoomService" IconColor="Color.Info">Service</MudNavLink>
+                    <MudNavLink Href="/" Icon="@Icons.Material.Filled.Info" IconColor="Color.Info">About</MudNavLink>
+                </MudNavGroup>
+                
+
+            </MudNavMenu>
+        </MudPaper>
+    </MudDrawer>
+    <MudMainContent Class="container-fluid mt-3">
+        @Body
+    </MudMainContent>
+</MudLayout>
 @code {
-    bool sidebarExpanded = false;
+    bool _drawerOpen = true;
+    bool IsExpanded = false;
+
+    void DrawerToggle()
+    {
+        _drawerOpen = !_drawerOpen;
+    }
 }
+
+

@@ -53,7 +53,7 @@ namespace MiniShopApp.Pages.Orders
                 }
                 else
                 {
-                    NotificationService.Notify(Radzen.NotificationSeverity.Error, "Error Fetching Products", products.ErrMessage);
+                    //NotificationService.Notify(Radzen.NotificationSeverity.Error, "Error Fetching Products", products.ErrMessage);
                     Console.WriteLine($"Error fetching products: {products.Errors}");
                     IsLoading = false;
                 }
@@ -96,7 +96,7 @@ namespace MiniShopApp.Pages.Orders
                 {
                     customerId = string.Empty;
                     Console.WriteLine("Customer ID not found in session storage.");
-                    NotificationService.Notify(Radzen.NotificationSeverity.Error, "Empty User", "User invalid! please refresh page or bot /start again.");
+                   // NotificationService.Notify(Radzen.NotificationSeverity.Error, "Empty User", "User invalid! please refresh page or bot /start again.");
                     return;
                 }
             }
@@ -238,7 +238,7 @@ namespace MiniShopApp.Pages.Orders
                 {
                     IsLoading = false;
 
-                    NotificationService.Notify(Radzen.NotificationSeverity.Warning, "Empty Order", "Please add products to the order before placing it.");
+                    //NotificationService.Notify(Radzen.NotificationSeverity.Warning, "Empty Order", "Please add products to the order before placing it.");
                     return;
                 }
                 if (!string.IsNullOrEmpty(customerId))
@@ -260,7 +260,7 @@ namespace MiniShopApp.Pages.Orders
                 }
                 else
                 {
-                    NotificationService.Notify(Radzen.NotificationSeverity.Warning, "Empty User", "User invalid! please refresh page or bot by use command /start again.");
+                    //NotificationService.Notify(Radzen.NotificationSeverity.Warning, "Empty User", "User invalid! please refresh page or bot by use command /start again.");
                     IsLoading = false;
                     return;
                 }
@@ -269,7 +269,7 @@ namespace MiniShopApp.Pages.Orders
             {
                 IsLoading = false;// Handle the error, e.g., log it or show a notification
                 Console.WriteLine($"Error creating order: {ex.Message}");
-                NotificationService.Notify(Radzen.NotificationSeverity.Error, "System Errors", ex.Message);
+                //NotificationService.Notify(Radzen.NotificationSeverity.Error, "System Errors", ex.Message);
             }
         }
     }

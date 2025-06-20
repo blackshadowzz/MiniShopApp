@@ -33,18 +33,17 @@ namespace MiniShopApp.Pages
                     {
                         userState.UserId = userCustId;
                         userId = userCustId;
-                        //NotificationService.Notify(Radzen.NotificationSeverity.Warning, "User Id By UserState: ", userState.UserId.ToString());
-                        //NotificationService.Notify(Radzen.NotificationSeverity.Warning, "User Id By URL: ", userCustId.ToString());
+                        
                     }
                     // Simulate fetching user ID from a service or storage
 
                     await localStorage.SetAsync("customerId", userId.ToString()!);
                 }
-                //products = (await productService.GetAllAsync()).ToList();
+                
             }
             catch (Exception ex)
             {
-                NotificationService.Notify(Radzen.NotificationSeverity.Error, "Loading Error...", ex.Message);
+                //NotificationService.Notify(Radzen.NotificationSeverity.Error, "Loading Error...", ex.Message);
                 Console.WriteLine($"Error: {ex.Message}");
             }
             await base.OnInitializedAsync();
@@ -53,8 +52,7 @@ namespace MiniShopApp.Pages
         async Task onCheckOrder()
         {
 
-            //NotificationService.Notify(Radzen.NotificationSeverity.Warning, "User Id By UserState: ", userState.UserId.ToString());
-            //NotificationService.Notify(Radzen.NotificationSeverity.Warning, "User Id By URL: ", userId.ToString());
+            
             NavigationManager.NavigateTo($"/orders");
         }
     }

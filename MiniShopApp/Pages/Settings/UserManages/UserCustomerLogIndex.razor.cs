@@ -32,14 +32,14 @@ namespace MiniShopApp.Pages.Settings.UserManages
                     IsLoading = false;
                     // Handle the error, e.g., show a notification or log it
                     Console.WriteLine($"Error loading user customers: {result.ErrMessage}");
-                    NotificationService.Notify(Radzen.NotificationSeverity.Error, "Error", result.ErrMessage);
+                    ////NotificationService.Notify(Radzen.NotificationSeverity.Error, "Error", result.ErrMessage);
                 }
             }
             catch (Exception ex)
             {
                 IsLoading = false;
                 // Handle exceptions, e.g., log them or show a notification
-                NotificationService.Notify(Radzen.NotificationSeverity.Error, "Error", ex.Message);
+                //NotificationService.Notify(Radzen.NotificationSeverity.Error, "Error", ex.Message);
                 Console.WriteLine($"Exception occurred while loading user customers: {ex.Message}");
             }
         }

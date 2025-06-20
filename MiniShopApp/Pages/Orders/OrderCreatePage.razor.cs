@@ -56,14 +56,14 @@ namespace MiniShopApp.Pages.Orders
             {
                 if (Order.TableNumber == null)
                 {
-                    NotificationService.Notify(Radzen.NotificationSeverity.Error, "Invalid Table Number", "Please enter a valid table number.");
+                   // NotificationService.Notify(Radzen.NotificationSeverity.Error, "Invalid Table Number", "Please enter a valid table number.");
                     return;
                 }
-                if(await DialogService.Confirm(
-                    $"Are you sure you want to submit this order with total price: {Order.TotalPrice?.ToString("c2")}?", 
-                    "Confirm Submission", 
-                    new Radzen.ConfirmOptions { OkButtonText = "Yes", CancelButtonText = "No" }) == true)
-                {
+                //if(await DialogService.Confirm(
+                //    $"Are you sure you want to submit this order with total price: {Order.TotalPrice?.ToString("c2")}?", 
+                //    "Confirm Submission", 
+                //    new Radzen.ConfirmOptions { OkButtonText = "Yes", CancelButtonText = "No" }) == true)
+                //{
                     TbOrder order = new TbOrder
                     {
                         CustomerId = Order.CustomerId,
@@ -84,14 +84,14 @@ namespace MiniShopApp.Pages.Orders
                         orderDetails!.Clear();
                         Order = new OrderCreateModel(); // Reset the order model
                         await localStorage.SetAsync("orderToCreate", Order);
-                        NotificationService.Notify(Radzen.NotificationSeverity.Success, "Order Created", "Your order has been successfully created.");
+                        //NotificationService.Notify(Radzen.NotificationSeverity.Success, "Order Created", "Your order has been successfully created.");
                         NavigationManager.NavigateTo("/orders");
                     }
                     else
                     {
                         Console.WriteLine($"Error creating order: {message.Errors}");
                     }
-                }
+                //}
                 
             }
             catch (Exception ex)

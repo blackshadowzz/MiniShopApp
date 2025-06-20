@@ -45,7 +45,7 @@
 
     </table>
     <hr  class="my-2"/>
-    <RadzenTemplateForm Data="@Order"
+  @*   <RadzenTemplateForm Data="@Order"
                         TItem="OrderCreateModel"
                         Submit="@HandleValidSubmit">
             <RadzenStack >
@@ -75,19 +75,19 @@
                            />
         </div>
         
-    </RadzenTemplateForm>
+    </RadzenTemplateForm> *@
 </div>
 
 @code{
     async Task GetBack()
     {
-        if (await DialogService.Confirm(
-                    $"This order will lose, are you sure to back?",
-                    "Back",
-                    new Radzen.ConfirmOptions { OkButtonText = "Yes", CancelButtonText = "No" })==true)
-        {
-            NavigationManager.NavigateTo("/orders");
-        }
+        // if (await DialogService.Confirm(
+        //             $"This order will lose, are you sure to back?",
+        //             "Back",
+        //             new Radzen.ConfirmOptions { OkButtonText = "Yes", CancelButtonText = "No" })==true)
+        // {
+        //     NavigationManager.NavigateTo("/orders");
+        // }
         
     }
 }

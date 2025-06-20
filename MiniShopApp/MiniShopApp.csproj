@@ -20,7 +20,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Radzen.Blazor" Version="7.1.0" />
+    <PackageReference Include="MudBlazor" Version="8.8.0" />
     <PackageReference Include="Telegram.Bot" Version="22.5.1" />
   </ItemGroup>
 

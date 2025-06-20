@@ -13,13 +13,13 @@
     <div class="col-md-12">
         <div class="d-flex justify-content-start mb-2">
             <h5 class="">Customers</h5>
-            <RadzenButton 
-               
-                Size="ButtonSize.Small" 
-                Click="@(() => ReadUserLog())" 
-                Icon="add" 
-                class="mx-3 btn btn-info"
-                Text="Read Log"></RadzenButton>
+            <button 
+                
+                
+                @onclick="@(() => ReadUserLog())" 
+                 
+                class="mx-3 btn btn-info btn-sm"
+                >Read log</button>
         </div>
         
         <div class="input-group mb-3">
@@ -51,10 +51,7 @@
                         <td>@log.loginDateTime</td>
                         <td>@log.LastLoginDT</td>
                         <td>
-                            <RadzenButton ButtonStyle="ButtonStyle.Secondary"
-                                          Size="ButtonSize.ExtraSmall"
-                                          Click="@(() => ViewDetails(log.CustomerId))"
-                                          Icon="visibility" Text="View Details"></RadzenButton>
+                            
                         </td>
 
                     </tr>

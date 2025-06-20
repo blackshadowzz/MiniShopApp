@@ -6,7 +6,7 @@ using MiniShopApp;
 using MiniShopApp.Components;
 using MiniShopApp.Data.TelegramStore;
 using MiniShopApp.Infrastructures;
-using Radzen;
+using MudBlazor.Services;
 using Telegram.Bot;
 
 
@@ -20,7 +20,8 @@ builder.Services.AddSingleton<ITelegramBotClient>(new TelegramBotClient(token!))
 builder.Services.AddHostedService<botService>();
 
 builder.Services.AddSingleton<UserState>();
-builder.Services.AddRadzenComponents();
+
+builder.Services.AddMudServices();
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
