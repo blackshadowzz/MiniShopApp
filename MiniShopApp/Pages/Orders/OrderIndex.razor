@@ -1,6 +1,5 @@
 ﻿
 @page "/orders"  
-@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
 @layout MainLayout2  
 @rendermode InteractiveServer  
 
@@ -13,6 +12,7 @@
                    class="form-control"  
                    value="@_filter"  
                    @oninput="@((e) => OnSearch(e))"  
+                   @onchange="@((e) => OnSearch(e))"
                    placeholder="Search here..."  
                    aria-label="Search here..."  
                    aria-describedby="button-addon2"

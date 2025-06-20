@@ -37,7 +37,16 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-
+app.Use(async (context, next) =>
+{
+    if (context.Request.Path.StartsWithSegments("/UserLog.txt"))
+    {
+        context.Response.StatusCode = StatusCodes.Status403Forbidden;
+        await context.Response.WriteAsync("Access Denied.");
+        return;
+    }
+    await next();
+});
 app.UseAntiforgery();
 
 app.MapStaticAssets();

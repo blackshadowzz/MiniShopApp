@@ -8,6 +8,8 @@ namespace MiniShopApp.Pages.Settings.UserManages
         protected IEnumerable<ViewUserCustomers>? userCustomers = [];
         protected string? filter = null;
         protected bool IsLoading = false;
+        public string? UserLogContent { get; set; }
+
         protected override async Task OnInitializedAsync()
         {
             await LoadDataAsync();
@@ -44,6 +46,20 @@ namespace MiniShopApp.Pages.Settings.UserManages
         protected async Task ViewDetails(long? id)
         {
             await Task.CompletedTask;
+        }
+        protected  async Task ReadUserLog()
+        {
+            var wwwrootPath = Path.Combine(AppContext.BaseDirectory, "wwwroot");
+            var logFilePath = Path.Combine(wwwrootPath, "UserLog.txt");
+
+            if (File.Exists(logFilePath))
+            {
+                UserLogContent = File.ReadAllText(logFilePath);
+            }
+            else
+            {
+                UserLogContent = "No log file found.";
+            }
         }
     }
 }

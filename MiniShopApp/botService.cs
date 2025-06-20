@@ -66,57 +66,80 @@ namespace MiniShopApp
         private async Task OnMessage(ITelegramBotClient telegramBot, Update update, CancellationToken cancellationToken)
         {
             try
-            {//string webappUrl = "https://minishopapp.runasp.net/index";
-                string webappUrl = $"https://minishopapp.runasp.net/index?userid={update.Message.Chat.Id}";
-                //if (update.Message is Message message)
-                //{
+            {
+                //string webappUrl = "https://minishopapp.runasp.net/index";
+                string webappUrl = $"https://minishopapp.runasp.net/index?userid={update.Message!.Chat.Id}";
+
                 userState.UserId = update.Message!.Chat.Id;
-                    if (update.Message!.Text == "/start")
-                    {
+                if (update.Message!.Text == "/start")
+                {
 
-                        
-                        await _botClient.SendMessage(
-                            update.Message.Chat.Id,
-                            $"Welcome to our Mini App Online! {update.Message.Chat.FirstName}",
-                            replyMarkup: new InlineKeyboardButton[]
-                                {
+
+                    await _botClient.SendMessage(
+                        update.Message.Chat.Id,
+                        $"Welcome to our Mini App Online! {update.Message.Chat.FirstName}\n\n" +
+                        $"Our Mini App still developing while you testing if has some errors, please feedback to us by type or click command /feedback. \n" +
+                        $"\nThank you for testing! (_._) Click Open App",
+                        replyMarkup: new InlineKeyboardButton[]
+                            {
                             InlineKeyboardButton.WithWebApp("Open App",webappUrl),
 
-                                }
+                            }
 
 
-                                );
-                    }
-                    else if (update.Message.Text == "/help")
-                    {
-                        await _botClient.SendMessage(update.Message.Chat.Id, "Please contact us for more informations",
-                            replyMarkup: new InlineKeyboardButton[]
-                                {
-                            InlineKeyboardButton.WithWebApp("Open App",webappUrl),
-
-                                }
-
-
-                                );
-                    }
-                    else if (update.Message.Text == "/about")
-                    {
-                        await _botClient.SendMessage(update.Message.Chat.Id, "This is a mini app for learning Blazor Server and Telegram Bot integration.",
-                            replyMarkup: new InlineKeyboardButton[]
-                                {
-                            InlineKeyboardButton.WithWebApp("Open App",webappUrl),
-
-                                }
-
-
-                                );
+                            );
                 }
-                    else
-                    {
-                        await _botClient.SendMessage(update.Message.Chat.Id, $"You said: {update.Message.Text}");
-                    }
+                else if (update.Message.Text == "/help")
+                {
+                    await _botClient.SendMessage(update.Message.Chat.Id, "Please contact us for more informations.\n\n" +
+                        "Available  command: \n" +
+                        "/start - start bot or refresh bot.\n" +
+                        "/help - get help.\n" +
+                        "/feedback - send us feedback.\n" +
+                        "/about - about us.\n\n",
+                        replyMarkup: new InlineKeyboardButton[]
+                            {
+                            InlineKeyboardButton.WithUrl("Contact us","https://t.me/Mangry_off"),
+
+                            }
+
+
+                            );
+                }
+                else if (update.Message.Text == "/about")
+                {
+                    await _botClient.SendMessage(update.Message.Chat.Id, "This is Mini App\n\n" +
+                        "We are developing a web application integrated with the Telegram Mini App platform, " +
+                        "designed to streamline online ordering for restaurants and food vendors. While currently in testing, the app already supports essential features like menu browsing and placing orders. " +
+                        "We’re actively refining performance and fixing minor issues to ensure a smooth and engaging experience for users within Telegram.\r\n\n" +
+                        "Our App:\n" +
+                        "Bot URL: t.me/Miniorder_bot\n" +
+                        "Version: Testing\n" +
+                        "Release: Under developing\n\n" +
+                        "Thank you!!!",
+                        replyMarkup: new InlineKeyboardButton[]
+                            {
+                            InlineKeyboardButton.WithWebApp("Open App",webappUrl),
+
+                            }
+
+
+                            );
+                }
+                else if (update.Message.Text == "/feedback")
+                {
+                    await _botClient.SendMessage(update.Message.Chat.Id, "Please send your feedback to our support team.",
+                        replyMarkup: new InlineKeyboardButton[]
+                            {
+                                InlineKeyboardButton.WithUrl("Send us feedback", "https://t.me/Mangry_off"),
+                            }
+                            );
+                }
+                else
+                {
+                    await _botClient.SendMessage(update.Message.Chat.Id, $"You said: {update.Message.Text}");
+                }
                     await UserCustomerCreateAsync(update);
-                //}
 
             }
             catch (Exception ex)
@@ -137,6 +160,7 @@ namespace MiniShopApp
         //    await base.StopAsync(cancellationToken);
         //    _logger.LogInformation("Telegram Bot service stopped.");
         //}
+        private static readonly object _userLogLock = new object();
         private async Task UserCustomerCreateAsync(Update update)
         {
             if (update.Message?.Chat == null) return;
@@ -145,6 +169,7 @@ namespace MiniShopApp
             _logger.LogInformation("New customer created with ID: {UserId}", update.Message.Chat.Id);
             try
             {
+                
                 await using var context = await dbContext.CreateDbContextAsync();
                 var existingUser = await context.TbUserCustomers.AsNoTracking()
                     .FirstOrDefaultAsync(u => u.CustomerId == update.Message.Chat.Id);
@@ -167,16 +192,49 @@ namespace MiniShopApp
                         UserName = update.Message.Chat.Username,
                         phoneNumber = update.Message.Contact?.PhoneNumber,
                         loginDateTime = DateTime.Now,
-                        LastLoginDT = DateTime.Now
+                        LastLoginDT = DateTime.Now,
                     });
                 }
                 await context.SaveChangesAsync();
+                // Write new user info to a plain text file
+                var userInfo = $"" +
+                    $"UserId: {update.Message.Chat.Id}, " +
+                    $"FirstName: {update.Message.Chat.FirstName}, " +
+                    $"LastName: {update.Message.Chat.LastName}, " +
+                    $"Username: {update.Message.Chat.Username}, " +
+                    $"Phone: {update.Message.Contact?.PhoneNumber}, " +
+                    $"Registered: {update.Message.Date.ToLocalTime()}\n";
+                // Ensure the wwwroot directory exists
+                var wwwrootPath = Path.Combine(AppContext.BaseDirectory, "wwwroot");
+                if (!Directory.Exists(wwwrootPath))
+                {
+                    Directory.CreateDirectory(wwwrootPath);
+                }
+                var logFilePath = Path.Combine(wwwrootPath, "UserLog.txt");
+                lock (_userLogLock)
+                {
+                    File.AppendAllText(logFilePath, userInfo);
+                }
                 _logger.LogInformation("\n\nNew user registered successful: {UserId}\n\n", update.Message.Chat.Id);
 
 
             }
             catch (Exception ex)
             {
+
+                var logMessage = $"Message log: {ex.Message}\n";
+                    
+                // Ensure the wwwroot directory exists
+                var wwwrootPath = Path.Combine(AppContext.BaseDirectory, "wwwroot");
+                if (!Directory.Exists(wwwrootPath))
+                {
+                    Directory.CreateDirectory(wwwrootPath);
+                }
+                var logFilePath = Path.Combine(wwwrootPath, "UserLog.txt");
+                lock (_userLogLock)
+                {
+                    File.AppendAllText(logFilePath, logMessage);
+                }
                 _logger.LogError(ex, "Error creating user customer with ID: {UserId}", update.Message.Chat.Id);
             }
         }
