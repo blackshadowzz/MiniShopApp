@@ -27,6 +27,12 @@ namespace MiniShopApp.Pages.Lists.TbTables
         //}
         private List<TbTable> model = new List<TbTable>();
         private string? _filter = string.Empty;
+        bool _expanded = true;
+
+        private void OnExpandCollapseClick()
+        {
+            _expanded = !_expanded;
+        }
         protected override async Task OnInitializedAsync()
         {
             try
