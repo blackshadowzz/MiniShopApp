@@ -45,49 +45,50 @@
 
     </table>
     <hr  class="my-2"/>
-  @*   <RadzenTemplateForm Data="@Order"
-                        TItem="OrderCreateModel"
-                        Submit="@HandleValidSubmit">
-            <RadzenStack >
-
-                
-                <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Table Number <span class="text-danger">*</span></RadzenText>
-                <RadzenTextBox @bind-Value="@Order.TableNumber" Name="TableNumber" Placeholder="Please enter table number" Style="width: 100%;" />
-                <RadzenRequiredValidator Component="TableNumber" Text="Table number is required" Style="position: relative" />
+    <MudForm @ref="form" @bind-IsValid="@success" @bind-Errors="@errors">
+        <MudNumericField T="string" @bind-Value="@Order.TableNumber"
+                         Variant="Variant.Outlined"
+            Label="Enter table number" Required="true" RequiredError="Table number is required!" />
 
 
-            </RadzenStack>
-            <RadzenStack class="mt-3">
-
-            <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Notes</RadzenText>
-                <RadzenTextArea @bind-Value="@Order.Notes" Name="Notes" Placeholder="Notes..." Style="width: 100%;" />
-
-
-            </RadzenStack>
-        
-        <div class="d-flex justify-content-between mt-3">
-            <button class="btn btn-secondary" type="button" @onclick="GetBack"><i class="bi bi-caret-left-fill"></i> Back</button>
-            <RadzenButton class="btn btn-primary"
-                          Text="Confirm order"
-                          Icon="add_circle"
-                         
-                          ButtonType="ButtonType.Submit"
-                           />
+        <div class="form-floating mt-3">
+            <textarea class="form-control" @bind="@Order.Notes" placeholder="Leave a note here..." id="floatingTextarea2" style="height: 80px"></textarea>
+            <label for="floatingTextarea2">Notes</label>
         </div>
         
-    </RadzenTemplateForm> *@
+        <div class="d-flex align-center justify-space-between mt-4">
+            <button class="btn btn-secondary" type="button" @onclick="GetBack"><i class="bi bi-caret-left-fill"></i> Back</button>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" 
+            StartIcon="@Icons.Material.Filled.AddCircleOutline" 
+             
+            Class="ml-auto"
+            OnClick="HandleValidSubmit">Confirm Order</MudButton>
+        </div>
+    </MudForm>
+    @if (IsLoading == true)
+    {
+        <div class="text-center">
+            <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+        </div>
+    }
 </div>
 
 @code{
+    bool IsLoading = false;
+    bool success;
+    string[] errors = { };
+    MudForm form;
     async Task GetBack()
     {
-        // if (await DialogService.Confirm(
-        //             $"This order will lose, are you sure to back?",
-        //             "Back",
-        //             new Radzen.ConfirmOptions { OkButtonText = "Yes", CancelButtonText = "No" })==true)
-        // {
-        //     NavigationManager.NavigateTo("/orders");
-        // }
+        var result = await DialogService.ShowMessageBox(
+                    "Confirmation",
+                    $"Are you sure you want to submit this order with total price: {Order.TotalPrice?.ToString("c2")}?",
+                    "Yes", "No");
+        if (result == true)
+        {
+            NavigationManager.NavigateTo("/orders",true);
+        }
+        
         
     }
 }

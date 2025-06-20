@@ -1,6 +1,7 @@
 ﻿@inherits LayoutComponentBase
 
 @attribute [StreamRendering(false)]
+<MudThemeProvider @bind-IsDarkMode="_isDarkMode" />
 
 <div class="container-fluid">
     <main>
@@ -11,5 +12,5 @@
 </div>
 
 @code {
-
+    bool _isDarkMode = false;
 }

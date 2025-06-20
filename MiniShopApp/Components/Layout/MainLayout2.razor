@@ -2,39 +2,28 @@
 @attribute [StreamRendering(false)]
 
 @* Required *@
-<MudThemeProvider />
+<MudThemeProvider/>
 <MudPopoverProvider />
 @* Needed for dialogs *@
 <MudDialogProvider />
 @* Needed for snackbars *@
 <MudSnackbarProvider />
-    <div class="sticky-top bg-body-secondary">
 
-        <ul class="nav justify-content-between">
-            <li class="nav-item">
-                <NavLink class="nav-link" aria-current="page" href="/orders">Products</NavLink>
-            </li>
-            <li class="nav-item">
-                <NavLink class="nav-link" href="/order/histories">History</NavLink>
-            </li>
-           
-            <li class="nav-item">
-                <NavLink class="nav-link" href="/order/about">About</NavLink>
-            </li>
-
-        </ul>
+<div class="sticky-top bg-body-secondary">
+    <div class="navbar">
+        <NavLink href="/order/ordering" class="nav-item"><MudIcon Icon="@Icons.Material.Filled.Shop2" Title="PRODUCTS" Class="mr-2" /> PRODUCTS</NavLink>
+        <NavLink href="/order/histories" class="nav-item"><MudIcon Icon="@Icons.Material.Filled.History" Title="HISTORY" Class="mr-2" /> HISTORY</NavLink>
+        <NavLink href="/order/about" class="nav-item"><MudIcon Icon="@Icons.Material.Filled.Info" Title="ABOUT" Class="mr-2" /> ABOUT</NavLink>
     </div>
 
-
-<div class="container-fluid">
-    
-    <main>
-        <article class="content">
-            @Body
-        </article>
-    </main>
 </div>
 
+<main class="container-fluid">
+    @Body
+</main>
 @code {
+    private bool _isDarkMode=false;
+   
 
+    
 }

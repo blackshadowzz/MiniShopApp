@@ -25,20 +25,15 @@ namespace MiniShopApp.Pages
         {
             try
             {
-                if (userId == null)
-                {
+
                     //userId=userState.UserId;
                     var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
                     if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("userid", out var userIdStr) && long.TryParse(userIdStr, out var userCustId))
                     {
                         userState.UserId = userCustId;
                         userId = userCustId;
-                        
+                        await localStorage.SetAsync("customerId", userId.ToString()!);
                     }
-                    // Simulate fetching user ID from a service or storage
-
-                    await localStorage.SetAsync("customerId", userId.ToString()!);
-                }
                 
             }
             catch (Exception ex)
@@ -47,13 +42,20 @@ namespace MiniShopApp.Pages
                 Console.WriteLine($"Error: {ex.Message}");
             }
             await base.OnInitializedAsync();
-            StateHasChanged();
         }
-        async Task onCheckOrder()
+        bool isLoading = false;
+        async void onCheckOrder()
         {
+            isLoading = true;
+            await localStorage.SetAsync("customerId", userState.UserId.ToString()!);
 
-            
-            NavigationManager.NavigateTo($"/orders");
+            NavigationManager.NavigateTo("/orders");
+            await Task.Delay(500).ContinueWith(_ => 
+            {
+                isLoading = false;
+                StateHasChanged();
+            });
+            isLoading = false;
         }
     }
 }

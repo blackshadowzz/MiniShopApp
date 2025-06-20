@@ -1,110 +1,88 @@
-﻿
-@page "/orders"  
-@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
-@layout MainLayout2  
-@rendermode InteractiveServer  
+﻿@page "/order/ordering"
+@layout MainLayout2
+@rendermode InteractiveServer
 
-<PageTitle>Products</PageTitle>  
-<div>  
-    @* <p>Id: @customerId</p> *@
-    <div class="my-2">  
-        <div class="input-group mb-3">  
-            <input type="text"  
-                   class="form-control"  
-                   value="@_filter"  
-                   @oninput="@((e) => OnSearch(e))"  
-                   placeholder="Search here..."  
-                   aria-label="Search here..."  
-                   aria-describedby="button-addon2"
-                   />  
-            <button class="btn btn-outline-secondary" @onclick="OnGetSearchRefresh" type="button" id="button-addon2"><i class="bi bi-search"></i></button>  
-        </div>  
-    </div>  
-    <div class="row row-cols-3 row-cols-md-6 g-2">  
-        @foreach (var list in _products)  
-        {  
-            <div class="col">  
+<PageTitle>Products</PageTitle>
+<div>
+
+    <div class="my-2">
+        <div class="input-group mb-3">
+            <input type="text"
+                   class="form-control"
+                   value="@_filter"
+                   @oninput="@((e) => OnSearch(e))"
+                   placeholder="Search here..."
+                   aria-describedby="button-addon2" />
+            <button class="btn btn-outline-secondary" @onclick="OnGetSearchRefresh" type="button" id="button-addon2"><i class="bi bi-search"></i></button>
+        </div>
+    </div>
+    @if (IsLoading == true)
+    {
+        <div class="text-center">
+            <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+        </div>
+    }
+    <div class="row row-cols-3 row-cols-md-6 g-2 mb-5 pb-2">
+        @foreach (var list in _products)
+        {
+            <div class="col">
 
                 <div class="card h-100">
-                    @if(list?.QTYIncrease > 0)  
-                    {  
-                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">  
-                            @list?.QTYIncrease  
-                            <span class="visually-hidden">unread messages</span>  
+                    @if (list?.QTYIncrease > 0)
+                    {
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                            @list?.QTYIncrease
+                            <span class="visually-hidden">unread messages</span>
                         </span>
                     }
-    
-                    
-                    <img src="..." class="card-img-top" alt="...">  
-                    <div class="card-body">  
+
+
+                    <img src="..." class="card-img-top" alt="..." @onclick="@(() => GetItemDetails(list!.Id))">
+                    <div class="card-body" @onclick="@(() => GetItemDetails(list!.Id))">
                         <h6 class="card-title">@list?.ProductName</h6>
                         <h5 class="card-text text-danger">@String.Format("${0:N2}", list?.Price)</h5>
-                    </div>  
+                    </div>
                     <div class="d-flex justify-content-between mx-2 my-2">
-                        <button class="btn btn-sm btn-primary btn-sm" @onclick="@(() => DescreasProduct(list!.Id))" >-</button>
+                        <button class="btn btn-sm btn-primary btn-sm" @onclick="@(() => DescreasProduct(list!.Id))">-</button>
 
-                        <button class="btn btn-sm btn-primary btn-sm" @onclick="@(() => AddProduct(list!.Id))" >+</button>
-                    </div>  
-                </div>  
+                        <button class="btn btn-sm btn-primary btn-sm" @onclick="@(() => AddProduct(list!.Id))">+</button>
+                    </div>
+                </div>
 
-            </div>  
-        }  
-    </div>  
-
-
-        
-    <div class="fixed-bottom">  
-
-        <div class="d-flex justify-content-between gap-2">  
-            <button class="btn btn-secondary w-auto" data-bs-toggle="modal" data-bs-target="#exampleModal" @onclick="GetViewOrder">View Order @orderDetails.Count()</button>
-            <button class="btn btn-primary w-50" @onclick="PlaceOrderAsync">Place Order</button>
-        </div>  
-    </div>  
-</div> 
-<!-- Modal -->
-<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h1 class="modal-title fs-5" id="exampleModalLabel">Order lists</h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
-               <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th scope="col">Product Name</th>
-                            <th scope="col">Quantity</th>
-                            <th scope="col">Price</th>
-                            <th scope="col">Total Price</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var item in orderDetails)
-                        {
-                            <tr>
-                                <td>@item.ItemName</td>
-                                <td>@item.Quantity</td>
-                                <td>@item.Price</td>
-                                <td>@item.TotalPrice</td>
-                            </tr>
-                        }
-                        
-                    </tbody>
-                    <tbody>
-                        <tr class="table-active">
-                            <th></th>
-                            <th>@orderDetails.Sum(x => x.Quantity)</th>
-                            <th>@orderDetails.Sum(x => x.Price)</th>
-                            <th>@orderDetails.Sum(x => x.TotalPrice)</th>
-                        </tr>
-                    </tbody>
-               </table>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-               
-            </div>
+        }
+    </div>
+
+
+
+
+</div>
+<div class="pt-5">
+    <div class="fixed-bottom">
+        <div class="d-flex justify-content-between gap-2">
+            <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Info" Color="Color.Info" OnClick="ShowDetails" Style="width:45%">View Order @orderDetails.Count() </MudButton>
+            <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.AddCard" OnClick="@PlaceOrderAsync" Color="Color.Primary" Style="width:55%">Place Order</MudButton>
         </div>
     </div>
 </div>
+
+
+<!-- Modal -->
+@code {
+    async Task GetItemDetails(int id)
+    {
+        var item = _products.FirstOrDefault(x => x.Id == id);
+        bool? result = await DialogService.ShowMessageBox(
+            $"Details: {item?.ProductName}",
+            (MarkupString)
+            $"Name: {item?.ProductName} <br /> Price: {item?.Price?.ToString("c2")} <br /> Description: {item?.Description} <br /> ");
+        StateHasChanged();
+    }
+    async Task ShowDetails()
+    {
+        await DialogService.ShowAsync<DialogOrderDetails>("Order list", new DialogParameters
+        {
+            { "orderDetails", orderDetails }
+        });
+    }
+}
