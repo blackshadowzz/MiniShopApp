@@ -31,5 +31,22 @@ namespace MiniShopApp.Infrastructures.Services.Implements
             }
 
         }
+
+        public async Task<IEnumerable<TbTable>> GetAllAsync(string? filter = null)
+        {
+            await using var dbContext = _context.CreateDbContext();
+            if (string.IsNullOrEmpty(filter))
+            {
+
+                return await dbContext.TbTables.ToListAsync();
+            }
+            else
+            {
+                return await dbContext.TbTables
+                    .Where(p => p.TableNumber!.Contains(filter))
+                    .AsNoTracking()
+                    .ToListAsync();
+            }
+        }
     }
 }

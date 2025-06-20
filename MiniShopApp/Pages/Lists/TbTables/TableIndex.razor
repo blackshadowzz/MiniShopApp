@@ -7,15 +7,9 @@
 <h3>TableIndex</h3>
 
 
-@* <div class="rz-p-12 rz-text-align-end"> *@
-@*     <RadzenButton Text="Show notification at custom position" *@
-@*                   Click=@(args => ShowNotification(new NotificationMessage { Style = "position: absolute; inset-inline-start: -1000px;", Severity = NotificationSeverity.Success, Summary = "Success Summary", Detail = "Success Detail", Duration = 4000 })) /> *@
-@* </div> *@
-
-
 <div>
     <div class="d-flex justify-content-end mb-2">
-        <button class="btn btn-primary" onclick="@Createtable">Create Table</button>
+        <a href="/table/creat" class="btn  btn-primary">Create</a>
     </div>
     <table class="table caption-top table-bordered table-hover table-responsive">
         <thead>
@@ -26,11 +20,14 @@
             </tr>
         </thead>
         <tbody>
-            <tr>
-                <th></th>
-                <th></th>
-                <th></th>
-            </tr>
+            @foreach(var _data in model)
+            {
+                <tr>
+                    <th>@_data.TableId</th>
+                    <th>@_data.TableNumber</th>
+                    <th>@_data.Description</th>
+                </tr>
+            }
         </tbody>
     </table>
 </div>
