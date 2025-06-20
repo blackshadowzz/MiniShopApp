@@ -1,6 +1,7 @@
 using Microsoft.JSInterop;
 using MiniShopApp.Infrastructures.Services.Interfaces;
 using MiniShopApp.Models.Items;
+using MudBlazor;
 using System.Runtime;
 using System.Text.Json;
 
@@ -9,6 +10,12 @@ namespace MiniShopApp.Pages.Lists.TbTables
     public partial class TableIndex
     {
         private readonly ITableListService _context;
+        private readonly DialogOptions _backdropClick = new() 
+        { 
+            BackdropClick = false,
+            MaxWidth = MaxWidth.Medium,
+            FullWidth = true,
+        };
         public TableIndex(ITableListService tableListService)
         {
             _context = tableListService;
@@ -35,7 +42,8 @@ namespace MiniShopApp.Pages.Lists.TbTables
         }
         public async Task Createtable()
         {
-           // await DialogService.OpenAsync<CreateTable>("Create Table");
+            var optionss = _backdropClick;
+            await Dialog.ShowAsync<CreateTable>("Create new Table", optionss);
         }
 
     }
