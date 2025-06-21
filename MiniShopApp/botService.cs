@@ -21,19 +21,18 @@ namespace MiniShopApp
         private readonly ITelegramBotClient _botClient;
         private readonly IDbContextFactory<AppDbContext> dbContext;
         private readonly IServiceProvider serviceProvider;
-        private readonly UserState userState;
+        //private readonly UserState userState;
 
         public botService(ILogger<botService> logger,
             ITelegramBotClient botClient,
             IDbContextFactory<AppDbContext> dbContext,
-            IServiceProvider serviceProvider,
-            UserState userState)
+            IServiceProvider serviceProvider)
         {
             _logger = logger;
             _botClient = botClient;
             this.dbContext = dbContext;
             this.serviceProvider = serviceProvider;
-            this.userState = userState;
+            //this.userState = userState;
         }
 
         protected async override Task ExecuteAsync(CancellationToken stoppingToken)
@@ -70,7 +69,7 @@ namespace MiniShopApp
                 //string webappUrl = "https://minishopapp.runasp.net/index";
                 string webappUrl = $"https://minishopapp.runasp.net/index?userid={update.Message!.Chat.Id}";
 
-                userState.UserId = update.Message!.Chat.Id;
+                //userState.UserId = update.Message!.Chat.Id;
                 if (update.Message!.Text == "/start")
                 {
 

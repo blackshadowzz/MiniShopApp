@@ -76,9 +76,11 @@ namespace MiniShopApp.Pages.Orders
                     "Confirmation",
                     $"Are you sure you want to submit this order with total price: {Order.TotalPrice?.ToString("c2")}?", 
                     "Yes", "No");
+                IsLoading = false;
                 if (result==true)
                 {
-                    
+                IsLoading = true;
+
                     TbOrder order = new TbOrder
                     {
                         CustomerId = Order.CustomerId,
@@ -102,7 +104,7 @@ namespace MiniShopApp.Pages.Orders
                         SnackbarService.Add("Your order has been successfully created.", MudBlazor.Severity.Success);
                         IsLoading = false;
 
-                        NavigationManager.NavigateTo("/orders");
+                        NavigationManager.NavigateTo("/order/ordering");
                         await Task.Delay(500).ContinueWith(_ => 
                         {
                             IsLoading = false;

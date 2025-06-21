@@ -1,8 +1,12 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
+using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.JSInterop;
+using MiniShopApp.Data.TelegramStore;
 using MiniShopApp.Infrastructures.Services.Interfaces;
 using MiniShopApp.Models.Items;
 using MiniShopApp.Models.Orders;
+using Telegram.Bot.Types;
 
 namespace MiniShopApp.Pages.Orders
 {
@@ -12,7 +16,11 @@ namespace MiniShopApp.Pages.Orders
         private readonly IProductService productService;
         [Inject]
         protected ProtectedLocalStorage localStorage { get; set; } = default!;
-        
+        [Inject]
+        protected ProtectedSessionStorage sessionStorage { get; set; } = default!;
+        [Inject] IJSRuntime JSRuntime { get; set; } = default!;
+        [Inject]
+        protected UserState userState { get; set; } = default!;
         public OrderIndex(IProductService productService)
         {
             this.productService = productService;
@@ -27,11 +35,22 @@ namespace MiniShopApp.Pages.Orders
 
         protected override async Task OnInitializedAsync()
         {
-            
-            GetCustomerData();
+            //var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
+            //if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("userid", out var userIdStr) && long.TryParse(userIdStr, out var userCustId))
+            //{
+
+
+            //    userState.UserId = userCustId;
+            //    customerId = userCustId.ToString();
+               
+            //    await localStorage.SetAsync("customerId", customerId);
+            //}
             await FilterProducts();
+            GetCustomerData();
+
             await base.OnInitializedAsync();
         }
+        
         protected async void OnGetSearchRefresh()
         {
             await OnInitializedAsync();
@@ -64,6 +83,8 @@ namespace MiniShopApp.Pages.Orders
 
                 throw new Exception($"Error filtering products: {ex.Message}");
             }
+            IsLoading = false;
+            StateHasChanged();
         }
         protected async Task OnSearch(ChangeEventArgs e)
         {
@@ -83,24 +104,22 @@ namespace MiniShopApp.Pages.Orders
         {
             try
             {
-                var result = await localStorage.GetAsync<string?>("customerId");
-                if (result.Success && result.Value != null)
+                var result = await sessionStorage.GetAsync<string>("userId");
+                if (result.Success)
                 {
-                    customerId = result.Value; // Convert to readable data (already a string in this case)
+                    customerId = result.Value;
+                    StateHasChanged();// Convert to readable data (already a string in this case)
                 }
                 else
                 {
                     customerId = string.Empty;
-                    Console.WriteLine("Customer ID not found in session storage.");
-                    SnackbarService.Add("User invalid! please refresh page or bot /start again.", MudBlazor.Severity.Error);
-                    
+                    SnackbarService.Add("Getting user not found! please refresh page or bot /start again.", MudBlazor.Severity.Error);
                     return;
                 }
             }
             catch (Exception ex)
             {
-     
-
+                //SnackbarService.Add("Error 1: "+ex.Message, MudBlazor.Severity.Error);
                 throw new Exception($"Get local data: {ex.Message}");
                 
             }
@@ -215,22 +234,27 @@ namespace MiniShopApp.Pages.Orders
         }
         protected async Task PlaceOrderAsync()
         {
+            
+
             IsLoading = true;
 
             try
             {
                 if(customerId == null)
                 {
-                    GetCustomerData();
-                    
+                    customerId = userState.UserId.ToString();
                 }
-                if( orderDetails.Count <= 0)
+                
+                GetCustomerData();
+                if ( orderDetails.Count <= 0)
                 {
                     IsLoading = false;
                     SnackbarService.Add("Please add products to the order before placing it.", MudBlazor.Severity.Warning);
                    
                     return;
                 }
+                //customerId = userState.UserId.ToString();
+
                 if (!string.IsNullOrEmpty(customerId))
                 {
                     Console.WriteLine($"\n\n Customer ID: {customerId} \n\n");

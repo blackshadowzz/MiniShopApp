@@ -68,8 +68,7 @@
         <div class="container-fluid">
             @Body
         </div>
-    <MudMainContent Class="container-fluid">
-        @Body
+
     </MudMainContent>
 </MudLayout>
 @code {
@@ -80,7 +79,7 @@
     {
         _drawerOpen = !_drawerOpen;
     }
-    private bool _isDarkMode;
+    private bool _isDarkMode=false;
     private MudThemeProvider? _mudThemeProvider;
     private MudBlazor.MudTheme _theme = new MudBlazor.MudTheme(); // Initialize the required theme
 
@@ -95,7 +94,7 @@
                 Background = "#121212", // Example background color for dark mode
                 TextPrimary = "#ffffff", // Example text color for dark mode
             };
-            _isDarkMode = await _mudThemeProvider!.GetSystemDarkModeAsync();
+            // _isDarkMode = await _mudThemeProvider!.GetSystemDarkModeAsync();
             StateHasChanged();
         }
     }

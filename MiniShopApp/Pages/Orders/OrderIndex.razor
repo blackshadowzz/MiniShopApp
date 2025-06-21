@@ -3,13 +3,14 @@
 @rendermode InteractiveServer
 
 <PageTitle>Products</PageTitle>
-<div>
-
+@* <p>@customerId</p> *@
     <div class="my-2">
+
+
         <div class="input-group mb-3">
             <input type="text"
                    class="form-control"
-                   value="@_filter"
+                   @bind-value="_filter"
                    @oninput="@((e) => OnSearch(e))"
                    placeholder="Search here..."
                    aria-describedby="button-addon2" />
@@ -37,7 +38,7 @@
                     }
 
 
-                    <img src="..." class="card-img-top" alt="..." @onclick="@(() => GetItemDetails(list!.Id))">
+                    <img src="@list?.ImageUrl" class="card-img-top" alt="..." @onclick="@(() => GetItemDetails(list!.Id))">
                     <div class="card-body" @onclick="@(() => GetItemDetails(list!.Id))">
                         <h6 class="card-title">@list?.ProductName</h6>
                         <h5 class="card-text text-danger">@String.Format("${0:N2}", list?.Price)</h5>
@@ -53,10 +54,11 @@
         }
     </div>
 
+  
 
 
 
-</div>
+
 <div class="pt-5">
     <div class="fixed-bottom">
         <div class="d-flex justify-content-between gap-2">

@@ -30,11 +30,13 @@ namespace MiniShopApp.Pages
                     var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
                     if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("userid", out var userIdStr) && long.TryParse(userIdStr, out var userCustId))
                     {
+                       
+
                         userState.UserId = userCustId;
                         userId = userCustId;
-                        await localStorage.SetAsync("customerId", userId.ToString()!);
-                    }
-                
+                    await SessionStorage.SetAsync("userId", userId.ToString()!);
+                    await localStorage.SetAsync("customerId", userId.ToString()!);
+                }
             }
             catch (Exception ex)
             {
