@@ -10,5 +10,6 @@ namespace MiniShopApp.Infrastructures.Services.Interfaces
         Task<Result<TbOrder>> GetOrderSummaryAsync(long customerId, TbOrder model);
         Task<Result<IEnumerable<TbOrderDetails>>> GetOrderDetailsAsync(long customerId, TbOrderDetails model);
         Task<Result<UserCustomer>> GetUserAsync(long? filter);
+        Task<Result<TbOrder>> GetOrderByUserAsync(long? customerId);
     }
 }

@@ -20,8 +20,8 @@ namespace MiniShopApp.Pages.Orders
         //[Inject]
         //protected ProtectedSessionStorage sessionStorage { get; set; } = default!;
         //[Inject] IJSRuntime JSRuntime { get; set; } = default!;
-        [Inject]
-        protected UserState userState { get; set; } = default!;
+        //[Inject]
+        //protected UserState userState { get; set; } = default!;
         public OrderIndex(IProductService productService)
         {
             this.productService = productService;
@@ -48,7 +48,7 @@ namespace MiniShopApp.Pages.Orders
         
         protected async void OnGetSearchRefresh()
         {
-            await OnInitializedAsync();
+            await FilterProducts(_filter);
         }
         protected async Task FilterProducts(string? filter = null)
         {
@@ -78,8 +78,6 @@ namespace MiniShopApp.Pages.Orders
 
                 throw new Exception($"Error filtering products: {ex.Message}");
             }
-            IsLoading = false;
-            StateHasChanged();
         }
         protected async Task OnSearch(ChangeEventArgs e)
         {

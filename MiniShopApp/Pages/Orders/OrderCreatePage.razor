@@ -10,20 +10,35 @@
         <caption>Order details</caption>
         <thead>
             <tr>
-                <th scope="col">Product Name</th>
+                <th scope="col">Name</th>
                 <th scope="col">Quantity</th>
                 <th scope="col">Price</th>
-                <th scope="col">Total Price</th>
+                <th scope="col">T.Price</th>
+                <th scope="col" style="width:35px">
+                    <MudIcon Icon="@Icons.Material.Filled.RemoveShoppingCart" Size=Size.Small Title="Favorite" />
+                    </th>
             </tr>
         </thead>
         <tbody>
-            @foreach (var item in orderDetails)
+            @foreach (var item in orderDetails??default!)
             {
                 <tr>
                     <td>@item.ItemName</td>
-                    <td class="text-end">@item.Quantity</td>
+                    <td class="text-end d-flex justify-content-between align-items-center">
+                        <MudIconButton Icon="@Icons.Material.Outlined.RemoveCircleOutline" 
+                        OnClick="@(() => DescreasProduct(item.ItemId??default))" Color="Color.Info" Size="Size.Small" />
+                        @item.Quantity
+                        <MudIconButton Icon="@Icons.Material.Outlined.AddCircleOutline" 
+                        OnClick="@(() => AddProduct(item.ItemId??default))" Color="Color.Primary" Size="Size.Small" />
+                    </td>
                     <td class="text-end"> @String.Format("${0:N2}", @item.Price)</td>
                     <td class="text-end"> @String.Format("${0:N2}", @item.TotalPrice)</td>
+                    <td class="align-items-center">
+                        <MudIconButton Icon="@Icons.Material.Outlined.DeleteForever"
+                                       OnClick="@(() => RemoveProduct(item.ItemId??default))" 
+                                       Color="Color.Info" 
+                                       Size="Size.Small" />
+                    </td>
                 </tr>
             }
 
@@ -31,15 +46,15 @@
         <tfoot >
             <tr class="table-active ">
                 <th>Total</th>
-                <th class="text-end">@orderDetails.Sum(x => x.Quantity)</th>
+                <th class="text-end">@orderDetails?.Sum(x => x.Quantity)</th>
                 <th class="text-end"></th>
-                <th class="text-end text-danger">@String.Format("${0:N2}", @orderDetails.Sum(x => x.TotalPrice))</th>
+                <th class="text-end text-danger">@String.Format("${0:N2}", @orderDetails?.Sum(x => x.TotalPrice))</th>
             </tr>
             <tr >
                 <th></th>
                 <th class="text-end"></th>
                 <th class="text-end"></th>
-                <th class="text-end text-danger table-active">@String.Format("R {0:N2}", @orderDetails.Sum(x => x.TotalPrice) * 4050)</th>
+                <th class="text-end text-danger table-active">@String.Format("R {0:N2}", @orderDetails?.Sum(x => x.TotalPrice) * 4050)</th>
             </tr>
         </tfoot>
 
@@ -48,7 +63,7 @@
     <MudForm @ref="form" @bind-IsValid="@success" @bind-Errors="@errors">
         <MudNumericField T="string" @bind-Value="@Order.TableNumber"
                          Variant="Variant.Outlined"
-            Label="Enter table number" Required="true" RequiredError="Table number is required!" />
+            Label="Enter table number " Required="true" RequiredError="Table number is required!" />
 
 
         <div class="form-floating mt-3">
@@ -89,8 +104,80 @@
         {
             NavigationManager.NavigateTo($"/order/ordering/{userId}",true);
         }
-        
-        
+
+
+    }
+    protected async void RemoveProduct(int? proId)
+    {
+        if(proId is not null)
+        {
+            var result = await DialogService.ShowMessageBox(
+                    "Remove",
+                    $"Are you sure to remove this item?",
+                    "Yes", "No");
+            if (result == true)
+            {
+                var pro = orderDetails!.Where(x => x.ItemId == proId).FirstOrDefault();
+                orderDetails!.Remove(pro!);
+                StateHasChanged();
+            }
+
+        }
+    }
+    protected async void DescreasProduct(int productId)
+    {
+        try
+        {
+            if (orderDetails!.Any(od => od.ItemId == productId))
+            {
+                // If the product already exists in the order, descrease the quantity
+                var existingOrderDetail = orderDetails!.First(od => od.ItemId == productId);
+                if (existingOrderDetail.Quantity == 1)
+                {
+                    var result = await DialogService.ShowMessageBox(
+                    "Remove",
+                    $"Quantity 1 - Do you want to remove this item?",
+                    "Yes", "No");
+                    if (result == true)
+                    {
+                        orderDetails!.Remove(existingOrderDetail);
+                    }
+                    
+                }
+                else
+                {
+                    existingOrderDetail.Quantity -= 1;
+                    existingOrderDetail.TotalPrice = existingOrderDetail.Price * existingOrderDetail.Quantity;
+                }
+
+
+                StateHasChanged();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error adding product: {ex.Message}");
+        }
+    }
+    protected void AddProduct(int productId)
+    {
+        try
+        {
+
+            if (orderDetails!.Any(od => od.ItemId == productId))
+            {
+                // If the product already exists in the order, increase the quantity
+                var existingOrderDetail = orderDetails!.First(od => od.ItemId == productId);
+
+                existingOrderDetail.Quantity += 1;
+                existingOrderDetail.TotalPrice = existingOrderDetail.Price * existingOrderDetail.Quantity;
+                StateHasChanged();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error adding product: {ex.Message}");
+        }
     }
 }
 

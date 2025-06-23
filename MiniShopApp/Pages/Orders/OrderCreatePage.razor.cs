@@ -74,7 +74,7 @@ namespace MiniShopApp.Pages.Orders
                 }
                 var result = await DialogService.ShowMessageBox(
                     "Confirmation",
-                    $"Are you sure to submit this order with total price: {Order.TotalPrice?.ToString("c2")}?", 
+                    $"Are you sure to submit this order with total price: {orderDetails.Sum(x => x.TotalPrice)?.ToString("c2")}?", 
                     "Yes", "No");
                 IsLoading = false;
                 if (result==true)
@@ -85,10 +85,10 @@ namespace MiniShopApp.Pages.Orders
                     {
                         CustomerId = Order.CustomerId,
                         TableNumber = Order.TableNumber,
-                        ItemCount = Order.ItemCount,
-                        SubPrice = Order.SubPrice,
+                        ItemCount = orderDetails.Count,
+                        SubPrice = orderDetails.Sum(x=>x.TotalPrice),
                         DiscountPrice = Order.DiscountPrice,
-                        TotalPrice = Order.TotalPrice,
+                        TotalPrice = orderDetails.Sum(x => x.TotalPrice),
                         Notes = Order.Notes,
                         CreatedDT = DateTime.Now,
                         TbOrderDetails = orderDetails,
@@ -105,11 +105,7 @@ namespace MiniShopApp.Pages.Orders
                         IsLoading = false;
 
                         NavigationManager.NavigateTo($"/order/ordering/{userId}");
-                        await Task.Delay(500).ContinueWith(_ => 
-                        {
-                            IsLoading = false;
-                            StateHasChanged();
-                        });
+                       
                     }
                     else
                     {

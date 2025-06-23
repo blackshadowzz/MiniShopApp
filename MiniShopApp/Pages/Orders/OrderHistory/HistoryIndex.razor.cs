@@ -5,13 +5,13 @@ namespace MiniShopApp.Pages.Orders.OrderHistory
 {
     public partial class HistoryIndex
     {
-        [Inject]
-        protected UserState userState { get; set; } = default!;
+        //[Inject]
+        //protected UserState userState { get; set; } = default!;
         [Parameter] public long? userId { get; set; }
         protected override async Task OnInitializedAsync()
         {
 
-            userState.UserId = userId;
+            //userState.UserId = userId;
 
             await base.OnInitializedAsync();
         }

@@ -22,13 +22,12 @@
     @Body
 </main>
 @code {
-    [Inject] public UserState userState { get; set; } = default!;
+    // [Inject] public UserState userState { get; set; } = default!;
     private bool _isDarkMode=false;
-    [Parameter] public long? userId{ get; set; }
-    protected override async Task OnInitializedAsync()
-    {
-        userId = userState.UserId;
-        await base.OnInitializedAsync();
-    }
-
+    public long? userId => userState.UserId;
+    // protected override void OnInitialized()
+    // {
+    //     userId = userState.UserId;
+    //     base.OnInitialized();
+    // }
 }
