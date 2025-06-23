@@ -61,5 +61,42 @@ namespace MiniShopApp.Pages.Settings.UserManages
                 UserLogContent = "No log file found.";
             }
         }
+        protected async Task CreateAlert()
+        {
+            try
+            {
+                var data= userCustomers!.Select(x => new CustomerAlertMessege
+                {
+                    Id = x.Id,
+                    CustomerId = x.CustomerId,
+                    AlertMessege=messegeText,
+                    FirstName = x.FirstName,
+                });
+
+                alertMessege=data.ToList();
+                var result = await userCustomer.CreateUserAlertAsync(alertMessege);
+                if (result.IsSuccess)
+                {
+                    SnackbarService.Add(result.Data!, MudBlazor.Severity.Success);
+
+                    IsLoading = false;
+                }
+                else
+                {
+                    IsLoading = false;
+                    // Handle the error, e.g., show a notification or log it
+                    Console.WriteLine($"Error loading user customers: {result.ErrMessage}");
+                    SnackbarService.Add(result.ErrMessage, MudBlazor.Severity.Error);
+
+                }
+            }
+            catch (Exception ex)
+            {
+                IsLoading = false;
+                // Handle exceptions, e.g., log them or show a notification
+                SnackbarService.Add(ex.Message, MudBlazor.Severity.Error);
+                Console.WriteLine($"Exception occurred while loading user customers: {ex.Message}");
+            }
+        }
     }
 }

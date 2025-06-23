@@ -28,4 +28,10 @@
     <ProjectReference Include="..\Helpers\Helpers.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Models\Transactions\" />
+    <Folder Include="Pages\Customers\" />
+    <Folder Include="Pages\Transactions\" />
+  </ItemGroup>
+
 </Project>
