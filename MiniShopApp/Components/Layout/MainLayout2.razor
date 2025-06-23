@@ -1,6 +1,6 @@
-﻿@inherits LayoutComponentBase
+﻿@using MiniShopApp.Data.TelegramStore
+@inherits LayoutComponentBase
 @attribute [StreamRendering(false)]
-
 @* Required *@
 <MudThemeProvider/>
 <MudPopoverProvider />
@@ -11,9 +11,9 @@
 
 <div class="sticky-top bg-body-secondary">
     <div class="navbar">
-        <NavLink href="/order/ordering" class="nav-item"><MudIcon Icon="@Icons.Material.Filled.Shop2" Title="PRODUCTS" Class="mr-2" /> PRODUCTS</NavLink>
-        <NavLink href="/order/histories" class="nav-item"><MudIcon Icon="@Icons.Material.Filled.History" Title="HISTORY" Class="mr-2" /> HISTORY</NavLink>
-        <NavLink href="/order/about" class="nav-item"><MudIcon Icon="@Icons.Material.Filled.Info" Title="ABOUT" Class="mr-2" /> ABOUT</NavLink>
+        <NavLink href="@($"/order/ordering/{userId}")" class="nav-item"><MudIcon Icon="@Icons.Material.Filled.Shop2" Title="PRODUCTS" Class="mr-2" /> PRODUCTS</NavLink>
+        <NavLink href="@($"/order/histories/{userId}")" class="nav-item"><MudIcon Icon="@Icons.Material.Filled.History" Title="HISTORY" Class="mr-2" /> HISTORY</NavLink>
+        <NavLink href="@($"/order/about/{userId}")" class="nav-item"><MudIcon Icon="@Icons.Material.Filled.Info" Title="ABOUT" Class="mr-2" /> ABOUT</NavLink>
     </div>
 
 </div>
@@ -22,8 +22,13 @@
     @Body
 </main>
 @code {
+    [Inject] public UserState userState { get; set; } = default!;
     private bool _isDarkMode=false;
-   
+    [Parameter] public long? userId{ get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        userId = userState.UserId;
+        await base.OnInitializedAsync();
+    }
 
-    
 }

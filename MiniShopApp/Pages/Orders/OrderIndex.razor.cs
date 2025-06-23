@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.JSInterop;
+using Microsoft.SqlServer.Server;
 using MiniShopApp.Data.TelegramStore;
 using MiniShopApp.Infrastructures.Services.Interfaces;
 using MiniShopApp.Models.Items;
@@ -16,9 +17,9 @@ namespace MiniShopApp.Pages.Orders
         private readonly IProductService productService;
         [Inject]
         protected ProtectedLocalStorage localStorage { get; set; } = default!;
-        [Inject]
-        protected ProtectedSessionStorage sessionStorage { get; set; } = default!;
-        [Inject] IJSRuntime JSRuntime { get; set; } = default!;
+        //[Inject]
+        //protected ProtectedSessionStorage sessionStorage { get; set; } = default!;
+        //[Inject] IJSRuntime JSRuntime { get; set; } = default!;
         [Inject]
         protected UserState userState { get; set; } = default!;
         public OrderIndex(IProductService productService)
@@ -30,23 +31,17 @@ namespace MiniShopApp.Pages.Orders
         protected List<TbOrderDetails> orderDetails = [];
         protected OrderCreateModel order = new OrderCreateModel();
         private string? _filter = null;
+        [Parameter] public long? userId { get; set; } = null;
         string? customerId = null;
         protected bool IsLoading = false;
 
         protected override async Task OnInitializedAsync()
         {
-            //var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
-            //if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("userid", out var userIdStr) && long.TryParse(userIdStr, out var userCustId))
-            //{
-
-
-            //    userState.UserId = userCustId;
-            //    customerId = userCustId.ToString();
-               
-            //    await localStorage.SetAsync("customerId", customerId);
-            //}
+            userState.UserId=userId;
+            customerId =userId?.ToString();
+            
             await FilterProducts();
-            GetCustomerData();
+            //GetCustomerData();
 
             await base.OnInitializedAsync();
         }
@@ -100,30 +95,30 @@ namespace MiniShopApp.Pages.Orders
                 Console.WriteLine($"Error during search: {ex.Message}");
             }
         }
-        protected async void GetCustomerData()
-        {
-            try
-            {
-                var result = await sessionStorage.GetAsync<string>("userId");
-                if (result.Success)
-                {
-                    customerId = result.Value;
-                    StateHasChanged();// Convert to readable data (already a string in this case)
-                }
-                else
-                {
-                    customerId = string.Empty;
-                    SnackbarService.Add("Getting user not found! please refresh page or bot /start again.", MudBlazor.Severity.Error);
-                    return;
-                }
-            }
-            catch (Exception ex)
-            {
-                //SnackbarService.Add("Error 1: "+ex.Message, MudBlazor.Severity.Error);
-                throw new Exception($"Get local data: {ex.Message}");
+        //protected async void GetCustomerData()
+        //{
+        //    try
+        //    {
+        //        var result = await sessionStorage.GetAsync<string>("userId");
+        //        if (result.Success && result.Value!=null)
+        //        {
+        //            customerId = result.Value;
+        //            StateHasChanged();// Convert to readable data (already a string in this case)
+        //        }
+        //        else
+        //        {
+        //            customerId = string.Empty;
+        //            SnackbarService.Add("Getting user not found! please refresh page or bot /start again.", MudBlazor.Severity.Error);
+        //            return;
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        //SnackbarService.Add("Error 1: "+ex.Message, MudBlazor.Severity.Error);
+        //        throw new Exception($"Get local data: {ex.Message}");
                 
-            }
-        }
+        //    }
+        //}
         protected void DescreasProduct(int productId)
         {
             try
@@ -240,12 +235,11 @@ namespace MiniShopApp.Pages.Orders
 
             try
             {
-                if(customerId == null)
+                if(userId == null)
                 {
                     customerId = userState.UserId.ToString();
                 }
                 
-                GetCustomerData();
                 if ( orderDetails.Count <= 0)
                 {
                     IsLoading = false;
@@ -253,6 +247,8 @@ namespace MiniShopApp.Pages.Orders
                    
                     return;
                 }
+                //GetCustomerData();
+
                 //customerId = userState.UserId.ToString();
 
                 if (!string.IsNullOrEmpty(customerId))
@@ -270,7 +266,7 @@ namespace MiniShopApp.Pages.Orders
                     await localStorage.SetAsync("orderToCreate", order);
                     //OrderCreatePage orderCreatePage = new OrderCreatePage(order);
                     IsLoading= false;
-                    navigation.NavigateTo("/orders/create");
+                    navigation.NavigateTo($"/orders/create/{userId}");
                 }
                 else
                 {

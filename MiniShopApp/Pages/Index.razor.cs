@@ -48,15 +48,15 @@ namespace MiniShopApp.Pages
         bool isLoading = false;
         async void onCheckOrder()
         {
-            isLoading = true;
-            await localStorage.SetAsync("customerId", userState.UserId.ToString()!);
-
-            NavigationManager.NavigateTo("/orders");
-            await Task.Delay(500).ContinueWith(_ => 
-            {
-                isLoading = false;
-                StateHasChanged();
-            });
+            //isLoading = true;
+            //await localStorage.SetAsync("customerId", userState.UserId.ToString()!);
+            userState.UserId=userId;
+            NavigationManager.NavigateTo($"/order/ordering/{userId}");
+            //await Task.Delay(500).ContinueWith(_ => 
+            //{
+            //    isLoading = false;
+            //    StateHasChanged();
+            //});
             isLoading = false;
         }
     }

@@ -1,4 +1,4 @@
-﻿@page "/orders/create"
+﻿@page "/orders/create/{userId:long?}"
 @layout MainLayout2
 @rendermode InteractiveServer
 @using MiniShopApp.Models.Orders
@@ -78,15 +78,16 @@
     bool success;
     string[] errors = { };
     MudForm form;
+    [Parameter] public long? userId { get; set; }
     async Task GetBack()
     {
         var result = await DialogService.ShowMessageBox(
                     "Confirmation",
-                    $"Are you sure you want to submit this order with total price: {Order.TotalPrice?.ToString("c2")}?",
+                    $"This order will lost, are you sure to back?",
                     "Yes", "No");
         if (result == true)
         {
-            NavigationManager.NavigateTo("/order/ordering",true);
+            NavigationManager.NavigateTo($"/order/ordering/{userId}",true);
         }
         
         

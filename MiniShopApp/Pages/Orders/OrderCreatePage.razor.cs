@@ -74,7 +74,7 @@ namespace MiniShopApp.Pages.Orders
                 }
                 var result = await DialogService.ShowMessageBox(
                     "Confirmation",
-                    $"Are you sure you want to submit this order with total price: {Order.TotalPrice?.ToString("c2")}?", 
+                    $"Are you sure to submit this order with total price: {Order.TotalPrice?.ToString("c2")}?", 
                     "Yes", "No");
                 IsLoading = false;
                 if (result==true)
@@ -104,7 +104,7 @@ namespace MiniShopApp.Pages.Orders
                         SnackbarService.Add("Your order has been successfully created.", MudBlazor.Severity.Success);
                         IsLoading = false;
 
-                        NavigationManager.NavigateTo("/order/ordering");
+                        NavigationManager.NavigateTo($"/order/ordering/{userId}");
                         await Task.Delay(500).ContinueWith(_ => 
                         {
                             IsLoading = false;

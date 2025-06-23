@@ -51,7 +51,7 @@ namespace MiniShopApp.Infrastructures.Services.Implements
                     detailsText = string.Join("\n", model.TbOrderDetails!.Select(d =>
                         $"- {d.ItemName} {d.Quantity} x {d.Price?.ToString("c2")} =\t{d.TotalPrice?.ToString("c2")}"
                     ));
-                userState.UserId = customerId; // Set the user ID in the state
+                /*userState.UserId = customerId;*/ // Set the user ID in the state
                 await _botClient.SendMessage(
                         chatId: customerId, // Replace with your chat ID
 
