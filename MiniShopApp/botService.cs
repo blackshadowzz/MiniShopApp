@@ -5,6 +5,7 @@ using MiniShopApp.Data;
 using MiniShopApp.Data.TelegramStore;
 using MiniShopApp.Infrastructures.Services.Implements;
 using MiniShopApp.Models;
+using MiniShopApp.Models.Settings;
 using System.Threading;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
@@ -134,16 +135,39 @@ namespace MiniShopApp
                             }
                             );
                 }
-                else if (update.Message.Text == "/getgroupid")
+                else if (update.Message.Text == "/setgroupid")
                 {
-                    
+                    //this command working on group only
                     if (update.Message.Chat.Type == ChatType.Group || update.Message.Chat.Type == ChatType.Supergroup)
                     {
                         long groupId = update.Message.Chat.Id;
-                        await _botClient.SendMessage(
-                            chatId: groupId,
-                            text: $"This group's ID is: {groupId} Name: {update.Message.Chat.Title}"
-                        );
+                        await using var context = await dbContext.CreateDbContextAsync();
+                        var result= await context.TbTelegramGroups.AsNoTracking().FirstOrDefaultAsync(x=>x.GroupId==groupId);
+                        if (result != null)
+                        {
+                            await _botClient.SendMessage(
+                                chatId: groupId,
+                                text: $"This group already set!!!"
+                            );
+                            return;
+                        }
+                        var data = new TbTelegramGroup
+                        {
+                            GroupId = groupId,
+                            GroupName = update.Message.Chat.Title,
+                            TelegramUserId=update.Message.From?.Id,
+                            Description= $"This group's ID is: {groupId} Group Name: {update.Message.Chat.Title}",
+                            IsActive=true
+                        };
+                        context.TbTelegramGroups.Add(data);
+                        var row= await context.SaveChangesAsync();
+                        if (row > 0)
+                        {
+                            await _botClient.SendMessage(
+                                chatId: groupId,
+                                text: $"This group was set to system succeed!!!"
+                            );
+                        }
                     }
                     else
                     {

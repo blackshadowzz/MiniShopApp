@@ -13,7 +13,7 @@ namespace MiniShopApp.Data
            .Build();
 
             var options = new DbContextOptionsBuilder<AppDbContext>()
-                .UseSqlServer(config.GetConnectionString("MyServerConnection"))
+                .UseSqlServer(config.GetConnectionString("MyConnection"))
                 .Options;
 
             return new AppDbContext(options);

@@ -48,6 +48,7 @@ namespace MiniShopApp.Infrastructures.Services.Implements
                 var row= await context.SaveChangesAsync();
                 if (row > 0)
                 {
+                    
                     string detailsText = "";
                     detailsText = string.Join("\n", model.TbOrderDetails!.Select(d =>
                         $"- {d.ItemName} {d.Quantity} x {d.Price?.ToString("c2")} =\t{d.TotalPrice?.ToString("c2")}"
@@ -59,10 +60,10 @@ namespace MiniShopApp.Infrastructures.Services.Implements
                             text: $"Your ordering created successful!\n" +
                             $"Here details and summary of your ordered\n" +
                             $"\nOrder details:\n{detailsText}" +
-                            $"\n\nOrder summary:" +
-                            $"\nTable:\t {model.TableNumber}" +
-                            $"\nItem count:\t {model.ItemCount}" +
-                            $"\nTotal price:\t {model.TotalPrice?.ToString("c2")}" +
+                            $"\n\nOrder summary:\n" +
+                            $"\nTable No:\t {model.TableNumber}\n" +
+                            $"\nItem count:\t {model.ItemCount}\n" +
+                            $"\nTotal price:\t {model.TotalPrice?.ToString("c2")}\n" +
                             $"\nNotes:\t {model.Notes}" +
                             $"\n" +
 
@@ -76,25 +77,38 @@ namespace MiniShopApp.Infrastructures.Services.Implements
                         // You can specify entities if needed
 
                         );
-                    long groupId = -1002895453976;
-                    await _botClient.SendMessage(
-                            chatId: groupId, // Replace with your chat ID
+                    var user = await context.TbUserCustomers
+                        .AsNoTracking()
+                        .FirstOrDefaultAsync(x => x.CustomerId == customerId);
+                    var groups= await context.TbTelegramGroups
+                        .Where(x=>x.IsActive==true)
+                        .AsNoTracking()
+                        .ToListAsync();
+                    if (groups.Count > 0)
+                    {
+                        groups.ForEach(x =>
+                        {
+                            long groupId = -1002895453976;
+                            _botClient.SendMessage(
+                                    chatId: x.GroupId??groupId, // Replace with your chat ID
 
-                            text: $"Ordering created successful!\n" +
-                            $"Here details and summary of your ordered\n" +
-                            $"\nOrder details:\n{detailsText}" +
-                            $"\n\nOrder summary:" +
-                            $"\nTable:\t {model.TableNumber}" +
-                            $"\nItem count:\t {model.ItemCount}" +
-                            $"\nTotal price:\t {model.TotalPrice?.ToString("c2")}" +
-                            $"\nNotes:\t {model.Notes}" +
-                            $"\n"
+                                    text: $"({user?.FirstName}) created order successful!\n" +
+                                    $"Here details and summary of ordered\n" +
+                                    $"\nOrder details:\n{detailsText}" +
+                                    $"\n\nOrder summary:\n" +
+                                    $"\nTable No:\t {model.TableNumber}\n" +
+                                    $"\nItem count:\t {model.ItemCount} \n" +
+                                    $"\nTotal price:\t {model.TotalPrice?.ToString("c2")} \n" +
+                                    $"\nNotes:\t {model.Notes}" +
+                                    $"\n"
+                                // You can specify entities if needed
 
-                            
-                               
-                        // You can specify entities if needed
+                                );
+                        });
 
-                        );
+                        
+                    }
+                    
                 }
                 
                 context.Database.CommitTransaction(); // Ensure transaction is committed

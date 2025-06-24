@@ -49,13 +49,15 @@ namespace MiniShopApp.Pages.Orders
         protected async void OnGetSearchRefresh()
         {
             await FilterProducts(_filter);
+            StateHasChanged();
+            IsLoading = false;
         }
         protected async Task FilterProducts(string? filter = null)
         {
-            IsLoading = true;
+            
             try
             {
-                
+                IsLoading = true;
                 _filter = filter;
                 var products = await productService.GetOrderAllAsync(_filter);
                 if(products.IsSuccess) {
@@ -69,7 +71,7 @@ namespace MiniShopApp.Pages.Orders
                     Console.WriteLine($"Error fetching products: {products.Errors}");
                     IsLoading = false;
                 }
-                
+                IsLoading = false;
             }
             catch (Exception ex)
             {
@@ -83,8 +85,12 @@ namespace MiniShopApp.Pages.Orders
         {
             try
             {
-                _filter = e.Value?.ToString(); 
-                await FilterProducts(_filter);
+                _filter = e.Value?.ToString();
+                var products = await productService.GetOrderAllAsync(_filter);
+                if (products.IsSuccess)
+                {
+                    _products = products.Data!.OrderByDescending(x => x.CategoryName).ToList();
+                }
                 StateHasChanged();
                 // Simulate async operation
             }

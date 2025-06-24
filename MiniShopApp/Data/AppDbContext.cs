@@ -4,6 +4,7 @@ using Microsoft.Extensions.Options;
 using MiniShopApp.Models;
 using MiniShopApp.Models.Items;
 using MiniShopApp.Models.Orders;
+using MiniShopApp.Models.Settings;
 using System.Reflection;
 
 namespace MiniShopApp.Data
@@ -16,10 +17,6 @@ namespace MiniShopApp.Data
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            
-         
-          
-    
 
             modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
 
@@ -34,5 +31,7 @@ namespace MiniShopApp.Data
         public DbSet<UserCustomer> TbUserCustomers { get; set; } = null!;
         public DbSet<TbOrder> TbOrders { get; set; } = null!;
         public DbSet<TbOrderDetails> TbOrderDetails { get; set; } = null!;
+        //Telegram store
+        public DbSet<TbTelegramGroup> TbTelegramGroups { get; set; } = null!;
     }
 }
