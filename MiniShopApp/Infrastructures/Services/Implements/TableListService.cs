@@ -32,6 +32,27 @@ namespace MiniShopApp.Infrastructures.Services.Implements
 
         }
 
+        public async Task<bool> DeleteAsync(int id)
+        {
+            await using var dbContext = _context.CreateDbContext();
+            var existing = await dbContext.TbTables.FindAsync(id);
+            if (existing == null)
+            {
+                return false;
+            }
+            try
+            {
+                dbContext.TbTables.Remove(existing);
+                await dbContext.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+
+        }
+
         public async Task<IEnumerable<TbTable>> GetAllAsync(string? filter = null)
         {
             await using var dbContext = _context.CreateDbContext();
@@ -47,6 +68,28 @@ namespace MiniShopApp.Infrastructures.Services.Implements
                     .AsNoTracking()
                     .ToListAsync();
             }
+        }
+
+        public async Task<string> UpdateAsync(TbTable model, int id)
+        {
+            await using var dbContext = _context.CreateDbContext();
+            var existing = await dbContext.TbTables.FindAsync(id);
+            if (existing == null)
+            {
+                return $"Record with ID {id} not found.";
+            }
+            try
+            {
+                dbContext.Entry(existing).CurrentValues.SetValues(model);
+                await dbContext.SaveChangesAsync();
+                return "Update successful.";
+            }
+            catch (Exception ex)
+            {
+                // Log exception as needed
+                return $"Error updating record: {ex.Message}";
+            }
+
         }
     }
 }
