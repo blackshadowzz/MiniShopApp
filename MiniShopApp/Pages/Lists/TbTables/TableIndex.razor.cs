@@ -4,6 +4,7 @@ using MiniShopApp.Models.Items;
 using MudBlazor;
 using System.Runtime;
 using System.Text.Json;
+using static MudBlazor.CategoryTypes;
 
 namespace MiniShopApp.Pages.Lists.TbTables
 {
@@ -49,7 +50,16 @@ namespace MiniShopApp.Pages.Lists.TbTables
         public async Task Createtable()
         {
             var optionss = _backdropClick;
-            await Dialog.ShowAsync<CreateTable>("Create new Table", optionss);
+            var dialog = await Dialog.ShowAsync<CreateTable>("Create new Table", optionss);
+            var result = await dialog.Result;
+
+            if (!result!.Canceled)
+            {
+                // Refresh the table list after successful creation
+                var tables = await _context.GetAllAsync(_filter);
+                model = tables.ToList();
+                StateHasChanged();
+            }
         }
 
     }
