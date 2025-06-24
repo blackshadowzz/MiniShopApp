@@ -25,4 +25,11 @@ namespace MiniShopApp.Models
         public DateTime? loginDateTime { get; set; }
         public DateTime? LastLoginDT { get; set; }
     }
+    public class CustomerAlertMessege
+    {
+        public int Id { get; set; }
+        public long? CustomerId { get; set; }
+        public string? FirstName { get; set; }
+        public string? AlertMessege { get; set; }
+    }
 }

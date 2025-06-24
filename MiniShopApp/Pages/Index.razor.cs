@@ -11,35 +11,32 @@ namespace MiniShopApp.Pages
     {
         [Inject] public ProtectedSessionStorage SessionStorage { get; set; } = default!;
         [Inject] public ProtectedLocalStorage localStorage { get; set; } = default!;
-        [Inject] public UserState userState { get; set; } = default!;
+        //[Inject] public UserState userState { get; set; } = default!;
         //private readonly botService botService;
 
         public Index()
         {
 
         }
-        long? userId = null;
+        protected long? userId = null;
         protected List<Product> products = new List<Product>();
 
         protected override async Task OnInitializedAsync()
         {
             try
             {
-                if (userId == null)
-                {
+
                     //userId=userState.UserId;
                     var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
                     if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("userid", out var userIdStr) && long.TryParse(userIdStr, out var userCustId))
                     {
+                       
+
                         userState.UserId = userCustId;
                         userId = userCustId;
-                        
-                    }
-                    // Simulate fetching user ID from a service or storage
-
-                    await localStorage.SetAsync("customerId", userId.ToString()!);
+                    //await SessionStorage.SetAsync("userId", userId.ToString()!);
+                    //await localStorage.SetAsync("customerId", userId.ToString()!);
                 }
-                
             }
             catch (Exception ex)
             {
@@ -47,13 +44,20 @@ namespace MiniShopApp.Pages
                 Console.WriteLine($"Error: {ex.Message}");
             }
             await base.OnInitializedAsync();
-            StateHasChanged();
         }
-        async Task onCheckOrder()
+        bool isLoading = false;
+        async void onCheckOrder()
         {
-
-            
-            NavigationManager.NavigateTo($"/orders");
+            //isLoading = true;
+            //await localStorage.SetAsync("customerId", userState.UserId.ToString()!);
+            userState.UserId=userId;
+            NavigationManager.NavigateTo($"/order/ordering/{userId}");
+            //await Task.Delay(500).ContinueWith(_ => 
+            //{
+            //    isLoading = false;
+            //    StateHasChanged();
+            //});
+            isLoading = false;
         }
     }
 }

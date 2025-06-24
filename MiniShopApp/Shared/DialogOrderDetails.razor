@@ -1,0 +1,58 @@
+﻿@using MiniShopApp.Models.Orders
+<MudDialog Style="width:100%">
+    <DialogContent>
+        <table class="table table-hover table-responsive table-sm caption-top">
+            <caption>Order list</caption>
+            <thead>
+                <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col">QTY</th>
+                    <th scope="col">Price</th>
+                    <th scope="col">Total Price</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in orderDetails!)
+                {
+                    <tr>
+                        <td>@item.ItemName</td>
+                        <td class="text-end">@item.Quantity</td>
+                        <td class="text-end"> @String.Format("${0:N2}", @item.Price)</td>
+                        <td class="text-end"> @String.Format("${0:N2}", @item.TotalPrice)</td>
+                    </tr>
+                }
+
+            </tbody>
+            <tfoot>
+                <tr class="table-active ">
+                    <th>Total</th>
+                    <th class="text-end">@orderDetails.Sum(x => x.Quantity)</th>
+                    <th class="text-end"></th>
+                    <th class="text-end text-danger">@String.Format("${0:N2}", @orderDetails.Sum(x => x.TotalPrice))</th>
+                </tr>
+                <tr>
+                    <th></th>
+                    <th class="text-end"></th>
+                    <th class="text-end"></th>
+                    <th class="text-end text-danger table-active">@String.Format("R {0:N2}", @orderDetails.Sum(x => x.TotalPrice) * 4050)</th>
+                </tr>
+            </tfoot>
+
+        </table>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Close</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    private IMudDialogInstance? MudDialog { get; set; }
+    private bool _loading;
+    [Parameter]
+    public string? ContentText { get; set; }
+
+    [Parameter]
+    public List<TbOrderDetails>? orderDetails { get; set; }
+    private void Cancel() => MudDialog!.Cancel();
+}

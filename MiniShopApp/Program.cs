@@ -19,7 +19,7 @@ builder.Services.AddSingleton<ITelegramBotClient>(new TelegramBotClient(token!))
 //Register background server when App Start
 builder.Services.AddHostedService<botService>();
 
-builder.Services.AddSingleton<UserState>();
+builder.Services.AddScoped<UserState>();
 
 builder.Services.AddMudServices();
 builder.Services.AddRazorComponents()

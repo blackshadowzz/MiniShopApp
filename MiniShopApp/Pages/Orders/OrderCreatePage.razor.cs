@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 using Microsoft.JSInterop;
 using MiniShopApp.Infrastructures.Services.Interfaces;
 using MiniShopApp.Models.Orders;
+using MiniShopApp.Shared;
+using MudBlazor;
 
 namespace MiniShopApp.Pages.Orders
 {
@@ -54,24 +56,39 @@ namespace MiniShopApp.Pages.Orders
         {
             try
             {
+                IsLoading= true;
                 if (Order.TableNumber == null)
                 {
-                   // NotificationService.Notify(Radzen.NotificationSeverity.Error, "Invalid Table Number", "Please enter a valid table number.");
+                    SnackbarService.Add("Please enter a valid table number.", MudBlazor.Severity.Warning);
+                    IsLoading = false;
+
+                    // NotificationService.Notify(Radzen.NotificationSeverity.Error, "Invalid Table Number", "Please enter a valid table number.");
                     return;
                 }
-                //if(await DialogService.Confirm(
-                //    $"Are you sure you want to submit this order with total price: {Order.TotalPrice?.ToString("c2")}?", 
-                //    "Confirm Submission", 
-                //    new Radzen.ConfirmOptions { OkButtonText = "Yes", CancelButtonText = "No" }) == true)
-                //{
+                if (orderDetails == null || !orderDetails.Any())
+                {
+                    IsLoading = false;
+
+                    SnackbarService.Add("Please back to add at least one item to the order.", MudBlazor.Severity.Warning);
+                    return;
+                }
+                var result = await DialogService.ShowMessageBox(
+                    "Confirmation",
+                    $"Are you sure to submit this order with total price: {orderDetails.Sum(x => x.TotalPrice)?.ToString("c2")}?", 
+                    "Yes", "No");
+                IsLoading = false;
+                if (result==true)
+                {
+                IsLoading = true;
+
                     TbOrder order = new TbOrder
                     {
                         CustomerId = Order.CustomerId,
                         TableNumber = Order.TableNumber,
-                        ItemCount = Order.ItemCount,
-                        SubPrice = Order.SubPrice,
+                        ItemCount = orderDetails.Count,
+                        SubPrice = orderDetails.Sum(x=>x.TotalPrice),
                         DiscountPrice = Order.DiscountPrice,
-                        TotalPrice = Order.TotalPrice,
+                        TotalPrice = orderDetails.Sum(x => x.TotalPrice),
                         Notes = Order.Notes,
                         CreatedDT = DateTime.Now,
                         TbOrderDetails = orderDetails,
@@ -84,24 +101,31 @@ namespace MiniShopApp.Pages.Orders
                         orderDetails!.Clear();
                         Order = new OrderCreateModel(); // Reset the order model
                         await localStorage.SetAsync("orderToCreate", Order);
-                        //NotificationService.Notify(Radzen.NotificationSeverity.Success, "Order Created", "Your order has been successfully created.");
-                        NavigationManager.NavigateTo("/orders");
+                        SnackbarService.Add("Your order has been successfully created.", MudBlazor.Severity.Success);
+                        IsLoading = false;
+
+                        NavigationManager.NavigateTo($"/order/ordering/{userId}");
+                       
                     }
                     else
                     {
+                        IsLoading = false;
+
                         Console.WriteLine($"Error creating order: {message.Errors}");
                     }
-                //}
+                }
                 
             }
             catch (Exception ex)
             {
+                IsLoading = false;
+
                 // Handle any exceptions that occur during form submission
                 Console.WriteLine($"Error during form submission: {ex.Message}");
+                SnackbarService.Add("An error occurred while creating the order. Please try again." + ex.InnerException!.Message, MudBlazor.Severity.Error);
                 return;
             }
-            Console.WriteLine("Order submitted successfully!");
-            // You can add your logic here to save the order to a database or perform other actions
+           
         }
     }
 }

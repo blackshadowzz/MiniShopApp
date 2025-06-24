@@ -1,6 +1,7 @@
 ﻿using Helpers.Responses;
 using Microsoft.EntityFrameworkCore;
 using MiniShopApp.Data;
+using MiniShopApp.Data.TelegramStore;
 using MiniShopApp.Infrastructures.Services.Interfaces;
 using MiniShopApp.Models;
 using MiniShopApp.Models.Orders;
@@ -16,16 +17,19 @@ namespace MiniShopApp.Infrastructures.Services.Implements
         private readonly IDbContextFactory<AppDbContext> contextFactory;
         private readonly AppDbContext context;
         private readonly ITelegramBotClient _botClient;
+        private readonly UserState userState;
 
         public OrderService(ILogger<OrderService> logger, 
             IDbContextFactory<AppDbContext> contextFactory,
             AppDbContext context,
-            ITelegramBotClient botClient)
+            ITelegramBotClient botClient,
+            UserState userState)
         {
             this.logger = logger;
             this.contextFactory = contextFactory;
             this.context = context;
             _botClient = botClient;
+            this.userState = userState;
         }
         public async Task<Result<string>> CreateAsync(long customerId, TbOrder model)
         {
@@ -41,34 +45,39 @@ namespace MiniShopApp.Infrastructures.Services.Implements
                 }
                 context.TbOrders.Add(model);
 
-                await context.SaveChangesAsync();
-
-                string detailsText = "";
+                var row= await context.SaveChangesAsync();
+                if (row > 0)
+                {
+                    string detailsText = "";
                     detailsText = string.Join("\n", model.TbOrderDetails!.Select(d =>
                         $"- {d.ItemName} {d.Quantity} x {d.Price?.ToString("c2")} =\t{d.TotalPrice?.ToString("c2")}"
                     ));
-              
-                await _botClient.SendMessage(
-                        chatId: customerId, // Replace with your chat ID
+                    userState.UserId = customerId; // Set the user ID in the state
+                    await _botClient.SendMessage(
+                            chatId: customerId, // Replace with your chat ID
 
-                        text: $"\nOrder details:\n{detailsText}" +
-                        $"\n\nOrder summary:" +
-                        $"\nTable:\t {model.TableNumber}" +
-                        $"\nItem count:\t {model.ItemCount}" +
-                        $"\nTotal price:\t {model.TotalPrice?.ToString("c2")}" +
-                        $"\nNotes:\t {model.Notes}" +
-                        $"\n" +
-                        
-                        $"\nThank you for ordering! please enjoy." ,
-                        parseMode: ParseMode.Html
-                         //replyMarkup: new InlineKeyboardButton[]
-                         //   {
-                         //   InlineKeyboardButton.WithWebApp("Open App","https://minishopapp.runasp.net/index"),
+                            text: $"Your ordering created successful!\n" +
+                            $"Here details and summary of your ordered\n" +
+                            $"\nOrder details:\n{detailsText}" +
+                            $"\n\nOrder summary:" +
+                            $"\nTable:\t {model.TableNumber}" +
+                            $"\nItem count:\t {model.ItemCount}" +
+                            $"\nTotal price:\t {model.TotalPrice?.ToString("c2")}" +
+                            $"\nNotes:\t {model.Notes}" +
+                            $"\n" +
 
-                         //   }
-                    // You can specify entities if needed
+                            $"\nThank you for ordering! please enjoy.",
+                            parseMode: ParseMode.Html,
+                             replyMarkup: new InlineKeyboardButton[]
+                                {
+                            InlineKeyboardButton.WithWebApp("Open App",$"https://minishopapp.runasp.net/index?userid={userState.UserId}"),
 
-                    );
+                                }
+                        // You can specify entities if needed
+
+                        );
+                }
+                
                 context.Database.CommitTransaction(); // Ensure transaction is committed
 
                 return await Result.SuccessAsync<string>("Order created successfully.");
@@ -79,6 +88,11 @@ namespace MiniShopApp.Infrastructures.Services.Implements
                 logger.LogError(ex, "Error creating order for customer {CustomerId}", customerId);
                 return await Result.FailureAsync<string>(new ErrorResponse(ex.Message));
             }
+        }
+
+        public Task<Result<TbOrder>> GetOrderByUserAsync(long? customerId)
+        {
+            throw new NotImplementedException();
         }
 
         public Task<Result<IEnumerable<TbOrderDetails>>> GetOrderDetailsAsync(long customerId, TbOrderDetails model)

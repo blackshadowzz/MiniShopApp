@@ -1,20 +1,27 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
+using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.JSInterop;
+using Microsoft.SqlServer.Server;
+using MiniShopApp.Data.TelegramStore;
 using MiniShopApp.Infrastructures.Services.Interfaces;
 using MiniShopApp.Models.Items;
 using MiniShopApp.Models.Orders;
-using System.Threading.Tasks;
 using Telegram.Bot.Types;
+
 namespace MiniShopApp.Pages.Orders
 {
     public partial class OrderIndex
     {
         [Inject] NavigationManager navigation { get; set; } = default!;
-        [Inject] ProtectedSessionStorage sessionStorage { get; set; } = default!;
         private readonly IProductService productService;
         [Inject]
         protected ProtectedLocalStorage localStorage { get; set; } = default!;
-        
+        //[Inject]
+        //protected ProtectedSessionStorage sessionStorage { get; set; } = default!;
+        //[Inject] IJSRuntime JSRuntime { get; set; } = default!;
+        //[Inject]
+        //protected UserState userState { get; set; } = default!;
         public OrderIndex(IProductService productService)
         {
             this.productService = productService;
@@ -24,20 +31,24 @@ namespace MiniShopApp.Pages.Orders
         protected List<TbOrderDetails> orderDetails = [];
         protected OrderCreateModel order = new OrderCreateModel();
         private string? _filter = null;
+        [Parameter] public long? userId { get; set; } = null;
         string? customerId = null;
         protected bool IsLoading = false;
 
         protected override async Task OnInitializedAsync()
         {
+            userState.UserId=userId;
+            customerId =userId?.ToString();
             
-            GetCustomerData();
             await FilterProducts();
-            StateHasChanged();
+            //GetCustomerData();
+
             await base.OnInitializedAsync();
         }
+        
         protected async void OnGetSearchRefresh()
         {
-            await OnInitializedAsync();
+            await FilterProducts(_filter);
         }
         protected async Task FilterProducts(string? filter = null)
         {
@@ -53,7 +64,8 @@ namespace MiniShopApp.Pages.Orders
                 }
                 else
                 {
-                    //NotificationService.Notify(Radzen.NotificationSeverity.Error, "Error Fetching Products", products.ErrMessage);
+                    SnackbarService.Add("Error fetching products: " + products.Errors.ErrMessage, MudBlazor.Severity.Error);
+                    
                     Console.WriteLine($"Error fetching products: {products.Errors}");
                     IsLoading = false;
                 }
@@ -62,6 +74,8 @@ namespace MiniShopApp.Pages.Orders
             catch (Exception ex)
             {
                 IsLoading = false;
+                SnackbarService.Add("Error fetching products: " + ex.Message, MudBlazor.Severity.Error);
+
                 throw new Exception($"Error filtering products: {ex.Message}");
             }
         }
@@ -69,11 +83,7 @@ namespace MiniShopApp.Pages.Orders
         {
             try
             {
-                _filter = e.Value?.ToString();
-                //_products = _products.Where(p =>
-                //p.ProductName?.Contains(_filter!, StringComparison.InvariantCultureIgnoreCase) == true ||
-                //p.CategoryName?.Contains(_filter!, StringComparison.InvariantCultureIgnoreCase) == true ||
-                //p.ProductCode?.Contains(_filter!, StringComparison.InvariantCultureIgnoreCase) == true).ToList();
+                _filter = e.Value?.ToString(); 
                 await FilterProducts(_filter);
                 StateHasChanged();
                 // Simulate async operation
@@ -83,31 +93,30 @@ namespace MiniShopApp.Pages.Orders
                 Console.WriteLine($"Error during search: {ex.Message}");
             }
         }
-        protected async void GetCustomerData()
-        {
-            try
-            {
-                var result = await localStorage.GetAsync<string?>("customerId");
-                if (result.Success && result.Value != null)
-                {
-                    customerId = result.Value; // Convert to readable data (already a string in this case)
-                }
-                else
-                {
-                    customerId = string.Empty;
-                    Console.WriteLine("Customer ID not found in session storage.");
-                   // NotificationService.Notify(Radzen.NotificationSeverity.Error, "Empty User", "User invalid! please refresh page or bot /start again.");
-                    return;
-                }
-            }
-            catch (Exception ex)
-            {
-                //NotificationService.Notify(Radzen.NotificationSeverity.Error, "Empty User", ex.Message);
-
-                throw new Exception($"Get local data: {ex.Message}");
+        //protected async void GetCustomerData()
+        //{
+        //    try
+        //    {
+        //        var result = await sessionStorage.GetAsync<string>("userId");
+        //        if (result.Success && result.Value!=null)
+        //        {
+        //            customerId = result.Value;
+        //            StateHasChanged();// Convert to readable data (already a string in this case)
+        //        }
+        //        else
+        //        {
+        //            customerId = string.Empty;
+        //            SnackbarService.Add("Getting user not found! please refresh page or bot /start again.", MudBlazor.Severity.Error);
+        //            return;
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        //SnackbarService.Add("Error 1: "+ex.Message, MudBlazor.Severity.Error);
+        //        throw new Exception($"Get local data: {ex.Message}");
                 
-            }
-        }
+        //    }
+        //}
         protected void DescreasProduct(int productId)
         {
             try
@@ -149,18 +158,7 @@ namespace MiniShopApp.Pages.Orders
                         
                         StateHasChanged();
                     }
-                    //else
-                    //{
-                    //    // If the product does not exist in the order, add it
-                    //    orderDetails.Add(new TbOrderDetails
-                    //    {
-                    //        ItemId = product.Id,
-                    //        ItemName = product.ProductName,
-                    //        Price = product.Price,
-                    //        Quantity = 1, // Default quantity to 1, can be adjusted later
-                    //        TotalPrice = product.Price // Initial total price based on quantity of 1
-                    //    });
-                    //}
+                   
 
                 }
                 else
@@ -178,11 +176,11 @@ namespace MiniShopApp.Pages.Orders
             try
             {
                 var product = _products.FirstOrDefault(p => p.Id == productId);
-                if (_products.Any(_products => _products.Id == product.Id))
+                if (_products.Any(_products => _products.Id == product!.Id))
                 {
-                    var existingProduct = _products.FirstOrDefault(p => p.Id == product.Id);
+                    var existingProduct = _products.FirstOrDefault(p => p.Id == product!.Id);
                
-                    existingProduct.QTYIncrease += 1; // Increase the quantity of the product in the list
+                    existingProduct!.QTYIncrease += 1; // Increase the quantity of the product in the list
                     StateHasChanged();
 
                 }
@@ -229,18 +227,28 @@ namespace MiniShopApp.Pages.Orders
         }
         protected async Task PlaceOrderAsync()
         {
+            
+
             IsLoading = true;
 
             try
             {
-                GetCustomerData();
-                if( orderDetails.Count <= 0)
+                if(userId == null)
+                {
+                    customerId = userState.UserId.ToString();
+                }
+                
+                if ( orderDetails.Count <= 0)
                 {
                     IsLoading = false;
-
-                    //NotificationService.Notify(Radzen.NotificationSeverity.Warning, "Empty Order", "Please add products to the order before placing it.");
+                    SnackbarService.Add("Please add products to the order before placing it.", MudBlazor.Severity.Warning);
+                   
                     return;
                 }
+                //GetCustomerData();
+
+                //customerId = userState.UserId.ToString();
+
                 if (!string.IsNullOrEmpty(customerId))
                 {
                     Console.WriteLine($"\n\n Customer ID: {customerId} \n\n");
@@ -256,11 +264,12 @@ namespace MiniShopApp.Pages.Orders
                     await localStorage.SetAsync("orderToCreate", order);
                     //OrderCreatePage orderCreatePage = new OrderCreatePage(order);
                     IsLoading= false;
-                    navigation.NavigateTo("/orders/create");
+                    navigation.NavigateTo($"/orders/create/{userId}");
                 }
                 else
                 {
-                    //NotificationService.Notify(Radzen.NotificationSeverity.Warning, "Empty User", "User invalid! please refresh page or bot by use command /start again.");
+                    SnackbarService.Add("User invalid! please refresh page or bot by use command /start again.", MudBlazor.Severity.Error);
+                    
                     IsLoading = false;
                     return;
                 }
@@ -269,7 +278,8 @@ namespace MiniShopApp.Pages.Orders
             {
                 IsLoading = false;// Handle the error, e.g., log it or show a notification
                 Console.WriteLine($"Error creating order: {ex.Message}");
-                //NotificationService.Notify(Radzen.NotificationSeverity.Error, "System Errors", ex.Message);
+                SnackbarService.Add("Error creating order: " + ex.Message, MudBlazor.Severity.Error);
+                
             }
         }
     }
