@@ -68,7 +68,7 @@ namespace MiniShopApp
             {
                 //string webappUrl = "https://minishopapp.runasp.net/index";
                 string webappUrl = $"https://minishopapp.runasp.net/index?userid={update.Message!.Chat.Id}";
-
+                //var groupId=update.Message.MediaGroupId;
                 //userState.UserId = update.Message!.Chat.Id;
                 if (update.Message!.Text == "/start")
                 {
@@ -133,6 +133,31 @@ namespace MiniShopApp
                                 InlineKeyboardButton.WithUrl("Send us feedback", "https://t.me/Mangry_off"),
                             }
                             );
+                }
+                else if (update.Message.Text == "/getgroupid")
+                {
+                    
+                    if (update.Message.Chat.Type == ChatType.Group || update.Message.Chat.Type == ChatType.Supergroup)
+                    {
+                        long groupId = update.Message.Chat.Id;
+                        await _botClient.SendMessage(
+                            chatId: groupId,
+                            text: $"This group's ID is: {groupId} Name: {update.Message.Chat.Title}"
+                        );
+                    }
+                    else
+                    {
+                        await _botClient.SendMessage(
+                            chatId: update.Message.Chat.Id,
+                            text: "This command only works in groups."
+                        );
+                    }
+                }else if (update.Message.Text == "/paid")
+                {
+                    //delete all user data in bot and delete bot after user use command /paid
+                    //var chatId = update.Message.Chat.Id;
+                    //var messageId = update.Message.MessageId;
+                    //await _botClient.DeleteMessage(chatId,messageId);
                 }
                 else
                 {

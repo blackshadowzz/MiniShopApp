@@ -76,6 +76,25 @@ namespace MiniShopApp.Infrastructures.Services.Implements
                         // You can specify entities if needed
 
                         );
+                    long groupId = -1002895453976;
+                    await _botClient.SendMessage(
+                            chatId: groupId, // Replace with your chat ID
+
+                            text: $"Ordering created successful!\n" +
+                            $"Here details and summary of your ordered\n" +
+                            $"\nOrder details:\n{detailsText}" +
+                            $"\n\nOrder summary:" +
+                            $"\nTable:\t {model.TableNumber}" +
+                            $"\nItem count:\t {model.ItemCount}" +
+                            $"\nTotal price:\t {model.TotalPrice?.ToString("c2")}" +
+                            $"\nNotes:\t {model.Notes}" +
+                            $"\n"
+
+                            
+                               
+                        // You can specify entities if needed
+
+                        );
                 }
                 
                 context.Database.CommitTransaction(); // Ensure transaction is committed
@@ -96,6 +115,11 @@ namespace MiniShopApp.Infrastructures.Services.Implements
         }
 
         public Task<Result<IEnumerable<TbOrderDetails>>> GetOrderDetailsAsync(long customerId, TbOrderDetails model)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<Result<IEnumerable<TbOrderDetails>>> GetOrdersByUserAsync(long customerId)
         {
             throw new NotImplementedException();
         }
