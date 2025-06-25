@@ -14,7 +14,7 @@ using Telegram.Bot;
 
 var builder = WebApplication.CreateBuilder(args);
 var token = "";
-var defaultedToken = "";
+var defaultedToken = builder.Configuration["BotTokenTest"];
 
 // Add any services in AddInfraServices class 
 builder.Services.AddInfraServices(builder.Configuration);
@@ -23,7 +23,6 @@ builder.Services.AddInfraServices(builder.Configuration);
 var dbContextFactory = builder.Services.BuildServiceProvider().GetRequiredService<IDbContextFactory<AppDbContext>>();
 using (var context = dbContextFactory.CreateDbContext())
 {
-    defaultedToken = "7541455257:AAEvkNI0oaYmbkLxQOalxClF3EDNaoV3FiA";
     try
     {
         var tokenEntity = context.TbTelegramBotTokens.AsNoTracking().FirstOrDefault();
@@ -48,6 +47,8 @@ using (var context = dbContextFactory.CreateDbContext())
     }
     catch (Exception ex)
     {
+        token = defaultedToken;
+
         throw new Exception("Program :"+ex.Message, ex);
     }
     
@@ -72,16 +73,16 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.Use(async (context, next) =>
-{
-    if (context.Request.Path.StartsWithSegments("/UserLog.txt"))
-    {
-        context.Response.StatusCode = StatusCodes.Status403Forbidden;
-        await context.Response.WriteAsync("Access Denied.");
-        return;
-    }
-    await next();
-});
+//app.Use(async (context, next) =>
+//{
+//    if (context.Request.Path.StartsWithSegments("/UserLog.txt"))
+//    {
+//        context.Response.StatusCode = StatusCodes.Status403Forbidden;
+//        await context.Response.WriteAsync("Access Denied.");
+//        return;
+//    }
+//    await next();
+//});
 app.UseAntiforgery();
 
 app.MapStaticAssets();

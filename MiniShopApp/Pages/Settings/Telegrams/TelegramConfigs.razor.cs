@@ -5,10 +5,11 @@ using Telegram.Bot.Types;
 
 namespace MiniShopApp.Pages.Settings.Telegrams
 {
-    public partial class TelegramConfigs(ITelegramBotServices telegramBotServices,ITelegramBotClient botClient)
+    public partial class TelegramConfigs(ITelegramBotServices telegramBotServices)
     {
         protected TbTelegramBotToken? model = new();
         protected TbTelegramBotTokenDto? modelDto = new();
+        protected List<TbTelegramGroup>? groups = [];
         bool IsLoading=false;
         protected override async Task OnInitializedAsync()
         {
@@ -34,6 +35,45 @@ namespace MiniShopApp.Pages.Settings.Telegrams
             }
             
             await base.OnInitializedAsync();
+        }
+        async Task ModifyGroup(TbTelegramGroup model)
+        {
+            try
+            {
+                var active =(bool)model.IsActive?false:true;
+                model.IsActive = active;
+                _loading = true;
+                var results = await telegramBotServices.UpdateGroupAsync(model);
+                if (results.IsSuccess)
+                {
+                    await GetGroups();
+                    SnackbarService.Add(results.Data,MudBlazor.Severity.Success);
+                }
+                _loading = false;
+                StateHasChanged();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        async Task GetGroups(string? filter="")
+        {
+            try
+            {
+                _loading = true;
+                var results = await telegramBotServices.GetGroupAsync(filter);
+                if (results.IsSuccess)
+                {
+                    groups = results.Data?.ToList();
+                }
+                _loading = false;
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
         async Task SetBotAsync()
         {
@@ -63,6 +103,7 @@ namespace MiniShopApp.Pages.Settings.Telegrams
                    "Yes", "No");
                 if (result == true)
                 {
+                    model!.WebAppUrl = model.WebAppUrl?.TrimEnd('/');
                     var results = await telegramBotServices.SetBotTokenAsync(model!);
                     if (results.IsSuccess)
                     {

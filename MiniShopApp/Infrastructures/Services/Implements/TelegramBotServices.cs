@@ -50,7 +50,7 @@ namespace MiniShopApp.Infrastructures.Services.Implements
                 var results = await context.TbTelegramGroups.AsNoTracking().ToListAsync();
                 if (filter != null)
                 {
-                    results = results.Where(x => x.GroupName!.Contains(filter)).ToList();
+                    results = results.Where(x => x.GroupName!.ToLower().Contains(filter.ToLower())).ToList();
                 }
                 return Result.Success <IEnumerable < TbTelegramGroup >> (results);
 

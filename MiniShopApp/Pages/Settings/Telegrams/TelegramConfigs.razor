@@ -12,7 +12,7 @@
             <MudItem xs="12" sm="7">
                 <MudPaper Class="pa-4">
                     <MudForm @ref="form" @bind-IsValid="@success" @bind-Errors="@errors">
-                        <MudTextField T="string" Variant=Variant.Outlined Label="Bot Token " @bind-Text="model.BotToken" Placeholder="7823822574:AAFm2SzyMoepbVa6kMTElqlsbgr8JSUkkM4" Required="true" RequiredError="Bot token is required!" />
+                        <MudTextField T="string" Variant=Variant.Outlined Label="Bot Token " @bind-Text="model.BotToken" Placeholder="7823822573:AAFm2SzyMoepbVa6kMTElqlsbgr8JSUkkM4" Required="true" RequiredError="Bot token is required!" />
                         <MudTextField T="string" Variant=Variant.Outlined Label="Web App URL " Placeholder="https://example.com" @bind-Text="model.WebAppUrl" Required="true" RequiredError="Web URL is required!" />
                         
                     </MudForm>
@@ -25,7 +25,7 @@
             </MudItem>
             <MudItem xs="12" sm="5">
                 <MudPaper Class="pa-4 mud-height-full">
-                    <MudText Typo="Typo.subtitle2">@($"Errors ({errors.Length})")</MudText>
+                    <MudText Typo="Typo.subtitle2">@($"Message log ({errors.Length})")</MudText>
                     @foreach (var error in errors)
                     {
                         <MudText Color="@Color.Error">@error</MudText>
@@ -34,10 +34,40 @@
             </MudItem>
         </MudGrid>
     </MudTabPanel>
-    <MudTabPanel Text="Telegram Group" Icon="@Icons.Material.Filled.Group">
-
-        
-    </MudTabPanel>
+    <MudTabPanel Text="Telegram Group" Icon="@Icons.Material.Filled.Group" OnClick="()=>GetGroups()">
+        <MudTable Items="@groups" Dense=true Hover="true" Breakpoint="Breakpoint.Sm" Loading="@_loading" LoadingProgressColor="Color.Info">
+            <ToolBarContent>
+                <MudText Typo="Typo.h6">Telegram Group list</MudText>
+                <MudSpacer />
+                <MudTextField @bind-Value="searchText" TextChanged="@((e)=>OnSearch(e))" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+            </ToolBarContent>
+            <HeaderContent>
+                <MudTh>User Id</MudTh>
+                <MudTh>Group Id</MudTh>
+                <MudTh>Group</MudTh>
+                <MudTh>Description</MudTh>
+                <MudTh>Status</MudTh>
+                <MudTh>Actions</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="TelegramUserId">@context.TelegramUserId</MudTd>
+                <MudTd DataLabel="GroupId">@context.GroupId</MudTd>
+                <MudTd DataLabel="GroupName">@context.GroupName</MudTd>
+                <MudTd DataLabel="Description">@context.Description</MudTd>
+                <MudTd DataLabel="IsActive">
+                    <MudCheckBox @bind-Value="@context.IsActive" Disabled />
+                    
+                    </MudTd>
+                <MudTd>
+                    <MudMenu Icon="@Icons.Material.Filled.MoreVert"
+                             AriaLabel="Open menu">
+                        <MudMenuItem Icon="@Icons.Material.Filled.Update" onclick="() => ModifyGroup(context)" Label="Set update group status" />
+                       
+                    </MudMenu>
+                </MudTd>
+            </RowTemplate>
+        </MudTable>
+        </MudTabPanel>
     <MudTabPanel Text="Additional" Icon="@Icons.Material.Filled.Message">
         <MudStack Justify="Justify.SpaceBetween">
            
@@ -50,4 +80,14 @@
     bool success;
     MudForm form;
     string[] errors = { };
+    string? searchText = "";
+    private bool _hidePosition;
+    private bool _loading;
+
+    async Task OnSearch(string? text)
+    {
+        searchText = text;
+        await GetGroups(searchText);
+        StateHasChanged();
+    }
 }
