@@ -38,6 +38,7 @@ namespace MiniShopApp.Infrastructures
             services.TryAddTransient<IProductService, ProductService>();
             services.AddScoped<IOrderService, OrderService>();
             services.TryAddTransient<IUserCustomerService, UserCustomerService>();
+            services.TryAddTransient<ITelegramBotServices, TelegramBotServices>();
             return services;
         }
     }

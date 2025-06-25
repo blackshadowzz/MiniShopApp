@@ -4,17 +4,54 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using MiniShopApp;
 using MiniShopApp.Components;
+using MiniShopApp.Data;
 using MiniShopApp.Data.TelegramStore;
 using MiniShopApp.Infrastructures;
+using MiniShopApp.Models.Settings;
 using MudBlazor.Services;
 using Telegram.Bot;
 
 
 var builder = WebApplication.CreateBuilder(args);
-var token = builder.Configuration["BotTokenTest"];
-var webappUrl = builder.Configuration["BotWebAppUrl"];
+var token = "";
+var defaultedToken = "";
 
-//insert token to botService
+// Add any services in AddInfraServices class 
+builder.Services.AddInfraServices(builder.Configuration);
+
+// Build a temporary provider to get the token from the database
+var dbContextFactory = builder.Services.BuildServiceProvider().GetRequiredService<IDbContextFactory<AppDbContext>>();
+using (var context = dbContextFactory.CreateDbContext())
+{
+    defaultedToken = "7541455257:AAEvkNI0oaYmbkLxQOalxClF3EDNaoV3FiA";
+    try
+    {
+        var tokenEntity = context.TbTelegramBotTokens.AsNoTracking().FirstOrDefault();
+        if (tokenEntity != null)
+        {
+            if (string.IsNullOrEmpty(tokenEntity.BotToken))
+            {
+                token=defaultedToken;
+            }
+            else
+            {
+                token = tokenEntity.BotToken;
+                Console.WriteLine("Bot Token set!");
+            }
+               
+        }
+        else
+        {
+            token = defaultedToken;
+            Console.WriteLine("Get Bot Token not found!");
+        }
+    }
+    catch (Exception ex)
+    {
+        throw new Exception("Program :"+ex.Message, ex);
+    }
+    
+}
 builder.Services.AddSingleton<ITelegramBotClient>(new TelegramBotClient(token!));
 //Register background server when App Start
 builder.Services.AddHostedService<botService>();
@@ -24,11 +61,8 @@ builder.Services.AddScoped<UserState>();
 builder.Services.AddMudServices();
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
-
-/// Add any services in AddInfraServices class 
-builder.Services.AddInfraServices(builder.Configuration);
-
 var app = builder.Build();
+
 
 if (!app.Environment.IsDevelopment())
 {

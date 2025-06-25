@@ -33,5 +33,6 @@ namespace MiniShopApp.Data
         public DbSet<TbOrderDetails> TbOrderDetails { get; set; } = null!;
         //Telegram store
         public DbSet<TbTelegramGroup> TbTelegramGroups { get; set; } = null!;
+        public DbSet<TbTelegramBotToken> TbTelegramBotTokens { get; set; } = null!;
     }
 }

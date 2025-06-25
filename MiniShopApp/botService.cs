@@ -62,29 +62,51 @@ namespace MiniShopApp
             await _botClient.LogOut();
 
         }
-        
+        protected async Task<string> GetWebURLAsync()
+        {
+            await using var context = await dbContext.CreateDbContextAsync();
+            var reult= await context.TbTelegramBotTokens.FirstOrDefaultAsync();
+            if (reult != null)
+            {
+                return reult.WebAppUrl!;
+            }
+            return "";
+        }
         private async Task OnMessage(ITelegramBotClient telegramBot, Update update, CancellationToken cancellationToken)
         {
             try
             {
-                //string webappUrl = "https://minishopapp.runasp.net/index";
+                string url = await GetWebURLAsync();
+                var webURL=url+ $"/index?userid={update.Message!.Chat.Id}";
                 string webappUrl = $"https://minishopapp.runasp.net/index?userid={update.Message!.Chat.Id}";
                 //var groupId=update.Message.MediaGroupId;
                 //userState.UserId = update.Message!.Chat.Id;
                 if (update.Message!.Text == "/start")
                 {
 
-
+                    //await _botClient.SetChatMenuButton(
+                    //         chatId: update.Message.Chat.Id,
+                    //         menuButton: new MenuButtonWebApp
+                    //         {
+                    //             Text = "Open App",
+                    //             WebApp = new WebAppInfo { Url = webURL }
+                    //         }
+                             
+                    //     );
                     await _botClient.SendMessage(
                         update.Message.Chat.Id,
                         $"Welcome to our Mini App Online! {update.Message.Chat.FirstName}\n\n" +
                         $"Our Mini App still developing while you testing if has some errors, please feedback to us by type or click command /feedback. \n" +
-                        $"\nThank you for testing! (_._) Click Open App",
+                        $"\nThanks for testing! (_._) Click Open App",
                         replyMarkup: new InlineKeyboardButton[]
                             {
-                            InlineKeyboardButton.WithWebApp("Open App",webappUrl),
-
+                            InlineKeyboardButton.WithWebApp("Open App",webURL),
+                           
+                            
+                           
                             }
+                           
+                        
 
 
                             );
@@ -119,7 +141,7 @@ namespace MiniShopApp
                         "Thank you!!!",
                         replyMarkup: new InlineKeyboardButton[]
                             {
-                            InlineKeyboardButton.WithWebApp("Open App",webappUrl),
+                            InlineKeyboardButton.WithWebApp("Open App",webURL),
 
                             }
 

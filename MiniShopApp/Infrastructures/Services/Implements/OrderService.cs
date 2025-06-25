@@ -31,13 +31,23 @@ namespace MiniShopApp.Infrastructures.Services.Implements
             _botClient = botClient;
             this.userState = userState;
         }
+        protected async Task<string> GetWebURLAsync()
+        {
+            await using var context = await contextFactory.CreateDbContextAsync();
+            var reult = await context.TbTelegramBotTokens.FirstOrDefaultAsync();
+            if (reult != null)
+            {
+                return reult.WebAppUrl!;
+            }
+            return "";
+        }
         public async Task<Result<string>> CreateAsync(long customerId, TbOrder model)
         {
             await using var context = await contextFactory.CreateDbContextAsync();
             try
             {
                 context.Database.BeginTransaction(); // Start transaction
-
+               
                 logger.LogInformation("Creating order for customer {CustomerId}", customerId);
                 if(customerId <= 0)
                 {
@@ -53,7 +63,9 @@ namespace MiniShopApp.Infrastructures.Services.Implements
                     detailsText = string.Join("\n", model.TbOrderDetails!.Select(d =>
                         $"- {d.ItemName} {d.Quantity} x {d.Price?.ToString("c2")} =\t{d.TotalPrice?.ToString("c2")}"
                     ));
-                    userState.UserId = customerId; // Set the user ID in the state
+                    userState.UserId = customerId;
+                    string url = await GetWebURLAsync();
+                    var webURL = url + $"/index?userid={userState.UserId}";// Set the user ID in the state
                     await _botClient.SendMessage(
                             chatId: customerId, // Replace with your chat ID
 
@@ -71,7 +83,7 @@ namespace MiniShopApp.Infrastructures.Services.Implements
                             parseMode: ParseMode.Html,
                              replyMarkup: new InlineKeyboardButton[]
                                 {
-                            InlineKeyboardButton.WithWebApp("Open App",$"https://minishopapp.runasp.net/index?userid={userState.UserId}"),
+                            InlineKeyboardButton.WithWebApp("Open App",webURL),
 
                                 }
                         // You can specify entities if needed

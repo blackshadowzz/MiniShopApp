@@ -2,10 +2,37 @@
 @using MiniShopApp.Models
 @layout MainLayout
 <PageTitle>Telegram config</PageTitle>
-
+@if (IsLoading == true)
+{
+    <MudProgressLinear Color="Color.Secondary" Indeterminate="true" Class="my-7" />
+}
 <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
     <MudTabPanel Text="Telegram Token" Icon="@Icons.Material.Filled.Token">
-       
+        <MudGrid>
+            <MudItem xs="12" sm="7">
+                <MudPaper Class="pa-4">
+                    <MudForm @ref="form" @bind-IsValid="@success" @bind-Errors="@errors">
+                        <MudTextField T="string" Variant=Variant.Outlined Label="Bot Token " @bind-Text="model.BotToken" Placeholder="7823822574:AAFm2SzyMoepbVa6kMTElqlsbgr8JSUkkM4" Required="true" RequiredError="Bot token is required!" />
+                        <MudTextField T="string" Variant=Variant.Outlined Label="Web App URL " Placeholder="https://example.com" @bind-Text="model.WebAppUrl" Required="true" RequiredError="Web URL is required!" />
+                        
+                    </MudForm>
+                </MudPaper>
+                <MudPaper Class="pa-4 mt-4">
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" DropShadow="false" StartIcon="@Icons.Material.Filled.Save" OnClick="@SetBotAsync">Set</MudButton>
+                    @* <MudButton Variant="Variant.Filled" Color="Color.Secondary" DropShadow="false" OnClick="@ModifyBotAsync" Class="mx-2">Modify Bot</MudButton> *@
+
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="12" sm="5">
+                <MudPaper Class="pa-4 mud-height-full">
+                    <MudText Typo="Typo.subtitle2">@($"Errors ({errors.Length})")</MudText>
+                    @foreach (var error in errors)
+                    {
+                        <MudText Color="@Color.Error">@error</MudText>
+                    }
+                </MudPaper>
+            </MudItem>
+        </MudGrid>
     </MudTabPanel>
     <MudTabPanel Text="Telegram Group" Icon="@Icons.Material.Filled.Group">
 
@@ -19,3 +46,8 @@
    
 </MudTabs>
 
+@code{
+    bool success;
+    MudForm form;
+    string[] errors = { };
+}

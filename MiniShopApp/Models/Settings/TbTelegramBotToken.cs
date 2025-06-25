@@ -1,4 +1,6 @@
-﻿namespace MiniShopApp.Models.Settings
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace MiniShopApp.Models.Settings
 {
     public sealed class TbTelegramBotToken :BaseHelpEntity
     {
@@ -9,5 +11,13 @@
         public string? BotToken { get; set; } = string.Empty;
         public string? BotTokenSecret { get; set;} = string.Empty;
         public string? WebAppUrl { get; set;} = string.Empty;
+    }
+    public class TbTelegramBotTokenDto
+    {
+        [Required]
+        public string? BotToken { get; set; } = string.Empty;
+        [Required]
+
+        public string? WebAppUrl { get; set; } = string.Empty;
     }
 }
