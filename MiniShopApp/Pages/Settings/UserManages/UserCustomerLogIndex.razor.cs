@@ -65,15 +65,15 @@ namespace MiniShopApp.Pages.Settings.UserManages
         {
             try
             {
-                var data= userCustomers!.Select(x => new CustomerAlertMessege
+                var data = userCustomers!.Select(x => new CustomerAlertMessege
                 {
                     Id = x.Id,
                     CustomerId = x.CustomerId,
-                    AlertMessege=messegeText,
+                    AlertMessege = messegeText,
                     FirstName = x.FirstName,
-                });
+                }).Where(x => x.CustomerId.HasValue && x.CustomerId.Value > 0);
 
-                alertMessege=data.ToList();
+                alertMessege = data.ToList();
                 var result = await userCustomer.CreateUserAlertAsync(alertMessege);
                 if (result.IsSuccess)
                 {
@@ -94,7 +94,7 @@ namespace MiniShopApp.Pages.Settings.UserManages
             {
                 IsLoading = false;
                 // Handle exceptions, e.g., log them or show a notification
-                SnackbarService.Add(ex.Message, MudBlazor.Severity.Error);
+                SnackbarService.Add("Error at UI " + ex.Message, MudBlazor.Severity.Error);
                 Console.WriteLine($"Exception occurred while loading user customers: {ex.Message}");
             }
         }
