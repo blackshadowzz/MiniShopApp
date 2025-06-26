@@ -18,8 +18,11 @@ namespace MiniShopApp.Infrastructures.DataAccess.Configurations
             builder.Property(x => x.DiscountPrice).HasColumnType("decimal(18,2)").IsRequired(false);
             builder.Property(x => x.TotalPrice).HasColumnType("decimal(18,2)").IsRequired(false);
             builder.Property(x => x.Notes).HasColumnType("nvarchar(max)").IsRequired(false);
+            builder.Property(x => x.IsActive).HasDefaultValue(true).IsRequired(false);
+            builder.Property(x => x.EditSeq).HasDefaultValue(0).IsRequired(false);
 
             builder.Property(x => x.CreatedDT).HasColumnType("datetime").HasDefaultValueSql("GETDATE()");
+            builder.Property(x => x.ModifiedDT).HasColumnType("datetime").HasDefaultValueSql("GETDATE()");
 
             builder.HasMany(x => x.TbOrderDetails)
                    .WithOne(x=>x.TbOrder)

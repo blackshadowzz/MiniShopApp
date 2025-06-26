@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MiniShopApp.Models.Items
 {
-    public class TbTable
+    public class TbTable:BaseEntity
     {
 
         public int TableId { get; set; }

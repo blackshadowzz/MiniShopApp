@@ -13,6 +13,9 @@ namespace MiniShopApp.Infrastructures.DataAccess.Configurations
             builder.Property(x => x.TableId).ValueGeneratedOnAdd();
             builder.Property(x => x.TableNumber).HasColumnType("nvarchar(30)").IsRequired(false);
             builder.Property(x => x.Description).HasColumnType("nvarchar(100)").IsRequired(false);
+            builder.Property(x => x.IsActive).HasDefaultValue(true).IsRequired(false);
+            builder.Property(x => x.CreatedDT).HasDefaultValueSql("getdate()").IsRequired(false);
+            builder.Property(x => x.ModifiedDT).HasDefaultValueSql("getdate()").IsRequired(false);
         }
     }
    

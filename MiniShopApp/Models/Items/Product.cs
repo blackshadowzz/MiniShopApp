@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MiniShopApp.Models.Items
 {
-    public class Product
+    public class Product:BaseEntity
     {
         public int Id { get; set; }
         public string? ProductName { get; set; }
@@ -13,7 +13,6 @@ namespace MiniShopApp.Models.Items
         public double? SubPrice { get; set; }
         public string? Description { get; set; }
         public string? ImageUrl { get; set; }
-        public bool IsActive { get; set; }
         public int? CategoryId { get; set; }
     }
     public class ViewProducts
@@ -26,7 +25,7 @@ namespace MiniShopApp.Models.Items
         public double? SubPrice { get; set; }
         public string? Description { get; set; }
         public string? ImageUrl { get; set; }
-        public bool IsActive { get; set; }
+        public bool? IsActive { get; set; }
         public int? CategoryId { get; set; }
         public int? CategoryName { get; set; }
     }
@@ -40,7 +39,7 @@ namespace MiniShopApp.Models.Items
         public double? SubPrice { get; set; }
         public string? Description { get; set; }
         public string? ImageUrl { get; set; }
-        public bool IsActive { get; set; }
+        public bool? IsActive { get; set; }
         public int? CategoryId { get; set; }
         public string? CategoryName { get; set; }
         public int? QTYIncrease { get; set; } = 0;

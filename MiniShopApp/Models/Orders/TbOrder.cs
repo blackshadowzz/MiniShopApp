@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MiniShopApp.Models.Orders
 {
-    public class TbOrder
+    public class TbOrder : BaseEntity
     {
         public long Id { get; set; }
         public long CustomerId { get; set; }
@@ -13,7 +13,6 @@ namespace MiniShopApp.Models.Orders
         public double? DiscountPrice { get; set; }
         public double? TotalPrice { get; set; }
         public string? Notes { get; set; }
-        public DateTime? CreatedDT { get; set; }
         public ICollection<TbOrderDetails>? TbOrderDetails { get; set; }
     }
     public class ViewTbOrders
@@ -25,6 +24,9 @@ namespace MiniShopApp.Models.Orders
         public int? Quantity { get; set; }
         public double? TotalPrice { get; set; }
         public DateTime? CreatedDT { get; set; }
+        public DateTime? ModifieddDT { get; set; }
+        public ICollection<TbOrderDetails>? TbOrderDetails { get; set; }
+
     }
     public class OrderCreateModel
     {
