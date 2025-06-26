@@ -29,6 +29,7 @@ namespace MiniShopApp.Pages.Lists.TbTables
         private List<TbTable> model = new List<TbTable>();
         private string? _filter = string.Empty;
         bool _expanded = true;
+        
 
         private void OnExpandCollapseClick()
         {
@@ -60,6 +61,28 @@ namespace MiniShopApp.Pages.Lists.TbTables
                 model = tables.ToList();
                 StateHasChanged();
             }
+        }
+        public async Task Update(int? id)
+        {
+            var optionss = _backdropClick;
+            var dialog = await Dialog.ShowAsync<UpdateTable>("Update table", new DialogParameters
+            {
+                ["iTemid"] = id
+            }
+            ,optionss);
+            var result = await dialog.Result;
+            if (!result!.Canceled)
+            {
+                var table = await _context.GetAllAsync(_filter);
+                model = table.ToList();
+                StateHasChanged();
+            }
+
+
+        }
+        public async Task remove(int? id)
+        {
+            Dialog.
         }
 
     }

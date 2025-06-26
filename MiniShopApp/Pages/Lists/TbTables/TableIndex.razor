@@ -24,7 +24,7 @@
                     <th>@_data.TableNumber</th>
                     <th>@_data.Description</th>
                     <th class="text-end">
-                        <MudIconButton Icon="@Icons.Material.Filled.Edit" aria-label="edit" Color="Color.Info" Size="Size.Small">
+                        <MudIconButton Icon="@Icons.Material.Filled.Edit" aria-label="edit" Color="Color.Info" Size="Size.Small" OnClick="@(() => Update(_data.TableId))">
                         </MudIconButton>
                         <MudIconButton Icon="@Icons.Material.Filled.Delete" aria-label="remove" Color="Color.Error" Size="Size.Small">
                         </MudIconButton>

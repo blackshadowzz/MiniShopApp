@@ -70,24 +70,31 @@ namespace MiniShopApp.Infrastructures.Services.Implements
             }
         }
 
-        public async Task<string> UpdateAsync(TbTable model, int id)
+        public async Task<TbTable> GetOneTable(int? id)
+        {
+            await using var dbContext = _context.CreateDbContext();
+            var geton = await dbContext.TbTables.FirstOrDefaultAsync(x=>x.TableId == id);
+            return geton ?? default!;
+        }
+
+        public async Task<bool> UpdateAsync(TbTable model, int? id)
         {
             await using var dbContext = _context.CreateDbContext();
             var existing = await dbContext.TbTables.FindAsync(id);
             if (existing == null)
             {
-                return $"Record with ID {id} not found.";
+                return false;
             }
             try
             {
                 dbContext.Entry(existing).CurrentValues.SetValues(model);
                 await dbContext.SaveChangesAsync();
-                return "Update successful.";
+                return true;
             }
             catch (Exception ex)
             {
                 // Log exception as needed
-                return $"Error updating record: {ex.Message}";
+                return false;
             }
 
         }

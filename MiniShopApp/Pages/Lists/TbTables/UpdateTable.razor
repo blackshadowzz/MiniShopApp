@@ -1,0 +1,20 @@
+﻿
+
+<MudDialog>
+    <DialogContent>
+         <form>
+            <div class="mb-2">
+                <label class="form-label" for="name">Table Code</label>
+                <input type="text" id="name" class="form-control" @bind="model.TableNumber" />
+            </div>
+            <div class="mb-2">
+                <label class="form-label" for="desc">Descriptions</label>
+                <textarea type="text" id="desc" class="form-control" @bind="model.Description" />
+            </div>
+        </form> 
+    </DialogContent>
+    <DialogActions>
+        <MudButton Variant="Variant.Filled" OnClick="Cancel">Cancel</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SaveUpdate" >Save</MudButton>
+    </DialogActions>
+</MudDialog>
