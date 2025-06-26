@@ -86,7 +86,7 @@ namespace MiniShopApp.Pages.Settings.UserManages
                     IsLoading = false;
                     // Handle the error, e.g., show a notification or log it
                     Console.WriteLine($"Error loading user customers: {result.ErrMessage}");
-                    SnackbarService.Add(result.ErrMessage, MudBlazor.Severity.Error);
+                    SnackbarService.Add("Error Creating: "+result.ErrMessage, MudBlazor.Severity.Error);
 
                 }
             }
