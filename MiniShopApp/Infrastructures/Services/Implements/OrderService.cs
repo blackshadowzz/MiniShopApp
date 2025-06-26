@@ -135,22 +135,76 @@ namespace MiniShopApp.Infrastructures.Services.Implements
             }
         }
 
-        public Task<Result<TbOrder>> GetOrderByUserAsync(long? customerId)
+        public async Task<Result<IEnumerable<ViewTbOrders>>> GetOrderSummaryAsync(string? filter = "")
+        {
+            try
+            {
+                await using var context = await contextFactory.CreateDbContextAsync();
+                var query = context.TbOrders
+                    .Include(o => o.TbOrderDetails)
+                    .AsNoTracking()
+                    .Join(context.TbUserCustomers,
+                          o => o.CustomerId,
+                          u => u.CustomerId,
+                          (o, u) => new { Order = o, User = u });
+
+                if (!string.IsNullOrWhiteSpace(filter))
+                {
+                    if (long.TryParse(filter, out var customerId))
+                    {
+                        query = query.Where(x => x.Order.CustomerId == customerId);
+                    }
+                    else
+                    {
+                        query = query.Where(x =>
+                            (x.User.FirstName + " " + x.User.LastName).Contains(filter));
+                    }
+                }
+
+                var orders = await query
+                    .Select(x => new ViewTbOrders
+                    {
+                        Id = x.Order.Id,
+                        CustomerId = x.Order.CustomerId,
+                        TableNumber = x.Order.TableNumber,
+                        ItemCount = x.Order.ItemCount,
+                        SubPrice = x.Order.SubPrice,
+                        DiscountPrice = x.Order.DiscountPrice,
+                        TotalPrice = x.Order.TotalPrice,
+                        Notes = x.Order.Notes,
+                        CreatedDT=x.Order.CreatedDT,
+                        ModifiedDT=x.Order.ModifiedDT,
+                        IsActive=x.Order.IsActive,
+                        TbOrderDetails = x.Order.TbOrderDetails != null
+                            ? x.Order.TbOrderDetails.Select(d => new ViewTbOrderDetails
+                            {
+                                Id = d.Id,
+                                OrderId = d.OrderId,
+                                ItemId = d.ItemId,
+                                ItemName = d.ItemName,
+                                Price = d.Price,
+                                Quantity = d.Quantity,
+                                TotalPrice = d.TotalPrice
+                            }).ToList()
+                            : new List<ViewTbOrderDetails>()
+                    })
+                    .ToListAsync();
+
+                return await Result.SuccessAsync<IEnumerable<ViewTbOrders>>(orders);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Error in GetOrderSummaryAsync: " + ex.Message, ex);
+                return Result.Failure<IEnumerable<ViewTbOrders>>(ErrorResponse.ServerError(ex.Message));
+            }
+        }
+
+        public Task<Result<IEnumerable<TbOrderDetails>>> GetOrderDetailsAsync(long? orderId)
         {
             throw new NotImplementedException();
         }
 
-        public Task<Result<IEnumerable<TbOrderDetails>>> GetOrderDetailsAsync(long customerId, TbOrderDetails model)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<Result<IEnumerable<TbOrderDetails>>> GetOrdersByUserAsync(long customerId)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<Result<TbOrder>> GetOrderSummaryAsync(long customerId, TbOrder model)
+        public Task<Result<IEnumerable<TbOrderDetails>>> GetOrdersByUserAsync(long? customerId)
         {
             throw new NotImplementedException();
         }
@@ -158,6 +212,53 @@ namespace MiniShopApp.Infrastructures.Services.Implements
         public Task<Result<UserCustomer>> GetUserAsync(long? filter)
         {
             throw new NotImplementedException();
+        }
+        // ViewTbOrders projection version for internal or custom use
+        public async Task<Result<IEnumerable<ViewTbOrders>>> GetOrderByUserAsync(long? customerId)
+        {
+            try
+            {
+                if (customerId == null || customerId <= 0)
+                {
+                    return await Result.FailureAsync<IEnumerable<ViewTbOrders>>(new ErrorResponse("Invalid customer ID."));
+                }
+                await using var context = await contextFactory.CreateDbContextAsync();
+                var orders = await context.TbOrders
+                    .Where(o => o.CustomerId == customerId)
+                    .Include(o => o.TbOrderDetails)
+                    .AsNoTracking()
+                    .Select(o => new ViewTbOrders
+                    {
+                        Id = o.Id,
+                        CustomerId = o.CustomerId,
+                        TableNumber = o.TableNumber,
+                        ItemCount = o.ItemCount,
+                        SubPrice = o.SubPrice,
+                        DiscountPrice = o.DiscountPrice,
+                        TotalPrice = o.TotalPrice,
+                        Notes = o.Notes,
+                        CreatedDT = o.CreatedDT,
+                        ModifiedDT = o.ModifiedDT,
+                        IsActive = o.IsActive,
+                        TbOrderDetails = o.TbOrderDetails != null ? o.TbOrderDetails.Select(d => new ViewTbOrderDetails
+                        {
+                            Id = d.Id,
+                            OrderId = d.OrderId,
+                            ItemId = d.ItemId,
+                            ItemName = d.ItemName,
+                            Price = d.Price,
+                            Quantity = d.Quantity,
+                            TotalPrice = d.TotalPrice
+                        }).ToList() : new List<ViewTbOrderDetails>()
+                    })
+                    .ToListAsync();
+                return await Result.SuccessAsync<IEnumerable<ViewTbOrders>>(orders);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Error Get order by User "+ex.Message, ex);
+                return Result.Failure<IEnumerable<ViewTbOrders>>(ErrorResponse.ServerError(ex.Message));
+            }
         }
     }
 }

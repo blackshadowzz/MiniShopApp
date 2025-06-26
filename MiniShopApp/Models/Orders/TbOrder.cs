@@ -15,17 +15,17 @@ namespace MiniShopApp.Models.Orders
         public string? Notes { get; set; }
         public ICollection<TbOrderDetails>? TbOrderDetails { get; set; }
     }
-    public class ViewTbOrders
+    public class ViewTbOrders : BaseEntity
     {
         public long Id { get; set; }
-        public string? CategoryName { get; set; }
-        public string? ItemName { get; set; }
-        public double? Price { get; set; }
-        public int? Quantity { get; set; }
+        public long CustomerId { get; set; }
+        public string? TableNumber { get; set; }
+        public int? ItemCount { get; set; }
+        public double? SubPrice { get; set; }
+        public double? DiscountPrice { get; set; }
         public double? TotalPrice { get; set; }
-        public DateTime? CreatedDT { get; set; }
-        public DateTime? ModifieddDT { get; set; }
-        public ICollection<TbOrderDetails>? TbOrderDetails { get; set; }
+        public string? Notes { get; set; }
+        public List<ViewTbOrderDetails>? TbOrderDetails { get; set; }=new List<ViewTbOrderDetails>();
 
     }
     public class OrderCreateModel

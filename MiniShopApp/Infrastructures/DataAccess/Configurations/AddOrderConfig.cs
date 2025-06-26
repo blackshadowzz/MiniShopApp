@@ -8,7 +8,7 @@ namespace MiniShopApp.Infrastructures.DataAccess.Configurations
     {
         public void Configure(EntityTypeBuilder<TbOrder> builder)
         {
-            builder.ToTable("TbOrders");
+            builder.ToTable("TTbOrders");
             builder.HasKey(x => x.Id);
             builder.Property(x => x.Id).ValueGeneratedOnAdd();
             builder.Property(x => x.CustomerId).IsRequired(true);

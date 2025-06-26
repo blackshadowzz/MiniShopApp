@@ -16,7 +16,7 @@
         //Use to inherite tto model class
         public int? EditSeq { get; set; }
         public bool? IsActive { get; set; }
-        public DateTime? CreatedDT { get; set; } = DateTime.Now;
+        public DateTime? CreatedDT { get; set; }
         public DateTime? ModifiedDT { get; set; } = DateTime.Now;
         public string? CreatedBy { get; set; } =string.Empty;
         public string? ModifiedBy { get; set; } = string.Empty;
