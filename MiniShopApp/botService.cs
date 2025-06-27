@@ -5,6 +5,7 @@ using MiniShopApp.Data;
 using MiniShopApp.Data.TelegramStore;
 using MiniShopApp.Infrastructures.Services.Implements;
 using MiniShopApp.Models;
+using MiniShopApp.Models.Customers;
 using MiniShopApp.Models.Settings;
 using System.Threading;
 using Telegram.Bot;
@@ -246,17 +247,20 @@ namespace MiniShopApp
                 if(existingUser != null)
                 {
                     existingUser.LastLoginDT = DateTime.Now;
+                    existingUser.CustomerType = "Telegram";
+
                     context.Update(existingUser);
 
                 }
                 else
                 {
-                   
+
                     // Create a new user customer if it doesn't exist
                     context.TbUserCustomers.Add(new UserCustomer
                     {
-                        
+
                         CustomerId = update.Message.Chat.Id,
+                        CustomerType = "Telegram",
                         FirstName = update.Message.Chat.FirstName,
                         LastName = update.Message.Chat.LastName,
                         UserName = update.Message.Chat.Username,

@@ -1,0 +1,195 @@
+﻿@page "/Customers/Type/list"
+@layout MainLayout 
+@using Infrastructures.Services.Interfaces
+@using MiniShopApp.Models.Customers
+@using MudBlazor
+<PageTitle>Customer types</PageTitle>
+
+<MudGrid>
+    <MudItem sm="4">
+        <MudPaper Class="pa-4">
+            <MudForm @ref="form" @bind-IsValid="@success" @bind-Errors="@errors">
+                <MudTextField T="string" 
+                    Label="Type Name" 
+                    Variant=Variant.Outlined 
+                    Required="true" 
+                    @bind-Text=dtoCreate.TypeName
+                    HelperText="[required]"
+                    RequiredError="Type name is required!" />
+                <MudNumericField T="double?"
+                              @bind-Value=dtoCreate.DiscountRate
+                              Variant=Variant.Outlined
+                              HelperText="[optional]"
+                    Label="Discount Rate" />
+                
+                <MudTextField T="string"
+                              Label="Description"
+                              Variant=Variant.Outlined
+                              @bind-Text=dtoCreate.Description
+                              HelperText="[optional]" />
+                <MudCheckBox @bind-Value="dtoCreate.IsActive" Color="Color.Info" Label="Status" />
+            </MudForm>
+        </MudPaper>
+        <MudPaper Class="pa-4 mt-4">
+            <MudButton Variant="Variant.Filled" 
+            Color="Color.Primary" 
+            DropShadow="false"
+                       StartIcon="@Icons.Material.Filled.AddCircle"
+            OnClick="@CreateAsync">Add New</MudButton>
+            <MudButton Variant="Variant.Filled" 
+            Color="Color.Secondary" 
+                       StartIcon="@Icons.Material.Filled.Update"
+                       DropShadow="false"
+                       OnClick="@EditAsync">Modify</MudButton>
+            <MudButton Variant="Variant.Filled" 
+            Color="Color.Info" 
+            DropShadow="false" 
+                       StartIcon="@Icons.Material.Filled.ClearAll"
+                       OnClick="@ClearData">Clear</MudButton>
+            
+        </MudPaper>
+    </MudItem>
+    <MudItem sm="8">
+        
+        <MudPaper Class="pa-4 mud-height-full">
+            <MudText Typo="Typo.h6">Customer Type list</MudText>
+            @if (isLoading)
+            {
+                <MudProgressCircular Indeterminate="true" Color="Color.Primary" />
+            }
+            else if (customerTypes.Any())
+            {
+                <MudTable Items="@customerTypes" T="ViewCustomerType" Hover="true" Dense="true" OnRowClick="RowClickEvent" Loading="@isLoading">
+                    <HeaderContent>
+                        <MudTh>Id</MudTh>
+                        <MudTh>Type Name</MudTh>
+                        <MudTh>Discount Rate</MudTh>
+                        <MudTh>Description</MudTh>
+                        <MudTh>Status</MudTh>
+                        <MudTh>Actions</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd DataLabel="Id">@context.Id</MudTd>
+                        <MudTd DataLabel="Type Name">@context.TypeName</MudTd>
+                        <MudTd DataLabel="Discount Rate">@context.DiscountRate</MudTd>
+                        <MudTd DataLabel="Description">@context.Description</MudTd>
+                        <MudTd><MudCheckBox @bind-Value="context.IsActive" Color="Color.Primary" ReadOnly/></MudTd>
+                        <MudTd>
+                            <MudIconButton OnClick="@(()=>DeleteAsync(context.Id))" Icon="@Icons.Material.Filled.Delete" Color=Color.Secondary aria-label="delete" />
+                        </MudTd>
+                    </RowTemplate>
+                </MudTable>
+            }
+            else
+            {
+                <MudText Typo="Typo.subtitle2">Customer not found!</MudText>
+            }
+
+        </MudPaper>
+    </MudItem>
+</MudGrid>
+
+@code{
+    bool success;
+    string[] errors = { };
+    MudForm form;
+    async Task CreateAsync()
+    {
+        try
+        {
+            if (form.IsValid)
+            {
+                var result = await customerTypeService.CreateAsync(dtoCreate);
+                if (result.IsSuccess)
+                {
+                    SnackbarService.Add(result.Data!, Severity.Success);
+                    dtoCreate = new();
+                    await GetCustomerType();
+                    return;
+                }
+                SnackbarService.Add(result.ErrMessage, Severity.Error);
+
+            }
+
+        }
+        catch(Exception ex)
+        {
+            SnackbarService.Add(ex.Message, Severity.Error);
+            throw new Exception(ex.Message);
+        }
+    }
+    async Task EditAsync()
+    {
+        try
+        {
+            await form.Validate();
+                if (dtoUpdate.Id <=0)
+                {
+                    SnackbarService.Add("Please select any row to modify!", Severity.Info);
+                    return;
+                }
+                dtoUpdate.TypeName = dtoCreate.TypeName;
+                dtoUpdate.DiscountRate = dtoCreate.DiscountRate;
+                dtoUpdate.Description = dtoCreate.Description;
+                dtoUpdate.IsActive = dtoCreate.IsActive;
+                dtoUpdate.ModifiedDT = DateTime.Now;
+                dtoUpdate.CreatedDT = dtoCreate.CreatedDT;
+                dtoUpdate.EditSeq +=1;
+                var result = await customerTypeService.UpdateAsync(dtoUpdate);
+                if (result.IsSuccess)
+                {
+                    SnackbarService.Add(result.Data!, Severity.Success);
+                    ClearData();
+                    await GetCustomerType();
+                    StateHasChanged();
+                    return;
+                }
+                SnackbarService.Add(result.ErrMessage, Severity.Error);
+
+        }
+        catch (Exception ex)
+        {
+            SnackbarService.Add(ex.Message, Severity.Error);
+            throw new Exception(ex.Message);
+        }
+    }
+    async Task DeleteAsync(int Id)
+    {
+        try
+        {
+            var result = await DialogService.ShowMessageBox(
+                    "Confirmation",
+                    $"Are sure to delete this record?",
+                    "Yes", "No");
+            if (result == true)
+            {
+                var deleted = await customerTypeService.DeleteAsync(Id);
+                if (deleted.IsSuccess)
+                {
+                    SnackbarService.Add(deleted.Data!, Severity.Success);
+                    await GetCustomerType();
+                    return;
+                }
+                SnackbarService.Add(deleted.ErrMessage, Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            SnackbarService.Add(ex.Message, Severity.Error);
+            throw new Exception(ex.Message);
+        }
+    }
+    void ClearData()
+    {
+        dtoCreate = new();
+        dtoUpdate = new();
+    }
+    private void RowClickEvent(TableRowClickEventArgs<ViewCustomerType> row)
+    {
+        dtoUpdate.Id = row.Item!.Id;
+        dtoCreate.TypeName = row.Item.TypeName;
+        dtoCreate.DiscountRate = row.Item.DiscountRate;
+        dtoCreate.Description = row.Item.Description;
+        dtoCreate.IsActive = row.Item.IsActive;
+    }
+}

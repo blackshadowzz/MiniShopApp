@@ -5,7 +5,7 @@
         //Use to inherite tto model class
         public TKeyType Id { get; set; } = default!; //Provide table primary key type
         public int? EditSeq { get; set; }
-        public bool? IsActive { get; set; }
+        public bool? IsActive { get; set; }=true;
         public DateTime? CreatedDT { get; set; }=DateTime.Now;
         public DateTime? ModifiedDT { get; set; } = DateTime.Now;
         public string? CreatedBy { get; set; } = string.Empty;
@@ -15,7 +15,7 @@
     {
         //Use to inherite tto model class
         public int? EditSeq { get; set; }
-        public bool? IsActive { get; set; }
+        public bool? IsActive { get; set; } = true;
         public DateTime? CreatedDT { get; set; }
         public DateTime? ModifiedDT { get; set; } = DateTime.Now;
         public string? CreatedBy { get; set; } =string.Empty;
@@ -25,7 +25,7 @@
     {
         //Use to inherite tto model class
         public int? EditSeq { get; set; }
-        public bool? IsActive { get; set; }
+        public bool? IsActive { get; set; } = true;
         public DateTime? CreatedDT { get; set; } = DateTime.Now;
         public DateTime? ModifiedDT { get; set; } = DateTime.Now;
     }

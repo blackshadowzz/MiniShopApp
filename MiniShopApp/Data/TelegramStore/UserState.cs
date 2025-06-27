@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using MiniShopApp.Models;
+using MiniShopApp.Models.Customers;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 

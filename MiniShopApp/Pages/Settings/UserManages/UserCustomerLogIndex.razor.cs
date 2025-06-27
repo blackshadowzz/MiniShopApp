@@ -1,5 +1,5 @@
 using MiniShopApp.Infrastructures.Services.Interfaces;
-using MiniShopApp.Models;
+using MiniShopApp.Models.Customers;
 
 namespace MiniShopApp.Pages.Settings.UserManages
 {

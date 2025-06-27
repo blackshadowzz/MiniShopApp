@@ -95,7 +95,7 @@ else
         <MudText Typo="Typo.body2">Total Item: @order.ItemCount</MudText>
         <MudText Typo="Typo.subtitle1" Class="text-danger">Total Price: @order.TotalPrice?.ToString("C2")</MudText>
         <MudDivider Class="my-2" />
-        <table class="table table-hover table-sm">
+        <MudSimpleTable Dense="true" Hover="true" >
         <tbody>
         @foreach (var detail in order.TbOrderDetails ?? Enumerable.Empty<ViewTbOrderDetails>())
             {
@@ -109,7 +109,7 @@ else
                 
             }
         </tbody>
-        </table>
+    </MudSimpleTable>
        
         @if (!string.IsNullOrWhiteSpace(order.Notes))
         {

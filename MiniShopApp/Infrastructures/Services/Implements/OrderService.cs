@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using MiniShopApp.Data;
 using MiniShopApp.Data.TelegramStore;
 using MiniShopApp.Infrastructures.Services.Interfaces;
-using MiniShopApp.Models;
+using MiniShopApp.Models.Customers;
 using MiniShopApp.Models.Orders;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
@@ -166,15 +166,17 @@ namespace MiniShopApp.Infrastructures.Services.Implements
                     {
                         Id = x.Order.Id,
                         CustomerId = x.Order.CustomerId,
+                        FirstName = x.User.FirstName,
+                        LastName = x.User.LastName,
                         TableNumber = x.Order.TableNumber,
                         ItemCount = x.Order.ItemCount,
                         SubPrice = x.Order.SubPrice,
                         DiscountPrice = x.Order.DiscountPrice,
                         TotalPrice = x.Order.TotalPrice,
                         Notes = x.Order.Notes,
-                        CreatedDT=x.Order.CreatedDT,
-                        ModifiedDT=x.Order.ModifiedDT,
-                        IsActive=x.Order.IsActive,
+                        CreatedDT = x.Order.CreatedDT,
+                        ModifiedDT = x.Order.ModifiedDT,
+                        IsActive = x.Order.IsActive,
                         TbOrderDetails = x.Order.TbOrderDetails != null
                             ? x.Order.TbOrderDetails.Select(d => new ViewTbOrderDetails
                             {
@@ -199,9 +201,36 @@ namespace MiniShopApp.Infrastructures.Services.Implements
             }
         }
 
-        public Task<Result<IEnumerable<TbOrderDetails>>> GetOrderDetailsAsync(long? orderId)
+        public async Task<Result<IEnumerable<ViewTbOrderDetails>>> GetOrderDetailsAsync(long? orderId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                if (orderId == null || orderId <= 0)
+                {
+                    return await Result.FailureAsync<IEnumerable<ViewTbOrderDetails>>(new ErrorResponse("Invalid order ID."));
+                }
+                await using var context = await contextFactory.CreateDbContextAsync();
+                var details = await context.TbOrderDetails
+                    .Where(d => d.OrderId == orderId)
+                    .AsNoTracking()
+                    .Select(d => new ViewTbOrderDetails
+                    {
+                        Id = d.Id,
+                        OrderId = d.OrderId,
+                        ItemId = d.ItemId,
+                        ItemName = d.ItemName,
+                        Price = d.Price,
+                        Quantity = d.Quantity,
+                        TotalPrice = d.TotalPrice
+                    })
+                    .ToListAsync();
+                return await Result.SuccessAsync<IEnumerable<ViewTbOrderDetails>>(details);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error in GetOrderDetailsAsync: {ex.Message}", ex);
+                return Result.Failure<IEnumerable<ViewTbOrderDetails>>(ErrorResponse.ServerError(ex.Message));
+            }
         }
 
         public Task<Result<IEnumerable<TbOrderDetails>>> GetOrdersByUserAsync(long? customerId)
@@ -209,10 +238,6 @@ namespace MiniShopApp.Infrastructures.Services.Implements
             throw new NotImplementedException();
         }
 
-        public Task<Result<UserCustomer>> GetUserAsync(long? filter)
-        {
-            throw new NotImplementedException();
-        }
         // ViewTbOrders projection version for internal or custom use
         public async Task<Result<IEnumerable<ViewTbOrders>>> GetOrderByUserAsync(long? customerId)
         {

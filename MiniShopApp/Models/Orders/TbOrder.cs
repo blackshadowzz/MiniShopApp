@@ -6,6 +6,7 @@ namespace MiniShopApp.Models.Orders
     public class TbOrder : BaseEntity
     {
         public long Id { get; set; }
+        public long? UserId { get; set; }
         public long CustomerId { get; set; }
         public string? TableNumber { get; set; }
         public int? ItemCount { get; set; }
@@ -18,7 +19,13 @@ namespace MiniShopApp.Models.Orders
     public class ViewTbOrders : BaseEntity
     {
         public long Id { get; set; }
+        public long? UserId { get; set; }
+
         public long CustomerId { get; set; }
+        
+        public string? FirstName { get; set; }
+        public string? LastName { get; set; }
+        public string? UserName { get; set; }
         public string? TableNumber { get; set; }
         public int? ItemCount { get; set; }
         public double? SubPrice { get; set; }
@@ -30,6 +37,8 @@ namespace MiniShopApp.Models.Orders
     }
     public class OrderCreateModel
     {
+        public long? UserId { get; set; }
+
         public long CustomerId { get; set; }
         [Required( ErrorMessage = "Table number is required!")]
         public string? TableNumber { get; set; }

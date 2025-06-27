@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using MiniShopApp.Models;
+using MiniShopApp.Models.Customers;
 
 namespace MiniShopApp.Infrastructures.DataAccess.Configurations
 {
@@ -12,6 +12,7 @@ namespace MiniShopApp.Infrastructures.DataAccess.Configurations
             builder.HasKey(x => x.Id);
             builder.Property(x => x.Id).ValueGeneratedOnAdd();
             builder.Property(x => x.CustomerId).IsRequired(true);
+            builder.Property(x => x.CustomerType).HasColumnType("nvarchar(100)").IsRequired(false);
             builder.Property(x => x.FirstName).HasColumnType("nvarchar(50)").IsRequired(false);
             builder.Property(x => x.LastName).HasColumnType("nvarchar(50)").IsRequired(false);
             builder.Property(x => x.UserName).HasColumnType("nvarchar(100)").IsRequired(false);

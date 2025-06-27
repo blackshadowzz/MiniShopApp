@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using MiniShopApp.Data;
 using MiniShopApp.Data.TelegramStore;
 using MiniShopApp.Infrastructures.Services.Interfaces;
-using MiniShopApp.Models;
+using MiniShopApp.Models.Customers;
 using Telegram.Bot;
 using Telegram.Bot.Types.ReplyMarkups;
 
@@ -120,6 +120,7 @@ namespace MiniShopApp.Infrastructures.Services.Implements
                     {
                         Id = c.Id,
                         CustomerId = c.CustomerId,
+                        CustomerType = c.CustomerType,
                         FirstName = c.FirstName,
                         LastName = c.LastName,
                         UserName = c.UserName,

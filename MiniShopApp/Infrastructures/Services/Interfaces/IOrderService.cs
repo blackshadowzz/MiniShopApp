@@ -1,5 +1,5 @@
 ﻿using Helpers.Responses;
-using MiniShopApp.Models;
+using MiniShopApp.Models.Customers;
 using MiniShopApp.Models.Orders;
 
 namespace MiniShopApp.Infrastructures.Services.Interfaces
@@ -8,9 +8,8 @@ namespace MiniShopApp.Infrastructures.Services.Interfaces
     {
         Task<Result<string>> CreateAsync(long customerId, TbOrder model);
         Task<Result<IEnumerable<ViewTbOrders>>> GetOrderSummaryAsync(string? filter="");
-        Task<Result<IEnumerable<TbOrderDetails>>> GetOrderDetailsAsync(long? orderId);
+        Task<Result<IEnumerable<ViewTbOrderDetails>>> GetOrderDetailsAsync(long? orderId);
         Task<Result<IEnumerable<TbOrderDetails>>> GetOrdersByUserAsync(long? customerId);
-        Task<Result<UserCustomer>> GetUserAsync(long? filter);
         Task<Result<IEnumerable<ViewTbOrders>>> GetOrderByUserAsync(long? customerId);
     }
 }

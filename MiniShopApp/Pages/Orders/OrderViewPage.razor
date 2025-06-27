@@ -1,8 +1,237 @@
 ﻿@page "/orders/views"
 @layout MainLayout
+@using MiniShopApp.Models.Orders
 <PageTitle>Views Order</PageTitle>
+<MudPaper Elevation="2" >
+    <MudTable ServerData="ServerReload" FixedHeader=true T="ViewTbOrders" Striped=true Bordered=true Dense="true" Hover="true" @ref="table" Loading="isLoading" OnRowClick="OnExpandCollapseClick">
+    <ToolBarContent>
+        <MudText Typo="Typo.h6">Order Summary</MudText>
+        <MudSpacer />
+        <MudTextField T="string" ValueChanged="@(s=>OnSearch(s))" Placeholder="Search" Adornment="Adornment.Start"
+                      AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+        <MudSpacer />
+        <MudStack Row=true Justify="Justify.FlexEnd" StretchItems="StretchItems.End">
+                <MudDatePicker @bind-Date="startDate" Label="Start Date" Margin="Margin.Dense" Variant="Variant.Text" Class="mx-2" OnClick="@(() => OnDateChanged(startDate))" />
+                <MudDatePicker @bind-Date="endDate" Label="End Date" Margin="Margin.Dense" Variant="Variant.Text" Class="mx-2" OnClick="@(() => OnDateChanged(endDate))" />
+                <MudSelect T="int?" @bind-Value="selectedMonth" Label="Month" Style="width:110px"  Margin="Margin.Dense" Class="" >
+                    <MudSelectItem T="int?" Value="null">All</MudSelectItem>
+                    @for (var m = 1; m <= 12; m++)
+                    {
+                        var mon = @System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(m);
+                        <MudSelectItem T="int?" Value="@m">@mon</MudSelectItem>
+                    }
+                </MudSelect>
+                <MudSelect T="int?" @bind-Value="selectedYear" Label="Year" Style="width:110px" Margin="Margin.Dense" Class="">
+                    <MudSelectItem T="int?" Value="null">All</MudSelectItem>
+                    @foreach (var y in yearsList)
+                    {
+                        <MudSelectItem T="int?" Value="y">@y</MudSelectItem>
+                    }
+                </MudSelect>
+                <MudButton OnClick="@(() => OnDateChanged(endDate))"
+                           StartIcon="@Icons.Material.Filled.FilterList"
+                           Color="Color.Info">Filter</MudButton>
+                <MudButton OnClick="ExportToExcel" StartIcon="@Icons.Material.Filled.FileDownload" Color="Color.Success" Class="mx-1">Export Excel</MudButton>
+                <MudButton OnClick="ExportToPdf" StartIcon="@Icons.Material.Filled.PictureAsPdf" Color="Color.Error" Class="mx-1">Export PDF</MudButton>
+        </MudStack>
+           
+                       
+    </ToolBarContent>
 
-<div>
-    <a class="btn btn-primary mb-3">Create Order</a>
-</div>
+        <HeaderContent>
+            <MudTh>
+                <MudTableSortLabel SortLabel="Id" T="ViewTbOrders">
+                 Date
+                </MudTableSortLabel>
+            </MudTh>
+            <MudTh>
+                <MudTableSortLabel SortLabel="Id" T="ViewTbOrders">
+                    Customer Id
+                </MudTableSortLabel>
+                
+                
+            </MudTh>
+            <MudTh>
 
+                <MudTableSortLabel SortLabel="Id" T="ViewTbOrders">
+                    Customer
+                </MudTableSortLabel>
+                </MudTh>
+            <MudTh>Table</MudTh>
+            <MudTh>Item</MudTh>
+            <MudTh>Price</MudTh>
+            <MudTh>Discount</MudTh>
+            <MudTh>
+                
+                <MudTableSortLabel SortLabel="Id" T="ViewTbOrders">
+                    Total
+                </MudTableSortLabel>
+            </MudTh>
+            <MudTh>Action</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd @key="context.Id" DataLabel="Order ID">@context.CreatedDT?.ToString("dd/MMM/yy")</MudTd>
+            <MudTd DataLabel="CustomerId">@context.CustomerId</MudTd>
+            <MudTd DataLabel="FirstName">@context.FirstName</MudTd>
+            <MudTd DataLabel="TableNumber">@context.TableNumber</MudTd>
+            <MudTd DataLabel="ItemCount">@context.ItemCount</MudTd>
+            <MudTd DataLabel="SubPrice">@context.SubPrice?.ToString("c2")</MudTd>
+            <MudTd DataLabel="DiscountPrice">@context.DiscountPrice?.ToString("P0")</MudTd>
+            <MudTd DataLabel="TotalPrice">@context.TotalPrice?.ToString("c2")</MudTd>
+            <MudTd>
+
+            </MudTd>
+        </RowTemplate>
+        <ChildRowContent>
+
+            <MudTd ColSpan="8" Style="height:0px" DataLabel="Order details" HideSmall="true">
+                <MudCollapse Expanded="_expandedOrderId == context.Id" Tag="@context.Id">
+                    <MudTable Items="@context.TbOrderDetails" Dense Context="c">
+                        <HeaderContent>
+                            <MudTh>Id</MudTh>
+                            <MudTh>Item</MudTh>
+                            <MudTh>Quantity</MudTh>
+                            <MudTh>Price</MudTh>
+                            <MudTh>Total Price</MudTh>
+                        </HeaderContent>
+                        <RowTemplate>
+                            <MudTd>@c.Id</MudTd>
+                            <MudTd>@c.ItemName</MudTd>
+                            <MudTd>@c.Quantity</MudTd>
+                            <MudTd>@c.Price?.ToString("c2")</MudTd>
+                            <MudTd>@c.TotalPrice?.ToString("c2")</MudTd>
+                        </RowTemplate>
+                    </MudTable>
+                </MudCollapse>
+            </MudTd>
+
+        </ChildRowContent>
+
+        <NoRecordsContent>
+            <MudText>No matching records found</MudText>
+        </NoRecordsContent>
+        <LoadingContent>
+            <MudText>Loading...</MudText>
+        </LoadingContent>
+        <PagerContent>
+            <MudTablePager />
+        </PagerContent>
+    </MudTable>
+</MudPaper>
+
+
+@code{
+    long? _expandedOrderId = null;
+
+    private void OnExpandCollapseClick(TableRowClickEventArgs<ViewTbOrders> row)
+    {
+        if (_expandedOrderId == row.Item.Id)
+            _expandedOrderId = null; // Collapse if already expanded
+        else
+            _expandedOrderId = row.Item.Id; // Expand this row
+    }
+    private IEnumerable<ViewTbOrders> pagedData;
+    private MudTable<ViewTbOrders> table;
+
+    private int totalItems;
+    private string searchString = null;
+    private DateTime? startDate = null;
+    private DateTime? endDate = null;
+    private int? selectedMonth = null;
+    private int? selectedYear = null;
+    private List<int> yearsList = new();
+
+    protected override void OnInitialized()
+    {
+        // Populate yearsList from orders or a reasonable range
+        var minYear = orders.Min(o => o.CreatedDT?.Year) ?? DateTime.Now.Year;
+        var maxYear = orders.Max(o => o.CreatedDT?.Year) ?? DateTime.Now.Year;
+        for (int y = minYear; y <= maxYear; y++)
+        {
+            yearsList.Add(y);
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("import", "/blazorDownloadFile.js");
+        }
+    }
+
+    /// <summary>
+    /// Here we simulate getting the paged, filtered and ordered data from the server
+    /// </summary>
+    private async Task<TableData<ViewTbOrders>> ServerReload(TableState state, CancellationToken token)
+    {
+        IEnumerable<ViewTbOrders> data = orders;
+        await Task.Delay(300, token);
+        data = data.Where(element =>
+        {
+            bool matches = true;
+            if (!string.IsNullOrWhiteSpace(searchString))
+            {
+                matches = element.CustomerId.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase)
+                    || (element.TableNumber != null && element.TableNumber.Contains(searchString, StringComparison.OrdinalIgnoreCase));
+            }
+            if (matches && startDate.HasValue)
+            {
+                matches = element.CreatedDT.HasValue && element.CreatedDT.Value.Date >= startDate.Value.Date;
+            }
+            if (matches && endDate.HasValue)
+            {
+                matches = element.CreatedDT.HasValue && element.CreatedDT.Value.Date <= endDate.Value.Date;
+            }
+            if (matches && selectedMonth.HasValue)
+            {
+                matches = element.CreatedDT.HasValue && element.CreatedDT.Value.Month == selectedMonth.Value;
+            }
+            if (matches && selectedYear.HasValue)
+            {
+                matches = element.CreatedDT.HasValue && element.CreatedDT.Value.Year == selectedYear.Value;
+            }
+            return matches;
+        }).ToArray();
+        totalItems = data.Count();
+        switch (state.SortLabel)
+        {
+            case "Id":
+                data = data.OrderByDirection(state.SortDirection, o => o.Id);
+                break;
+            case "CustomerId":
+                data = data.OrderByDirection(state.SortDirection, o => o.CustomerId);
+                break;
+            case "TableNumber":
+                data = data.OrderByDirection(state.SortDirection, o => o.TableNumber);
+                break;
+            case "FirstName":
+                data = data.OrderByDirection(state.SortDirection, o => o.FirstName);
+                break;
+            case "TotalPrice":
+                data = data.OrderByDirection(state.SortDirection, o => o.TotalPrice);
+                break;
+           
+        }
+
+        pagedData = data.Skip(state.Page * state.PageSize).Take(state.PageSize).ToArray();
+        return new TableData<ViewTbOrders>() { TotalItems = totalItems, Items = pagedData.OrderByDescending(x=>x.Id) };
+    }
+
+    private void OnSearch(string text)
+    {
+        searchString = text;
+        table.ReloadServerData();
+    }
+
+    private void OnDateChanged(DateTime? date)
+    {
+        table.ReloadServerData();
+    }
+
+    private void OnMonthOrYearChanged(object value)
+    {
+        table.ReloadServerData();
+    }
+
+}
