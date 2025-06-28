@@ -11,5 +11,6 @@ namespace MiniShopApp.Infrastructures.Services.Interfaces
         Task<Result<IEnumerable<ViewTbOrderDetails>>> GetOrderDetailsAsync(long? orderId);
         Task<Result<IEnumerable<TbOrderDetails>>> GetOrdersByUserAsync(long? customerId);
         Task<Result<IEnumerable<ViewTbOrders>>> GetOrderByUserAsync(long? customerId);
+        Task<Result<IEnumerable<ViewTbOrders>>> GetOrderByDateAsync(string? filter="", DateTime? dateTime=null, long? customerId=0);
     }
 }

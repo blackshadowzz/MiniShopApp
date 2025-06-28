@@ -285,5 +285,74 @@ namespace MiniShopApp.Infrastructures.Services.Implements
                 return Result.Failure<IEnumerable<ViewTbOrders>>(ErrorResponse.ServerError(ex.Message));
             }
         }
+
+        public async Task<Result<IEnumerable<ViewTbOrders>>> GetOrderByDateAsync(string? filter = "", DateTime? dateTime = null, long? customerId = 0)
+        {
+            try
+            {
+                await using var context = await contextFactory.CreateDbContextAsync();
+                var query = context.TbOrders
+                    .Include(o => o.TbOrderDetails)
+                    .AsNoTracking()
+                    .Join(context.TbUserCustomers,
+                          o => o.CustomerId,
+                          u => u.CustomerId,
+                          (o, u) => new { Order = o, User = u });
+
+                if (dateTime.HasValue)
+                {
+                    // Filter by date (compare only date part)
+                    var date = dateTime.Value.Date;
+                    query = query.Where(x => x.Order.CreatedDT.HasValue && x.Order.CreatedDT.Value.Date == date);
+                }
+                if (customerId.HasValue && customerId > 0)
+                {
+                    query = query.Where(x => x.Order.CustomerId == customerId);
+                }
+                if (!string.IsNullOrWhiteSpace(filter))
+                {
+                    query = query.Where(x => (x.User.FirstName + " " + x.User.LastName).Contains(filter));
+                }
+
+                var orders = await query
+                    .Select(x => new ViewTbOrders
+                    {
+                        Id = x.Order.Id,
+                        CustomerId = x.Order.CustomerId,
+                        FirstName = x.User.FirstName,
+                        LastName = x.User.LastName,
+                        UserName = x.User.UserName,
+                        TableNumber = x.Order.TableNumber,
+                        ItemCount = x.Order.ItemCount,
+                        SubPrice = x.Order.SubPrice,
+                        DiscountPrice = x.Order.DiscountPrice,
+                        TotalPrice = x.Order.TotalPrice,
+                        Notes = x.Order.Notes,
+                        CreatedDT = x.Order.CreatedDT,
+                        ModifiedDT = x.Order.ModifiedDT,
+                        IsActive = x.Order.IsActive,
+                        TbOrderDetails = x.Order.TbOrderDetails != null
+                            ? x.Order.TbOrderDetails.Select(d => new ViewTbOrderDetails
+                            {
+                                Id = d.Id,
+                                OrderId = d.OrderId,
+                                ItemId = d.ItemId,
+                                ItemName = d.ItemName,
+                                Price = d.Price,
+                                Quantity = d.Quantity,
+                                TotalPrice = d.TotalPrice
+                            }).ToList()
+                            : new List<ViewTbOrderDetails>()
+                    })
+                    .ToListAsync();
+
+                return await Result.SuccessAsync<IEnumerable<ViewTbOrders>>(orders);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Error in GetOrderByDateAsync: " + ex.Message, ex);
+                return Result.Failure<IEnumerable<ViewTbOrders>>(ErrorResponse.ServerError(ex.Message));
+            }
+        }
     }
 }

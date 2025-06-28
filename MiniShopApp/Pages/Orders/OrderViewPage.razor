@@ -31,8 +31,13 @@
                 <MudButton OnClick="@(() => OnDateChanged(endDate))"
                            StartIcon="@Icons.Material.Filled.FilterList"
                            Color="Color.Info">Filter</MudButton>
-                <MudButton OnClick="ExportToExcel" StartIcon="@Icons.Material.Filled.FileDownload" Color="Color.Success" Class="mx-1">Export Excel</MudButton>
-                <MudButton OnClick="ExportToPdf" StartIcon="@Icons.Material.Filled.PictureAsPdf" Color="Color.Error" Class="mx-1">Export PDF</MudButton>
+                <MudMenu Label="Export" Variant="Variant.Filled" EndIcon="@Icons.Material.Filled.KeyboardArrowDown">
+                    <MudMenuItem Label="Export Excel" OnClick="ExportToExcel" Icon="@Icons.Material.Filled.FileDownload"/>
+                    <MudMenuItem Label="Export PDF" OnClick="ExportToPdf" Icon="@Icons.Material.Filled.PictureAsPdf" />
+
+                </MudMenu>
+                @* <MudButton OnClick="ExportToExcel" StartIcon="@Icons.Material.Filled.FileDownload" Color="Color.Success" Class="mx-1">Export Excel</MudButton>
+                <MudButton OnClick="ExportToPdf" StartIcon="@Icons.Material.Filled.PictureAsPdf" Color="Color.Error" Class="mx-1">Export PDF</MudButton> *@
         </MudStack>
            
                        
