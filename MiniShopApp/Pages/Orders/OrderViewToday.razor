@@ -3,8 +3,8 @@
 @layout MainLayout
 <PageTitle>Order Today</PageTitle>
 
-<MudTabs Outlined="true">
-    <MudTabPanel Text="Today" Icon="@Icons.Material.Filled.CalendarToday" >
+<MudTabs Outlined="true" Class="sticky-tabs-top">
+    <MudTabPanel Text="Today" Icon="@Icons.Material.Filled.CalendarToday" OnClick="GetOrderToday">
         <MudTabs Outlined="false">
             <MudTabPanel Text="Card" Icon="@Icons.Material.Filled.GridView">
                 <MudStack>
@@ -105,12 +105,184 @@
             
         </MudTabs>
     </MudTabPanel>
-    <MudTabPanel Text="Yesterday" Icon="@Icons.Material.Filled.CalendarViewWeek" >
+    <MudTabPanel Text="Yesterday" Icon="@Icons.Material.Filled.CalendarViewWeek" OnClick="GetOrderYesterday">
+        <MudTabs Outlined="false">
+            @* <MudTabPanel Text="Card" Icon="@Icons.Material.Filled.GridView">
+                <MudStack>
+                    <MudTextField T="string" @bind-Text="filter" Placeholder="Search" Variant=Variant.Text Adornment="Adornment.End"
+                                  AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="my-2"></MudTextField>
+                </MudStack>
+                <MudGrid>
+                    @if (orders is not null && orders.Any())
+                    {
+                        @foreach (var order in orders)
+                        {
+                            <MudItem>
+                                <MudCard Class="mb-2" Elevation="3" Style="width:250px;max-width:350px">
+                                    <MudCardHeader>
+                                        <CardHeaderContent>
+                                            <MudText Typo="Typo.subtitle1">#@order.Id | @order.FirstName @order.LastName</MudText>
 
+                                        </CardHeaderContent>
+
+                                        <CardHeaderActions>
+                                            <MudMenu Icon="@Icons.Material.Filled.MoreVert"
+                                                     AnchorOrigin="Origin.BottomLeft"
+                                                     TransformOrigin="Origin.TopRight"
+                                                     Dense=true
+                                                     AriaLabel="Open menu">
+                                                <MudMenuItem Label="Generate Receipt" />
+                                                <MudMenuItem Label="Modify Order" />
+                                                <MudMenuItem Label="Delete Order" />
+                                            </MudMenu>
+                                        </CardHeaderActions>
+                                    </MudCardHeader>
+
+                                    <MudCardContent>
+                                        <MudText>Table: <b>@order.TableNumber</b></MudText>
+                                        <MudText>Items: <b>@order.ItemCount</b></MudText>
+                                        <MudText>Total: <b>@order.TotalPrice?.ToString("c2")</b></MudText>
+                                        <MudDivider Class="my-2" />
+                                        <MudList T="MiniShopApp.Models.Orders.ViewTbOrderDetails" Dense="true">
+                                            @if (order.TbOrderDetails != null)
+                                            {
+                                                @foreach (var detail in order.TbOrderDetails)
+                                                {
+                                                    <MudListItem T="MiniShopApp.Models.Orders.ViewTbOrderDetails" Value="@detail">
+                                                        <MudText>@detail.ItemName x @detail.Quantity = @detail.TotalPrice?.ToString("c2")</MudText>
+                                                    </MudListItem>
+                                                }
+                                            }
+                                        </MudList>
+                                    </MudCardContent>
+                                    <MudCardActions>
+                                        <MudText Typo="Typo.caption">Date: @order.CreatedDT?.ToString("dd/MMM/yy hh:mm tt")</MudText>
+                                    </MudCardActions>
+                                </MudCard>
+                            </MudItem>
+                        }
+                    }
+                    else
+                    {
+                        <MudItem xs="12">
+                            <MudText>No orders found for today.</MudText>
+                        </MudItem>
+                    }
+                </MudGrid>
+            </MudTabPanel> *@
+            <MudTabPanel Text="Grid" Icon="@Icons.Material.Filled.ListAlt">
+                <MudTable Items="@orders" Hover="true" Dense="true">
+                    <HeaderContent>
+                        <MudTh>Order #</MudTh>
+                        <MudTh>Customer</MudTh>
+                        <MudTh>Table</MudTh>
+                        <MudTh>Items</MudTh>
+                        <MudTh>Total</MudTh>
+                        <MudTh>Date</MudTh>
+                        <MudTh>Action</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd DataLabel="Order #">@context.Id</MudTd>
+                        <MudTd DataLabel="Customer">@context.FirstName @context.LastName</MudTd>
+                        <MudTd DataLabel="Table">@context.TableNumber</MudTd>
+                        <MudTd DataLabel="Items">@context.ItemCount</MudTd>
+                        <MudTd DataLabel="Total">@context.TotalPrice?.ToString("c2")</MudTd>
+                        <MudTd DataLabel="Date">@context.CreatedDT?.ToString("g")</MudTd>
+                        <MudTd>
+                            <MudMenu Icon="@Icons.Material.Filled.MoreVert"
+                                     Dense=true
+                                     AnchorOrigin="Origin.BottomLeft"
+                                     TransformOrigin="Origin.TopRight"
+                                     AriaLabel="Open menu">
+                                <MudMenuItem Label="Generate Receipt" />
+                                <MudMenuItem Label="Modify Order" />
+                                <MudMenuItem Label="Delete Order" />
+                            </MudMenu>
+                        </MudTd>
+                    </RowTemplate>
+                </MudTable>
+            </MudTabPanel>
+
+        </MudTabs>
     </MudTabPanel>
     <MudTabPanel Text="Week" Icon="@Icons.Material.Filled.ViewWeek" >
 
     </MudTabPanel>
+    <MudTabPanel Text="Months" Icon="@Icons.Material.Filled.CalendarMonth" OnClick="GetOrderMonth">
+        <MudStack Row=true Spacing="2" StretchItems="StretchItems.Start" Class="my-2">
+            <MudSelect T="int" @bind-Value="selectedMonth" Label="Month" Style="width: 120px;">
+                @foreach (var m in months)
+                {
+                    <MudSelectItem Value="@m">@System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(m)</MudSelectItem>
+                }
+            </MudSelect>
+            <MudSelect T="int" @bind-Value="selectedYear" Label="Year" Style="width: 100px;">
+                @foreach (var y in years)
+                {
+                    <MudSelectItem Value="@y">@y</MudSelectItem>
+                }
+            </MudSelect>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="GetOrderMonth">Show Orders</MudButton>
+        </MudStack>
+        <MudTable Items="@orders" Hover="true" Dense="true">
+            <HeaderContent>
+                <MudTh>Order #</MudTh>
+                <MudTh>Customer</MudTh>
+                <MudTh>Table</MudTh>
+                <MudTh>Items</MudTh>
+                <MudTh>Total</MudTh>
+                <MudTh>Date</MudTh>
+                <MudTh>Action</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="Order #">@context.Id</MudTd>
+                <MudTd DataLabel="Customer">@context.FirstName @context.LastName</MudTd>
+                <MudTd DataLabel="Table">@context.TableNumber</MudTd>
+                <MudTd DataLabel="Items">@context.ItemCount</MudTd>
+                <MudTd DataLabel="Total">@context.TotalPrice?.ToString("c2")</MudTd>
+                <MudTd DataLabel="Date">@context.CreatedDT?.ToString("g")</MudTd>
+                <MudTd>
+                    <MudMenu Icon="@Icons.Material.Filled.MoreVert"
+                             Dense=true
+                             AnchorOrigin="Origin.BottomLeft"
+                             TransformOrigin="Origin.TopRight"
+                             AriaLabel="Open menu">
+                        <MudMenuItem Label="Generate Receipt" />
+                        <MudMenuItem Label="Modify Order" />
+                        <MudMenuItem Label="Delete Order" />
+                    </MudMenu>
+                </MudTd>
+            </RowTemplate>
+            <FooterContent>
+                <MudTd colspan="4"></MudTd>
+                <MudTd><b>@orders.Sum(x=>x.TotalPrice)?.ToString("c2")</b></MudTd>
+                <MudTd colspan="2">Total</MudTd>
+            </FooterContent>
+        </MudTable>
+        <MudPaper Elevation="6" Class="sticky-footer-total" Square="true">
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" Style="width:100%;font-size:1.2rem;" Disabled="true">
+                Total Price: @orders.Sum(x => x.TotalPrice)?.ToString("c2")
+            </MudButton>
+        </MudPaper>
+    </MudTabPanel>
 </MudTabs>
+
+<style>
+.sticky-footer-total {
+    position: sticky;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    z-index: 100;
+    background: white;
+    padding: 0.5rem 0;
+}
+.sticky-tabs-top {
+    position: sticky;
+    top: 0;
+    z-index: 110;
+    background: white;
+}
+</style>
 
 
