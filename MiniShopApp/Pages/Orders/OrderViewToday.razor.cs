@@ -1,10 +1,17 @@
+using DocumentFormat.OpenXml.Spreadsheet;
+using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
 using MiniShopApp.Infrastructures.Services.Interfaces;
 using MiniShopApp.Models.Orders;
+using System.Buffers.Text;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace MiniShopApp.Pages.Orders
 {
     public partial class OrderViewToday(IOrderService orderService)
     {
+        [Inject] IJSRuntime JS { get; set; } = default!;
         List<ViewTbOrders> orders = new List<ViewTbOrders>();
         protected DateTime today = DateTime.Now.Date;
         string? filter = string.Empty;
@@ -121,5 +128,67 @@ namespace MiniShopApp.Pages.Orders
                 // Handle exception
             }
         }
+
+        private async Task GenerateReceiptAsync(IEnumerable<ViewTbOrders> orders)
+        {
+            foreach (var order in orders)
+            {
+
+                var pdfBytes = pdfService.CreateOrderReceiptPdf(order);
+                var base64 = Convert.ToBase64String(pdfBytes);
+                await JS.InvokeVoidAsync("DownloadReceiptFile", $"receipt_{order.Id}.pdf", "application/pdf", base64);
+            }
+        }
+
+        private string BuildReceiptHtml(IEnumerable<ViewTbOrders> orders)
+        {
+            var html = new System.Text.StringBuilder();
+            html.AppendLine("<html><head><meta charset='UTF-8'><title>Receipt</title>");
+            html.AppendLine("<style>");
+            html.AppendLine("body { font-family: Arial, sans-serif; }");
+            html.AppendLine("table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }");
+            html.AppendLine("th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }");
+            html.AppendLine("th { background-color: #f2f2f2; }");
+            html.AppendLine("</style></head><body>");
+            html.AppendLine("<h2>Order Receipt</h2>");
+            foreach (var order in orders)
+            {
+                html.AppendLine($"<h3>Order #{order.Id} - {order.FirstName} {order.LastName}</h3>");
+                html.AppendLine($"<p>Date: {order.CreatedDT?.ToString("dd/MMM/yy hh:mm tt")}</p>");
+                html.AppendLine($"<p>Table: {order.TableNumber}</p>");
+                html.AppendLine("<table>");
+                html.AppendLine("<tr><th>Item</th><th>Qty</th><th>Price</th><th>Total</th></tr>");
+                if (order.TbOrderDetails != null)
+                {
+                    foreach (var detail in order.TbOrderDetails)
+                    {
+                        html.AppendLine($"<tr><td>{detail.ItemName}</td><td>{detail.Quantity}</td><td>{detail.Price?.ToString("c2")}</td><td>{detail.TotalPrice?.ToString("c2")}</td></tr>");
+                    }
+                }
+                html.AppendLine("</table>");
+                html.AppendLine($"<p><b>Total: {order.TotalPrice?.ToString("c2")}</b></p>");
+                html.AppendLine("<hr/>");
+            }
+            html.AppendLine("</body></html>");
+            return html.ToString();
+        }
+        private string? receiptHtml;
+
+        async Task print(IEnumerable<ViewTbOrders> orders)
+        {
+            receiptHtml = BuildReceiptHtml(orders);
+            await Task.Yield(); // ensures UI updates
+        }
+
+        private async Task TriggerPrint()
+        {
+            await JS.InvokeVoidAsync("window.print");
+        }
+
+        private MarkupString GetReceiptMarkup()
+        {
+            return new MarkupString(receiptHtml); // Trusts the HTML as-is
+        }
+
     }
 }

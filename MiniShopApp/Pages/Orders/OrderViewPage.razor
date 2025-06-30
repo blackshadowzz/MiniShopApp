@@ -3,16 +3,56 @@
 @using MiniShopApp.Models.Orders
 <PageTitle>Views Order</PageTitle>
 <MudPaper Elevation="2" >
-    <MudTable ServerData="ServerReload" FixedHeader=true T="ViewTbOrders" Striped=true Bordered=true Dense="true" Hover="true" @ref="table" Loading="isLoading" OnRowClick="OnExpandCollapseClick">
+    <MudCollapse Expanded="_expandedEdit">
+
+        <MudStack Row Justify="Justify.FlexStart" AlignItems=AlignItems.Center Class="py-2 bg-info-subtle" Spacing="3">
+
+            <MudText Typo="Typo.subtitle2" Class="text-center px-2">@selectedOrders.Count selected</MudText>
+            <div style="border-left:2px solid #ccc; height:40px; margin:0 10px;"></div>
+            <MudMenu Label="Edit" Variant="Variant.Text" EndIcon="@Icons.Material.Filled.KeyboardArrowDown">
+                <MudMenuItem Label="Generate Receipt" />
+                <MudMenuItem Label="Modify Order" />
+                <MudMenuItem Label="Delete Order" />
+            </MudMenu>
+        </MudStack>
+    </MudCollapse>
+    <MudTable ServerData="ServerReload" 
+        T="ViewTbOrders" 
+        MultiSelection=true 
+        Dense="true" 
+        Hover="true"
+        Context="context"
+              FixedHeader=fixed_header
+              FixedFooter=fixed_footer
+              Height="@(fixed_header || fixed_footer ?"500px":"")"
+        @ref="table" 
+        Loading="isLoading" 
+        SelectOnRowClick=false
+              SelectedItemsChanged="@(items => MultiSelect(items))"
+        LoadingProgressColor="Color.Primary" OnRowClick="OnExpandCollapseClick">
     <ToolBarContent>
         <MudText Typo="Typo.h6">Order Summary</MudText>
         <MudSpacer />
         <MudTextField T="string" ValueChanged="@(s=>OnSearch(s))" Placeholder="Search" Adornment="Adornment.Start"
                       AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
         <MudSpacer />
-        <MudStack Row=true Justify="Justify.FlexEnd" StretchItems="StretchItems.End">
-                <MudDatePicker @bind-Date="startDate" Label="Start Date" Margin="Margin.Dense" Variant="Variant.Text" Class="mx-2" OnClick="@(() => OnDateChanged(startDate))" />
-                <MudDatePicker @bind-Date="endDate" Label="End Date" Margin="Margin.Dense" Variant="Variant.Text" Class="mx-2" OnClick="@(() => OnDateChanged(endDate))" />
+        <MudStack Row=true Justify="Justify.FlexEnd" AlignItems="AlignItems.Center">
+                <MudDatePicker 
+                    @bind-Date="startDate" 
+                    Label="Start Date" 
+                    Margin="Margin.Dense" 
+                    Variant="Variant.Text" 
+                    Clearable=true
+                    Class="mx-2" 
+                    OnClick="@(() => OnDateChanged(startDate))" />
+                <MudDatePicker 
+                    @bind-Date="endDate" 
+                    Label="End Date"
+                               Clearable=true
+                               Margin="Margin.Dense" 
+                    Variant="Variant.Text" 
+                    Class="mx-2" 
+                    OnClick="@(() => OnDateChanged(endDate))" />
                 <MudSelect T="int?" @bind-Value="selectedMonth" Label="Month" Style="width:110px"  Margin="Margin.Dense" Class="" >
                     <MudSelectItem T="int?" Value="null">All</MudSelectItem>
                     @for (var m = 1; m <= 12; m++)
@@ -28,16 +68,20 @@
                         <MudSelectItem T="int?" Value="y">@y</MudSelectItem>
                     }
                 </MudSelect>
-                <MudButton OnClick="@(() => OnDateChanged(endDate))"
-                           StartIcon="@Icons.Material.Filled.FilterList"
-                           Color="Color.Info">Filter</MudButton>
-                <MudMenu Label="Export" Variant="Variant.Filled" EndIcon="@Icons.Material.Filled.KeyboardArrowDown">
-                    <MudMenuItem Label="Export Excel" OnClick="ExportToExcel" Icon="@Icons.Material.Filled.FileDownload"/>
-                    <MudMenuItem Label="Export PDF" OnClick="ExportToPdf" Icon="@Icons.Material.Filled.PictureAsPdf" />
+                <MudStack>
+                    <MudButton OnClick="@(() => OnDateChanged(endDate))"
+                               Size="Size.Small"
+                               StartIcon="@Icons.Material.Filled.FilterList"
+                               Variant="Variant.Outlined"
+                               Color="Color.Success">Filter</MudButton>
+                </MudStack>
+                
+                <MudMenu Label="Export" Variant="Variant.Filled" Size="Size.Small" Color="Color.Info" EndIcon="@Icons.Material.Filled.FileDownload">
+                    <MudMenuItem Label="Export Excel" OnClick="ExportToExcel" IconColor="Color.Success" Icon="@Icons.Material.Filled.FileDownload" />
+                    <MudMenuItem Label="Export PDF" OnClick="ExportToPdf" IconColor="Color.Error" Icon="@Icons.Material.Filled.PictureAsPdf" />
 
                 </MudMenu>
-                @* <MudButton OnClick="ExportToExcel" StartIcon="@Icons.Material.Filled.FileDownload" Color="Color.Success" Class="mx-1">Export Excel</MudButton>
-                <MudButton OnClick="ExportToPdf" StartIcon="@Icons.Material.Filled.PictureAsPdf" Color="Color.Error" Class="mx-1">Export PDF</MudButton> *@
+               
         </MudStack>
            
                        
@@ -53,11 +97,8 @@
                 <MudTableSortLabel SortLabel="Id" T="ViewTbOrders">
                     Customer Id
                 </MudTableSortLabel>
-                
-                
             </MudTh>
             <MudTh>
-
                 <MudTableSortLabel SortLabel="Id" T="ViewTbOrders">
                     Customer
                 </MudTableSortLabel>
@@ -67,15 +108,13 @@
             <MudTh>Price</MudTh>
             <MudTh>Discount</MudTh>
             <MudTh>
-                
                 <MudTableSortLabel SortLabel="Id" T="ViewTbOrders">
                     Total
                 </MudTableSortLabel>
             </MudTh>
-            <MudTh>Action</MudTh>
         </HeaderContent>
         <RowTemplate>
-            <MudTd @key="context.Id" DataLabel="Order ID">@context.CreatedDT?.ToString("dd/MMM/yy")</MudTd>
+            <MudTd @key="context.Id" DataLabel="Order ID"><MudIcon Icon="@Icons.Material.Filled.ArrowDropDown" /> @context.CreatedDT?.ToString("dd/MMM/yy")</MudTd>
             <MudTd DataLabel="CustomerId">@context.CustomerId</MudTd>
             <MudTd DataLabel="FirstName">@context.FirstName</MudTd>
             <MudTd DataLabel="TableNumber">@context.TableNumber</MudTd>
@@ -83,15 +122,12 @@
             <MudTd DataLabel="SubPrice">@context.SubPrice?.ToString("c2")</MudTd>
             <MudTd DataLabel="DiscountPrice">@context.DiscountPrice?.ToString("P0")</MudTd>
             <MudTd DataLabel="TotalPrice">@context.TotalPrice?.ToString("c2")</MudTd>
-            <MudTd>
-
-            </MudTd>
         </RowTemplate>
         <ChildRowContent>
 
-            <MudTd ColSpan="8" Style="height:0px" DataLabel="Order details" HideSmall="true">
+            <MudTd ColSpan="9" Class="bg-body-tertiary" hidden="@(_expandedOrderId != context.Id)" DataLabel="Order details" HideSmall="true">
                 <MudCollapse Expanded="_expandedOrderId == context.Id" Tag="@context.Id">
-                    <MudTable Items="@context.TbOrderDetails" Dense Context="c">
+                    <MudTable Items="@context.TbOrderDetails" Dense=true Hover=false Context="c">
                         <HeaderContent>
                             <MudTh>Id</MudTh>
                             <MudTh>Item</MudTh>
@@ -111,29 +147,47 @@
             </MudTd>
 
         </ChildRowContent>
-
+        
         <NoRecordsContent>
             <MudText>No matching records found</MudText>
         </NoRecordsContent>
         <LoadingContent>
             <MudText>Loading...</MudText>
         </LoadingContent>
+        <FooterContent>
+            <MudTd colspan="7"></MudTd>
+            <MudTd><b>@(pagedData?.Sum(x => x.TotalPrice)?.ToString("c2") ?? "0.00")</b></MudTd>
+        </FooterContent>
         <PagerContent>
             <MudTablePager />
         </PagerContent>
     </MudTable>
+    <MudStack Row=true StretchItems="StretchItems.None">
+        <MudSwitch @bind-Value="fixed_header" Color="Color.Primary">Fixed Header</MudSwitch>
+        <MudSwitch @bind-Value="fixed_footer" Color="Color.Primary">Fixed Footer</MudSwitch>
+    </MudStack>
 </MudPaper>
 
 
 @code{
+    bool fixed_header = true;
+    bool fixed_footer = true;
     long? _expandedOrderId = null;
-
+    bool isVisibe = true;
     private void OnExpandCollapseClick(TableRowClickEventArgs<ViewTbOrders> row)
     {
         if (_expandedOrderId == row.Item.Id)
+        {
+            isVisibe = true;
+
             _expandedOrderId = null; // Collapse if already expanded
+        }
         else
+        {
+            isVisibe = false;
             _expandedOrderId = row.Item.Id; // Expand this row
+
+        }
     }
     private IEnumerable<ViewTbOrders> pagedData;
     private MudTable<ViewTbOrders> table;
@@ -146,6 +200,18 @@
     private int? selectedYear = null;
     private List<int> yearsList = new();
 
+    private List<ViewTbOrders> selectedOrders = new();
+    bool _expandedEdit = false;
+    void MultiSelect(IEnumerable<ViewTbOrders> items)
+    {
+        selectedOrders = items.ToList();
+        if (selectedOrders.Any())
+            _expandedEdit = true;
+        else
+            _expandedEdit = false;
+
+        StateHasChanged();
+    }
     protected override void OnInitialized()
     {
         // Populate yearsList from orders or a reasonable range
@@ -178,7 +244,10 @@
             if (!string.IsNullOrWhiteSpace(searchString))
             {
                 matches = element.CustomerId.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase)
-                    || (element.TableNumber != null && element.TableNumber.Contains(searchString, StringComparison.OrdinalIgnoreCase));
+                    || (element.TableNumber != null && element.TableNumber.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                    || (element.LastName != null && element.LastName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                    || (element.Id.ToString() != null && element.Id.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                    || (element.FirstName != null && element.FirstName.Contains(searchString, StringComparison.OrdinalIgnoreCase));
             }
             if (matches && startDate.HasValue)
             {

@@ -20,6 +20,7 @@ namespace MiniShopApp.Pages.Orders
         protected override async Task OnInitializedAsync()
         {
             await GetOrderAsync();
+            //await table.ReloadServerData();
             await base.OnInitializedAsync();
         }
 
@@ -72,7 +73,7 @@ namespace MiniShopApp.Pages.Orders
             }
             using var stream = new MemoryStream();
             workbook.SaveAs(stream);
-            await JS.InvokeVoidAsync("BlazorDownloadFile", "Orders.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", stream.ToArray());
+            await JS.InvokeVoidAsync("DownloadReportFile", "Orders.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", stream.ToArray());
         }
 
         private async void ExportToPdf()
@@ -127,7 +128,7 @@ namespace MiniShopApp.Pages.Orders
                 });
             });
             document.GeneratePdf(stream);
-            await JS.InvokeVoidAsync("BlazorDownloadFile", "Orders.pdf", "application/pdf", stream.ToArray());
+            await JS.InvokeVoidAsync("DownloadReportFile", "Orders.pdf", "application/pdf", stream.ToArray());
         }
 
         private IEnumerable<ViewTbOrders> GetFilteredOrders()

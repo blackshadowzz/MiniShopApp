@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using MiniShopApp.Data;
 using MiniShopApp.Infrastructures.Services.Implements;
 using MiniShopApp.Infrastructures.Services.Interfaces;
+using MiniShopApp.Shared;
 using MudBlazor;
 using MudBlazor.Services;
 
@@ -40,6 +41,7 @@ namespace MiniShopApp.Infrastructures
             services.TryAddTransient<IUserCustomerService, UserCustomerService>();
             services.TryAddTransient<ITelegramBotServices, TelegramBotServices>();
             services.TryAddTransient<ICustomerTypeService, CustomerTypeService>();
+            services.AddScoped<PdfService>();
             return services;
         }
     }
