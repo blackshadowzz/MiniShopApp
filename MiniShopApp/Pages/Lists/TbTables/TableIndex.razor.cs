@@ -82,7 +82,7 @@ namespace MiniShopApp.Pages.Lists.TbTables
         }
         public async Task remove(int? id)
         {
-            Dialog.
+           //Dialog.
         }
 
     }
