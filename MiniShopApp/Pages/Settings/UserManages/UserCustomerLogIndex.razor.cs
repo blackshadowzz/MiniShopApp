@@ -1,5 +1,5 @@
 using MiniShopApp.Infrastructures.Services.Interfaces;
-using MiniShopApp.Models;
+using MiniShopApp.Models.Customers;
 
 namespace MiniShopApp.Pages.Settings.UserManages
 {
@@ -65,15 +65,15 @@ namespace MiniShopApp.Pages.Settings.UserManages
         {
             try
             {
-                var data= userCustomers!.Select(x => new CustomerAlertMessege
+                var data = userCustomers!.Select(x => new CustomerAlertMessege
                 {
                     Id = x.Id,
                     CustomerId = x.CustomerId,
-                    AlertMessege=messegeText,
+                    AlertMessege = messegeText,
                     FirstName = x.FirstName,
-                });
+                }).Where(x => x.CustomerId.HasValue && x.CustomerId.Value > 0);
 
-                alertMessege=data.ToList();
+                alertMessege = data.ToList();
                 var result = await userCustomer.CreateUserAlertAsync(alertMessege);
                 if (result.IsSuccess)
                 {
@@ -86,7 +86,7 @@ namespace MiniShopApp.Pages.Settings.UserManages
                     IsLoading = false;
                     // Handle the error, e.g., show a notification or log it
                     Console.WriteLine($"Error loading user customers: {result.ErrMessage}");
-                    SnackbarService.Add(result.ErrMessage, MudBlazor.Severity.Error);
+                    SnackbarService.Add("Error Creating: "+result.ErrMessage, MudBlazor.Severity.Error);
 
                 }
             }
@@ -94,7 +94,7 @@ namespace MiniShopApp.Pages.Settings.UserManages
             {
                 IsLoading = false;
                 // Handle exceptions, e.g., log them or show a notification
-                SnackbarService.Add(ex.Message, MudBlazor.Severity.Error);
+                SnackbarService.Add("Error at UI " + ex.Message, MudBlazor.Severity.Error);
                 Console.WriteLine($"Exception occurred while loading user customers: {ex.Message}");
             }
         }

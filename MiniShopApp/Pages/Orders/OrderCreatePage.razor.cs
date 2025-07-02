@@ -84,9 +84,10 @@ namespace MiniShopApp.Pages.Orders
                     TbOrder order = new TbOrder
                     {
                         CustomerId = Order.CustomerId,
+                        CustomerType = "Telegram",
                         TableNumber = Order.TableNumber,
                         ItemCount = orderDetails.Count,
-                        SubPrice = orderDetails.Sum(x=>x.TotalPrice),
+                        SubPrice = orderDetails.Sum(x => x.TotalPrice),
                         DiscountPrice = Order.DiscountPrice,
                         TotalPrice = orderDetails.Sum(x => x.TotalPrice),
                         Notes = Order.Notes,
@@ -110,6 +111,8 @@ namespace MiniShopApp.Pages.Orders
                     else
                     {
                         IsLoading = false;
+                        //SnackbarService.Add("Your order has been successfully created.", MudBlazor.Severity.Success);
+                        NavigationManager.NavigateTo($"/order/ordering/{userId}");
 
                         Console.WriteLine($"Error creating order: {message.Errors}");
                     }

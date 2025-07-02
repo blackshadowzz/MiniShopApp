@@ -1,0 +1,82 @@
+﻿@using MiniShopApp.Models.Orders
+@inject IJSRuntime JS
+
+<div id="invoice-preview">
+    <div class="header">
+        <h2>INVOICE</h2>
+        <p>Invoice #: @InvoiceNumber</p>
+        <p>Date: @InvoiceDate.ToShortDateString()</p>
+    </div>
+
+    <hr />
+
+    <div class="details">
+        <div>
+            <strong>Customer:</strong><br />
+            @CustomerName<br />
+            @CustomerEmail
+        </div>
+        <div style="text-align: right;">
+            <strong>Company:</strong><br />
+            @CompanyName<br />
+            @CompanyEmail
+        </div>
+    </div>
+
+    <table class="invoice-table">
+        <thead>
+            <tr>
+                <th>Description</th>
+                <th>Qty</th>
+                <th>Price</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            @* @foreach (var item in )
+            {
+                <tr>
+                    <td>@item.</td>
+                    <td>@item.Quantity</td>
+                    <td>@item.Price.ToString("C")</td>
+                    <td>@item.Total.ToString("C")</td>
+                </tr>
+            } *@
+            <tr class="summary-row">
+                <td colspan="3">Subtotal</td>
+                <td>@Subtotal?.ToString("C")</td>
+            </tr>
+            <tr class="summary-row">
+                <td colspan="3">Tax (10%)</td>
+                <td>@((decimal?)Subtotal * 0.10m).ToString("C")</td>
+            </tr>
+            <tr class="summary-row total">
+                <td colspan="3">Total</td>
+                <td><strong>@((decimal?)Subtotal * 1.10m).ToString("C")</strong></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="footer">
+        <p>Thank you for your business!</p>
+    </div>
+
+    <button class="no-print" @onclick="TriggerPrint">🖨️ Print Invoice</button>
+</div>
+
+@code {
+    [Parameter] public string InvoiceNumber { get; set; } = "INV-2025-001";
+    [Parameter] public DateTime InvoiceDate { get; set; } = DateTime.Now;
+    [Parameter] public string CustomerName { get; set; } = "John Doe";
+    [Parameter] public string CustomerEmail { get; set; } = "john@example.com";
+    [Parameter] public string CompanyName { get; set; } = "Your Biz Co.";
+    [Parameter] public string CompanyEmail { get; set; } = "support@yourbiz.com";
+    [Parameter] public List<ViewTbOrders> Items { get; set; } = [];
+
+    private double? Subtotal => Items.Sum(i => i.TotalPrice);
+
+    private async Task TriggerPrint()
+    {
+        await JS.InvokeVoidAsync("window.print");
+    }
+}

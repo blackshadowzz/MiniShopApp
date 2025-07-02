@@ -10,12 +10,10 @@
     <h1 class="mb-4">Welcome to Mini Order!</h1>
     <p>This is a simple Blazor application to demonstrate basic features.</p>
     <p>Use the navigation menu to explore the app.</p>
-    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="TestAlert" Class="mt-3">
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@ToOrder" Class="mt-3">
         Check Order
     </MudButton>
-    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="OnConfirm" Class="mt-3">
-        confirm
-    </MudButton>
+
 
 </div>
 
@@ -31,8 +29,8 @@
             SnackbarService.Add("You canceled the action!", Severity.Warning);
         }
     }
-    private void TestAlert()
+    private void ToOrder()
     {
-        SnackbarService.Add("This is a test alert!", Severity.Info);
+        NavigationManager.NavigateTo("/page/orders/create");
     }
 }

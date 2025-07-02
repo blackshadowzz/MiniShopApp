@@ -8,7 +8,7 @@ namespace MiniShopApp.Infrastructures.DataAccess.Configurations
     {
         public void Configure(EntityTypeBuilder<TbOrderDetails> builder)
         {
-            builder.ToTable("TbOrderDetails");
+            builder.ToTable("TTbOrderDetails");
             builder.HasKey(x => x.Id);
             builder.Property(x => x.Id).ValueGeneratedOnAdd();
             builder.Property(x => x.OrderId);

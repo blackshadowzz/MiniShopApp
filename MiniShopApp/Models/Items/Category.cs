@@ -4,13 +4,11 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MiniShopApp.Models.Items
 {
-    public class Category
+    public class Category:BaseEntity
     {
-        [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int CategoryId { get; set; }
         public string? CategoryName { get; set; }
         public string? Description { get; set; }
-        [Column(TypeName = "bit"),DefaultValue(true)]
-        public bool? IsActive { get; set; }
+        
     }
 }
