@@ -6,16 +6,24 @@
         <div style="border-left:2px solid #ccc; height:40px; margin:0 10px;"></div>
         <MudMenu Label="Edit" Variant="Variant.Text" EndIcon="@Icons.Material.Filled.KeyboardArrowDown">
             <MudMenuItem Label="Print Receipt" Icon="@Icons.Material.Outlined.Print" OnClick="OnClickPrint" />
-            <MudMenuItem Disabled Icon="@Icons.Material.Outlined.Edit" OnClick="OnClickModify" Label="Modify Order" />
-            <MudMenuItem Disabled Icon="@Icons.Material.Outlined.Delete" OnClick="OnClickDelete" Label="Delete Order" />
+            <MudMenuItem Disabled=DisabledPaid Icon="@Icons.Material.Outlined.MonetizationOn" OnClick="OnClickModifyPaid" Label="Confirm Paid" />
+            <MudMenuItem Disabled=DisabledCancel Icon="@Icons.Material.Outlined.MoneyOff" OnClick="OnClickModifyCancel" Label="Cancel Order" />
+            <MudMenuItem Disabled=DisabledEdit Icon="@Icons.Material.Outlined.Edit" OnClick="OnClickModify" Label="Modify Order" />
+            <MudMenuItem Disabled=DisabledDelete Icon="@Icons.Material.Outlined.Delete" OnClick="OnClickDelete" Label="Delete Order" />
         </MudMenu>
     </MudStack>
 </MudCollapse>
 
 @code {
     [Parameter] public bool ExpandedAction { get; set; } = false;
+    [Parameter] public bool DisabledPaid { get; set; } = true;
+    [Parameter] public bool DisabledCancel { get; set; } = true;
+    [Parameter] public bool DisabledDelete { get; set; } = true;
+    [Parameter] public bool DisabledEdit { get; set; } = true;
     [Parameter] public int? ItemCount { get; set; }
     [Parameter] public EventCallback ClickPrint{ get; set; }
+    [Parameter] public EventCallback ClickModifyPaid { get; set; }
+    [Parameter] public EventCallback ClickModifyCancel { get; set; }
     [Parameter] public EventCallback ClickModify{ get; set; }
     [Parameter] public EventCallback ClickDelete{ get; set; }
     async Task OnClickPrint()
@@ -27,6 +35,16 @@
     {
         if (ClickModify.HasDelegate)
             await ClickModify.InvokeAsync();
+    }
+    async Task OnClickModifyPaid()
+    {
+        if (ClickModifyPaid.HasDelegate)
+            await ClickModifyPaid.InvokeAsync();
+    }
+    async Task OnClickModifyCancel()
+    {
+        if (ClickModifyCancel.HasDelegate)
+            await ClickModifyCancel.InvokeAsync();
     }
     async Task OnClickDelete()
     {

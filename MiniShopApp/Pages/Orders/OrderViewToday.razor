@@ -24,17 +24,20 @@
                                 <MudCard Class="mb-2" Elevation="3" Style="width:250px;max-width:350px">
                                     <MudCardHeader>
                                         <CardHeaderContent >
-                                            <MudText Typo="Typo.subtitle1">#@order.Id | @order.FirstName @order.LastName</MudText>
+                                            <MudText Typo="Typo.subtitle1">#@order.OrderCode </MudText>
                                          
                                         </CardHeaderContent>
                                         
                                         <CardHeaderActions>
-                                            <DropdownOrder ClickPrint="@(() => GenerateReceiptAsync(new[] { order }))" />
+                                            <DropdownOrder ClickPrint="@(() => GenerateReceiptAsync(new[] { order }))" 
+                                                ClickModifyPaid="@(()=>ConfirmPayment(order.Id))"
+                                                           ClickModifyCancel="@(()=>ConfirmPaymentCancel(order.Id))" />
                                             
                                         </CardHeaderActions>
                                     </MudCardHeader>
 
                                     <MudCardContent>
+                                        <MudText>Customer: <b> @(order.FirstName??order.CustomerType)</b></MudText>
                                         <MudText>Table: <b>@order.TableNumber</b></MudText>
                                         <MudText>Items: <b>@order.ItemCount</b></MudText>
                                         <MudText>Total: <b>@order.TotalPrice?.ToString("c2")</b></MudText>
@@ -51,8 +54,23 @@
                                             }
                                         </MudList>
                                     </MudCardContent>
-                                    <MudCardActions>
+                                    <MudCardActions Class="justify-content-between">
                                         <MudText Typo="Typo.caption">Date: @order.CreatedDT?.ToString("dd/MMM/yy hh:mm tt")</MudText>
+                                        @if (order.OrderStatus == Statuses.Paid.ToString())
+                                        {
+                                        <MudText Typo="Typo.subtitle2" Color="Color.Success">@order.OrderStatus</MudText>
+                                            
+                                        }else if(order.OrderStatus == Statuses.Canceled.ToString())
+                                        {
+                                            <MudText Typo="Typo.subtitle2" Color="Color.Info">@order.OrderStatus</MudText>
+
+                                        }
+                                        else
+                                        {
+                                            <MudText Typo="Typo.subtitle2" Color="Color.Secondary">@order.OrderStatus</MudText>
+
+                                        }
+
                                     </MudCardActions>
                                 </MudCard>
                             </MudItem>
@@ -73,6 +91,10 @@
                 </MudStack>
                 <DropdownActionOrder ExpandedAction="_expandedEdit"
                                      ItemCount="@selectedOrders.Count"
+                                     DisabledPaid=false
+                                     DisabledCancel=false
+                                     ClickModifyPaid="@(() => ConfirmPaidBulk(selectedOrders))"
+                                     ClickModifyCancel="@(() => ConfirmCancelBulk(selectedOrders))"
                                      ClickPrint="@(() => GenerateReceiptAsync(selectedOrders))" />
 
                 <MudTable ServerData="ServerReload" 
@@ -92,12 +114,12 @@
                             </MudTableSortLabel>
                         </MudTh>
                         <MudTh>
-                            <MudTableSortLabel SortLabel="Id" T="ViewTbOrders">
-                                Customer Id
+                            <MudTableSortLabel SortLabel="OrderCode" T="ViewTbOrders">
+                                Code #
                             </MudTableSortLabel>
                         </MudTh>
                         <MudTh>
-                            <MudTableSortLabel SortLabel="Id" T="ViewTbOrders">
+                            <MudTableSortLabel SortLabel="CustomerType" T="ViewTbOrders">
                                 Customer
                             </MudTableSortLabel>
                         </MudTh>
@@ -110,24 +132,46 @@
                                 Total
                             </MudTableSortLabel>
                         </MudTh>
-                        
+                        <MudTh>
+                            <MudTableSortLabel SortLabel="OrderStatus" T="ViewTbOrders">
+                                Status
+                            </MudTableSortLabel>
+                        </MudTh>
                     </HeaderContent>
                     <RowTemplate>
                         <MudTd @key="context.Id" DataLabel="Order ID"><MudIcon Icon="@Icons.Material.Filled.ArrowDropDown" /> @context.CreatedDT?.ToString("dd/MMM/yy")</MudTd>
-                        <MudTd DataLabel="CustomerId">@context.CustomerId</MudTd>
-                        <MudTd DataLabel="FirstName">@context.FirstName</MudTd>
+                        <MudTd DataLabel="OrderCode">@context.OrderCode</MudTd>
+                        <MudTd DataLabel="CustomerType">@(context.FirstName ?? context.CustomerType)</MudTd>
                         <MudTd DataLabel="TableNumber">@context.TableNumber</MudTd>
                         <MudTd DataLabel="ItemCount">@context.ItemCount</MudTd>
                         <MudTd DataLabel="SubPrice">@context.SubPrice?.ToString("c2")</MudTd>
                         <MudTd DataLabel="DiscountPrice">@context.DiscountPrice?.ToString("P0")</MudTd>
                         <MudTd DataLabel="TotalPrice">@context.TotalPrice?.ToString("c2")</MudTd>
+                        <MudTd DataLabel="OrderStatus">
+                            @if (context.OrderStatus == Statuses.Paid.ToString())
+                            {
+                                <MudText Typo="Typo.subtitle2" Color="Color.Success">@context.OrderStatus</MudText>
+
+                            }
+                            else if (context.OrderStatus == Statuses.Canceled.ToString())
+                            {
+                                <MudText Typo="Typo.subtitle2" Color="Color.Info">@context.OrderStatus</MudText>
+
+                            }
+                            else
+                            {
+                                <MudText Typo="Typo.subtitle2" Color="Color.Secondary">@context.OrderStatus</MudText>
+
+                            }
+
+                            </MudTd>
           
                     </RowTemplate>
                            
                       
                     <ChildRowContent>
 
-                        <MudTd ColSpan="9" Class="bg-body-tertiary" hidden="@(_expandedOrderId != context.Id)" DataLabel="Order details">
+                        <MudTd ColSpan="10" Class="bg-body-tertiary" hidden="@(_expandedOrderId != context.Id)" DataLabel="Order details">
                             <MudCollapse Expanded="_expandedOrderId == context.Id" Tag="@context.Id">
                                 <MudTable Items="@context.TbOrderDetails" Dense=true Context="c">
                                     <HeaderContent>
@@ -222,7 +266,7 @@
             <RowTemplate>
                 <MudTd @key="context.Id" DataLabel="Order ID"><MudIcon Icon="@Icons.Material.Filled.ArrowDropDown" /> @context.CreatedDT?.ToString("dd/MMM/yy")</MudTd>
                 <MudTd DataLabel="CustomerId">@context.CustomerId</MudTd>
-                <MudTd DataLabel="FirstName">@context.FirstName</MudTd>
+                <MudTd DataLabel="FirstName">@(context.FirstName ?? context.CustomerType)</MudTd>
                 <MudTd DataLabel="TableNumber">@context.TableNumber</MudTd>
                 <MudTd DataLabel="ItemCount">@context.ItemCount</MudTd>
                 <MudTd DataLabel="SubPrice">@context.SubPrice?.ToString("c2")</MudTd>
@@ -281,63 +325,7 @@
     <MudTabPanel Text="More" Icon="@Icons.Material.Filled.ViewList" >
         <OrderViewPage/>
     </MudTabPanel>
-   @*  <MudTabPanel Text="Months" Icon="@Icons.Material.Filled.CalendarMonth" OnClick="GetOrderMonth">
-        <MudStack Row=true Spacing="2" StretchItems="StretchItems.Start" Class="my-2">
-            <MudSelect T="int" @bind-Value="selectedMonth" Label="Month" Style="width: 120px;">
-                @foreach (var m in months)
-                {
-                    <MudSelectItem Value="@m">@System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(m)</MudSelectItem>
-                }
-            </MudSelect>
-            <MudSelect T="int" @bind-Value="selectedYear" Label="Year" Style="width: 100px;">
-                @foreach (var y in years)
-                {
-                    <MudSelectItem Value="@y">@y</MudSelectItem>
-                }
-            </MudSelect>
-            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="GetOrderMonth">Show Orders</MudButton>
-        </MudStack>
-        <MudTable Items="@orders" Hover="true" Dense="true">
-            <HeaderContent>
-                <MudTh>Order #</MudTh>
-                <MudTh>Customer</MudTh>
-                <MudTh>Table</MudTh>
-                <MudTh>Items</MudTh>
-                <MudTh>Total</MudTh>
-                <MudTh>Date</MudTh>
-                <MudTh>Action</MudTh>
-            </HeaderContent>
-            <RowTemplate>
-                <MudTd DataLabel="Order #">@context.Id</MudTd>
-                <MudTd DataLabel="Customer">@context.FirstName @context.LastName</MudTd>
-                <MudTd DataLabel="Table">@context.TableNumber</MudTd>
-                <MudTd DataLabel="Items">@context.ItemCount</MudTd>
-                <MudTd DataLabel="Total">@context.TotalPrice?.ToString("c2")</MudTd>
-                <MudTd DataLabel="Date">@context.CreatedDT?.ToString("g")</MudTd>
-                <MudTd>
-                    <MudMenu Icon="@Icons.Material.Filled.MoreVert"
-                             Dense=true
-                             AnchorOrigin="Origin.BottomLeft"
-                             TransformOrigin="Origin.TopRight"
-                             AriaLabel="Open menu">
-                        <MudMenuItem Label="Generate Receipt" />
-                        <MudMenuItem Label="Modify Order" />
-                        <MudMenuItem Label="Delete Order" />
-                    </MudMenu>
-                </MudTd>
-            </RowTemplate>
-            <FooterContent>
-                <MudTd colspan="4"></MudTd>
-                <MudTd><b>@orders.Sum(x=>x.TotalPrice)?.ToString("c2")</b></MudTd>
-                <MudTd colspan="2">Total</MudTd>
-            </FooterContent>
-        </MudTable>
-        <MudPaper Elevation="6" Class="sticky-footer-total" Square="true">
-            <MudButton Variant="Variant.Filled" Color="Color.Primary" Style="width:100%;font-size:1.2rem;" Disabled="true">
-                Total Price: @orders.Sum(x => x.TotalPrice)?.ToString("c2")
-            </MudButton>
-        </MudPaper>
-    </MudTabPanel> *@
+
 </MudTabs>
 
 
@@ -345,6 +333,12 @@
     bool fixed_header = true;
     bool fixed_footer = true; 
     bool _expandedEdit = false;
+    void clearData()
+    {
+        _expandedEdit = false;
+        table.ReloadServerData();
+        selectedOrders.Clear();
+    }
     long? _expandedOrderId = null;
     bool isLoading = false;
     private void OnExpandCollapseClick(TableRowClickEventArgs<ViewTbOrders> row)
