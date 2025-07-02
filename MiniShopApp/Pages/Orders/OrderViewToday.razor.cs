@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using MiniShopApp.Infrastructures.Services.Interfaces;
 using MiniShopApp.Models.Orders;
+using MiniShopApp.Shared.AdditionalServices;
 using System.Buffers.Text;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,7 +15,7 @@ namespace MiniShopApp.Pages.Orders
         [Inject] IJSRuntime JS { get; set; } = default!;
         List<ViewTbOrders> orders = new List<ViewTbOrders>();
         protected DateTime today = DateTime.Now.Date;
-        string? filter = string.Empty;
+        //string? filter = string.Empty;
 
         // Month/Year selection for Months tab
         protected int selectedMonth = DateTime.Now.Month;
@@ -53,7 +54,7 @@ namespace MiniShopApp.Pages.Orders
         {
             try
             {
-                var results = await orderService.GetOrderByDateAsync(filter, today, 0);
+                var results = await orderService.GetOrderByDateAsync(searchString, today, 0);
                 if (results.IsSuccess)
                 {
                     orders = results.Data!.OrderByDescending(x => x.Id).ToList();
@@ -71,7 +72,7 @@ namespace MiniShopApp.Pages.Orders
             {
 
                 var dt = today.AddDays(-1);
-                var results = await orderService.GetOrderByDateAsync(filter, dt, 0);
+                var results = await orderService.GetOrderByDateAsync(searchString, dt, 0);
                 if (results.IsSuccess)
                 {
                     orders = results.Data!.OrderByDescending(x => x.Id).ToList();
@@ -93,7 +94,7 @@ namespace MiniShopApp.Pages.Orders
                 var weekOrders = new List<ViewTbOrders>();
                 for (var date = startOfWeek; date <= endOfWeek; date = date.AddDays(1))
                 {
-                    var results = await orderService.GetOrderByDateAsync(filter, date, 0);
+                    var results = await orderService.GetOrderByDateAsync(searchString, date, 0);
                     if (results.IsSuccess && results.Data != null)
                     {
                         weekOrders.AddRange(results.Data);
@@ -115,7 +116,7 @@ namespace MiniShopApp.Pages.Orders
                 var monthOrders = new List<ViewTbOrders>();
                 for (var date = firstDayOfMonth; date <= lastDayOfMonth; date = date.AddDays(1))
                 {
-                    var results = await orderService.GetOrderByDateAsync(filter, date, 0);
+                    var results = await orderService.GetOrderByDateAsync(searchString, date, 0);
                     if (results.IsSuccess && results.Data != null)
                     {
                         monthOrders.AddRange(results.Data);
@@ -131,12 +132,14 @@ namespace MiniShopApp.Pages.Orders
 
         private async Task GenerateReceiptAsync(IEnumerable<ViewTbOrders> orders)
         {
+            if(!orders.Any())
+                return;
             foreach (var order in orders)
             {
 
                 var pdfBytes = pdfService.CreateOrderReceiptPdf(order);
                 var base64 = Convert.ToBase64String(pdfBytes);
-                await JS.InvokeVoidAsync("DownloadReceiptFile", $"receipt_{order.Id}.pdf", "application/pdf", base64);
+                await JS.InvokeVoidAsync("DownloadReceipt", $"receipt_{order.Id}.pdf", "application/pdf", base64);
             }
         }
 

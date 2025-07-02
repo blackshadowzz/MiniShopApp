@@ -1,21 +1,17 @@
 ﻿@page "/orders/views"
 @layout MainLayout
 @using MiniShopApp.Models.Orders
+@using MiniShopApp.Shared.AdditionalServices
+@using MiniShopApp.Shared.DropdownActions
+@inject PdfService pdfService
+
 <PageTitle>Views Order</PageTitle>
 <MudPaper Elevation="2" >
-    <MudCollapse Expanded="_expandedEdit">
+     <DropdownActionOrder 
+            ExpandedAction="_expandedEdit"
+                         ItemCount="@selectedOrders.Count"
+                         ClickPrint="@(() => GenerateReceiptAsync(selectedOrders))" />
 
-        <MudStack Row Justify="Justify.FlexStart" AlignItems=AlignItems.Center Class="py-2 bg-info-subtle" Spacing="3">
-
-            <MudText Typo="Typo.subtitle2" Class="text-center px-2">@selectedOrders.Count selected</MudText>
-            <div style="border-left:2px solid #ccc; height:40px; margin:0 10px;"></div>
-            <MudMenu Label="Edit" Variant="Variant.Text" EndIcon="@Icons.Material.Filled.KeyboardArrowDown">
-                <MudMenuItem Label="Generate Receipt" />
-                <MudMenuItem Label="Modify Order" />
-                <MudMenuItem Label="Delete Order" />
-            </MudMenu>
-        </MudStack>
-    </MudCollapse>
     <MudTable ServerData="ServerReload" 
         T="ViewTbOrders" 
         MultiSelection=true 
@@ -163,8 +159,8 @@
         </PagerContent>
     </MudTable>
     <MudStack Row=true StretchItems="StretchItems.None">
-        <MudSwitch @bind-Value="fixed_header" Color="Color.Primary">Fixed Header</MudSwitch>
-        <MudSwitch @bind-Value="fixed_footer" Color="Color.Primary">Fixed Footer</MudSwitch>
+        <MudCheckBox @bind-Value="fixed_header" Color="Color.Primary">Fixed Header</MudCheckBox>
+        <MudCheckBox @bind-Value="fixed_footer" Color="Color.Primary">Fixed Footer</MudCheckBox>
     </MudStack>
 </MudPaper>
 
@@ -307,5 +303,14 @@
     {
         table.ReloadServerData();
     }
+    private async Task GenerateReceiptAsync(IEnumerable<ViewTbOrders> orders)
+    {
+        foreach (var order in orders)
+        {
 
+            var pdfBytes = pdfService.CreateOrderReceiptPdf(order);
+            var base64 = Convert.ToBase64String(pdfBytes);
+            await JS.InvokeVoidAsync("DownloadReceipt", $"receipt_{order.Id}.pdf", "application/pdf", base64);
+        }
+    }
 }

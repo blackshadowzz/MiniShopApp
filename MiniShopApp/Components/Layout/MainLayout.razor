@@ -11,11 +11,20 @@
 
 
 <MudLayout>
-    <MudAppBar Elevation="1" Dense="false">
+    <MudAppBar Elevation="1" Dense="false" Color="Color.Dark">
         <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
         Mini Order App
         <MudSpacer />
-        <MudSwitch @bind-Value="_isDarkMode" Color="Color.Primary" Class="ma-4" T="bool" Label="Light/Dark" />
+@*         <MudSwitch @bind-Value="_isDarkMode" Color="Color.Primary" Class="ma-4" T="bool" Label="Light/Dark" /> *@
+        <MudToggleIconButton @bind-Toggled="_isDarkMode"
+                             Class="ma-4"
+                             Icon="@Icons.Material.Outlined.LightMode"
+                             Color="@Color.Info"
+                             ToggledIcon="@Icons.Material.Outlined.DarkMode"
+                             ToggledColor="@Color.Success"
+                              >
+           
+                          </MudToggleIconButton>
 
         <MudMenu>
             <ActivatorContent>
@@ -38,6 +47,7 @@
             <MudNavMenu Class="mud-width-full">
                 <MudNavLink Href="/" Icon="@Icons.Material.Filled.Dashboard">Dashboard</MudNavLink>
                 <MudNavGroup Title="Orders" Icon="@Icons.Material.Filled.Lan">
+                <MudNavLink Href="/page/orders/create" Icon="@Icons.Material.Filled.Storefront" IconColor="Color.Success">New Order</MudNavLink>
                     <MudNavLink Href="/orders/views/today" Icon="@Icons.Material.Filled.Storefront" IconColor="Color.Success">Order Today</MudNavLink>
                     <MudNavLink Href="/orders/views" Icon="@Icons.Material.Filled.Storefront" IconColor="Color.Success">Order History</MudNavLink>
                 </MudNavGroup>

@@ -1,16 +1,18 @@
 ﻿@using DocumentFormat.OpenXml.Drawing
 @using MiniShopApp.Models.Orders
+@using MiniShopApp.Shared.AdditionalServices
+@using MiniShopApp.Shared.DropdownActions
 @page "/orders/views/today"
 @layout MainLayout
 @inject PdfService pdfService
 <PageTitle>Order Today</PageTitle>
 
-<MudTabs Outlined="true" Class="sticky-tabs-top">
+<MudTabs Outlined="true" >
     <MudTabPanel Text="Today" Icon="@Icons.Material.Filled.CalendarToday" OnClick="GetOrderToday">
         <MudTabs Outlined="false">
             <MudTabPanel Text="Card" Icon="@Icons.Material.Filled.GridView">
                 <MudStack>
-                    <MudTextField T="string" @bind-Text="filter" Placeholder="Search" Variant=Variant.Text Adornment="Adornment.End"
+                    <MudTextField T="string" ValueChanged="@(s => OnSearch(s))" Placeholder="Search" Variant=Variant.Text Adornment="Adornment.End"
                                   AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="my-2"></MudTextField>
                 </MudStack>
                 <MudGrid>
@@ -27,16 +29,8 @@
                                         </CardHeaderContent>
                                         
                                         <CardHeaderActions>
-                                            <MudMenu Icon="@Icons.Material.Filled.MoreVert"
-                                            AnchorOrigin="Origin.BottomLeft"
-                                            TransformOrigin="Origin.TopRight"
-                                            Dense=true
-                                           
-                                                     AriaLabel="Open menu">
-                                                <MudMenuItem Label="Generate Receipt" OnClick="@(() => GenerateReceiptAsync(new[]{order}))" />
-                                                <MudMenuItem Label="Modify Order" />
-                                                <MudMenuItem Label="Delete Order" />
-                                            </MudMenu>
+                                            <DropdownOrder ClickPrint="@(() => GenerateReceiptAsync(new[] { order }))" />
+                                            
                                         </CardHeaderActions>
                                     </MudCardHeader>
 
@@ -73,19 +67,14 @@
                 </MudGrid>
             </MudTabPanel>
             <MudTabPanel Text="Grid" Icon="@Icons.Material.Filled.ListAlt" >
-                <MudCollapse Expanded="_expandedEdit">
-                    
-                    <MudStack Row Justify="Justify.FlexStart" AlignItems=AlignItems.Center Class="py-2 bg-info-subtle" Spacing="3" >
+                <MudStack>
+                    <MudTextField T="string" ValueChanged="@(s => OnSearch(s))" Placeholder="Search" Variant=Variant.Text Adornment="Adornment.End"
+                                  AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="my-2"></MudTextField>
+                </MudStack>
+                <DropdownActionOrder ExpandedAction="_expandedEdit"
+                                     ItemCount="@selectedOrders.Count"
+                                     ClickPrint="@(() => GenerateReceiptAsync(selectedOrders))" />
 
-                        <MudText Typo="Typo.subtitle2" Class="text-center px-2">@selectedOrders.Count selected</MudText>
-                        <div style="border-left:2px solid #ccc; height:40px; margin:0 10px;"></div>
-                        <MudMenu Label="Edit" Variant="Variant.Text" EndIcon="@Icons.Material.Filled.KeyboardArrowDown">
-                            <MudMenuItem Label="Generate Receipt" OnClick="@(() => GenerateReceiptAsync(selectedOrders))" />
-                            <MudMenuItem Label="Modify Order" />
-                            <MudMenuItem Label="Delete Order" />
-                        </MudMenu>
-                    </MudStack>
-                </MudCollapse>
                 <MudTable ServerData="ServerReload" 
                     FixedHeader="@fixed_header" 
                     FixedFooter="@fixed_footer"
@@ -178,8 +167,8 @@
                     </PagerContent>
                 </MudTable>
                 <MudStack Row=true StretchItems="StretchItems.None">
-                    <MudSwitch @bind-Value="fixed_header" Color="Color.Primary">Fixed Header</MudSwitch>
-                    <MudSwitch @bind-Value="fixed_footer" Color="Color.Primary">Fixed Footer</MudSwitch>
+                    <MudCheckBox @bind-Value="fixed_header" Color="Color.Primary">Fixed Header</MudCheckBox>
+                    <MudCheckBox @bind-Value="fixed_footer" Color="Color.Primary">Fixed Footer</MudCheckBox>
                 </MudStack>
             </MudTabPanel>
            
@@ -187,46 +176,107 @@
        
     </MudTabPanel>
     <MudTabPanel Text="Yesterday" Icon="@Icons.Material.Filled.CalendarViewWeek" OnClick="GetOrderYesterday">
-        <MudTabs Outlined="false">
-            <MudTabPanel Text="Grid" Icon="@Icons.Material.Filled.ListAlt">
-                <MudTable Items="@orders" Hover="true" Dense="true">
-                    <HeaderContent>
-                        <MudTh>Order #</MudTh>
-                        <MudTh>Customer</MudTh>
-                        <MudTh>Table</MudTh>
-                        <MudTh>Items</MudTh>
-                        <MudTh>Total</MudTh>
-                        <MudTh>Date</MudTh>
-                        <MudTh>Action</MudTh>
-                    </HeaderContent>
-                    <RowTemplate>
-                        <MudTd DataLabel="Order #">@context.Id</MudTd>
-                        <MudTd DataLabel="Customer">@context.FirstName @context.LastName</MudTd>
-                        <MudTd DataLabel="Table">@context.TableNumber</MudTd>
-                        <MudTd DataLabel="Items">@context.ItemCount</MudTd>
-                        <MudTd DataLabel="Total">@context.TotalPrice?.ToString("c2")</MudTd>
-                        <MudTd DataLabel="Date">@context.CreatedDT?.ToString("g")</MudTd>
-                        <MudTd>
-                            <MudMenu Icon="@Icons.Material.Filled.MoreVert"
-                                     Dense=true
-                                     AnchorOrigin="Origin.BottomLeft"
-                                     TransformOrigin="Origin.TopRight"
-                                     AriaLabel="Open menu">
-                                <MudMenuItem Label="Generate Receipt" />
-                                <MudMenuItem Label="Modify Order" />
-                                <MudMenuItem Label="Delete Order" />
-                            </MudMenu>
-                        </MudTd>
-                    </RowTemplate>
-                    <FooterContent>
-                        <MudTd colspan="4"></MudTd>
-                        <MudTd><b>@orders.Sum(x => x.TotalPrice)?.ToString("c2")</b></MudTd>
-                        <MudTd colspan="2">Total</MudTd>
-                    </FooterContent>
-                </MudTable>
-            </MudTabPanel>
+        <MudStack>
+            <MudTextField T="string" ValueChanged="@(s => OnSearch(s))" Placeholder="Search" Variant=Variant.Text Adornment="Adornment.End"
+                          AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="my-2"></MudTextField>
+        </MudStack>
+        <DropdownActionOrder ExpandedAction="_expandedEdit"
+                             ItemCount="@selectedYesterdayOrders.Count"
+                             ClickPrint="@(() => GenerateReceiptAsync(selectedYesterdayOrders))" />
+        <MudTable ServerData="ServerReload"
+                  FixedHeader="@fixed_header"
+                  FixedFooter="@fixed_footer"
+                  Height="@(fixed_header || fixed_footer ? "500px" : "")"
+                  MultiSelection="true"
+                  T="ViewTbOrders"
+                  Dense="true" Hover="true" @ref="table" Loading="isLoading" OnRowClick="OnExpandCollapseClick"
+                  SelectOnRowClick=false
+                  SelectedItemsChanged="@(items => MultiSelectYesterday(items))">
+            <HeaderContent>
+                <MudTh>
+                    <MudTableSortLabel SortLabel="Id" T="ViewTbOrders">
+                        Date
+                    </MudTableSortLabel>
+                </MudTh>
+                <MudTh>
+                    <MudTableSortLabel SortLabel="Id" T="ViewTbOrders">
+                        Customer Id
+                    </MudTableSortLabel>
+                </MudTh>
+                <MudTh>
+                    <MudTableSortLabel SortLabel="Id" T="ViewTbOrders">
+                        Customer
+                    </MudTableSortLabel>
+                </MudTh>
+                <MudTh>Table</MudTh>
+                <MudTh>Item</MudTh>
+                <MudTh>Price</MudTh>
+                <MudTh>Discount</MudTh>
+                <MudTh>
+                    <MudTableSortLabel SortLabel="Id" T="ViewTbOrders">
+                        Total
+                    </MudTableSortLabel>
+                </MudTh>
 
-        </MudTabs>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd @key="context.Id" DataLabel="Order ID"><MudIcon Icon="@Icons.Material.Filled.ArrowDropDown" /> @context.CreatedDT?.ToString("dd/MMM/yy")</MudTd>
+                <MudTd DataLabel="CustomerId">@context.CustomerId</MudTd>
+                <MudTd DataLabel="FirstName">@context.FirstName</MudTd>
+                <MudTd DataLabel="TableNumber">@context.TableNumber</MudTd>
+                <MudTd DataLabel="ItemCount">@context.ItemCount</MudTd>
+                <MudTd DataLabel="SubPrice">@context.SubPrice?.ToString("c2")</MudTd>
+                <MudTd DataLabel="DiscountPrice">@context.DiscountPrice?.ToString("P0")</MudTd>
+                <MudTd DataLabel="TotalPrice">@context.TotalPrice?.ToString("c2")</MudTd>
+
+            </RowTemplate>
+
+
+            <ChildRowContent>
+
+                <MudTd ColSpan="9" Class="bg-body-tertiary" hidden="@(_expandedOrderId != context.Id)" DataLabel="Order details">
+                    <MudCollapse Expanded="_expandedOrderId == context.Id" Tag="@context.Id">
+                        <MudTable Items="@context.TbOrderDetails" Dense=true Context="c">
+                            <HeaderContent>
+                                <MudTh>Id</MudTh>
+                                <MudTh>Item</MudTh>
+                                <MudTh>Quantity</MudTh>
+                                <MudTh>Price</MudTh>
+                                <MudTh>Total Price</MudTh>
+                            </HeaderContent>
+                            <RowTemplate>
+                                <MudTd> @c.Id</MudTd>
+                                <MudTd>@c.ItemName</MudTd>
+                                <MudTd>@c.Quantity</MudTd>
+                                <MudTd>@c.Price?.ToString("c2")</MudTd>
+                                <MudTd>@c.TotalPrice?.ToString("c2")</MudTd>
+                            </RowTemplate>
+                        </MudTable>
+
+                    </MudCollapse>
+                </MudTd>
+
+            </ChildRowContent>
+
+            <NoRecordsContent>
+                <MudText>No matching records found</MudText>
+            </NoRecordsContent>
+            <LoadingContent>
+                <MudText>Loading...</MudText>
+            </LoadingContent>
+            <FooterContent>
+                <MudTd colspan="6"></MudTd>
+                <MudTd>Total</MudTd>
+                <MudTd><b>@orders.Sum(x => x.TotalPrice)?.ToString("c2")</b></MudTd>
+            </FooterContent>
+            <PagerContent>
+                <MudTablePager />
+            </PagerContent>
+        </MudTable>
+        <MudStack Row=true StretchItems="StretchItems.None">
+            <MudCheckBox @bind-Value="fixed_header" Color="Color.Primary">Fixed Header</MudCheckBox>
+            <MudCheckBox @bind-Value="fixed_footer" Color="Color.Primary">Fixed Footer</MudCheckBox>
+        </MudStack>
     </MudTabPanel>
     <MudTabPanel Text="More" Icon="@Icons.Material.Filled.ViewList" >
         <OrderViewPage/>
@@ -305,7 +355,7 @@
             _expandedOrderId = row.Item.Id; // Expand this row
     }
     private int totalItems;
-    private string searchString = null;
+    private string? searchString = null;
     private IEnumerable<ViewTbOrders> pagedData;
     private MudTable<ViewTbOrders> table;
     private List<ViewTbOrders> selectedOrders = new();
@@ -314,6 +364,18 @@
     {
         selectedOrders = items.ToList();
         if(selectedOrders.Any())
+            _expandedEdit = true;
+        else
+            _expandedEdit = false;
+
+        StateHasChanged();
+    }
+    private List<ViewTbOrders> selectedYesterdayOrders = new();
+
+    void MultiSelectYesterday(IEnumerable<ViewTbOrders> items)
+    {
+        selectedYesterdayOrders = items.ToList();
+        if (selectedYesterdayOrders.Any())
             _expandedEdit = true;
         else
             _expandedEdit = false;
@@ -330,7 +392,10 @@
             if (!string.IsNullOrWhiteSpace(searchString))
             {
                 matches = element.CustomerId.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase)
-                    || (element.TableNumber != null && element.TableNumber.Contains(searchString, StringComparison.OrdinalIgnoreCase));
+                    || (element.TableNumber != null && element.TableNumber.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                    || (element.LastName != null && element.LastName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                    || (element.Id.ToString() != null && element.Id.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                    || (element.FirstName != null && element.FirstName.Contains(searchString, StringComparison.OrdinalIgnoreCase));
             }
             // if (matches && startDate.HasValue)
             // {

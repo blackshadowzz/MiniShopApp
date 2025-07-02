@@ -7,6 +7,7 @@ namespace MiniShopApp.Infrastructures.Services.Interfaces
     public interface IOrderService
     {
         Task<Result<string>> CreateAsync(long customerId, TbOrder model);
+        Task<Result<string>> CreateAsync(TbOrder model,CancellationToken cancellationToken=default);
         Task<Result<IEnumerable<ViewTbOrders>>> GetOrderSummaryAsync(string? filter="");
         Task<Result<IEnumerable<ViewTbOrderDetails>>> GetOrderDetailsAsync(long? orderId);
         Task<Result<IEnumerable<TbOrderDetails>>> GetOrdersByUserAsync(long? customerId);

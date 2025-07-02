@@ -3,6 +3,7 @@
 @using Infrastructures.Services.Interfaces
 @using MiniShopApp.Models.Customers
 @using MudBlazor
+@using System.Globalization
 <PageTitle>Customer types</PageTitle>
 
 <MudGrid>
@@ -71,7 +72,7 @@
                     <RowTemplate>
                         <MudTd DataLabel="Id">@context.Id</MudTd>
                         <MudTd DataLabel="Type Name">@context.TypeName</MudTd>
-                        <MudTd DataLabel="Discount Rate">@context.DiscountRate</MudTd>
+                        <MudTd DataLabel="Discount Rate">@context.DiscountRate?.ToString("P2", CultureInfo.InvariantCulture)</MudTd>
                         <MudTd DataLabel="Description">@context.Description</MudTd>
                         <MudTd><MudCheckBox @bind-Value="context.IsActive" Color="Color.Primary" ReadOnly/></MudTd>
                         <MudTd>
