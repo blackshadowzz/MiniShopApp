@@ -11,8 +11,8 @@ namespace MiniShopApp.Pages.Lists.TbTables
     public partial class TableIndex
     {
         private readonly ITableListService _context;
-        private readonly DialogOptions _backdropClick = new() 
-        { 
+        private readonly DialogOptions _backdropClick = new()
+        {
             BackdropClick = false,
             MaxWidth = MaxWidth.Medium,
             FullWidth = true,
@@ -21,16 +21,27 @@ namespace MiniShopApp.Pages.Lists.TbTables
         {
             _context = tableListService;
         }
-        
+
         //void ShowNotification(NotificationMessage message)
         //{
         //    NotificationService.Notify(message);
         //}
         private List<TbTable> model = new List<TbTable>();
+        private string searchString = "";
+
         private string? _filter = string.Empty;
         bool _expanded = true;
-        
 
+        private bool FilterFunc1(TbTable element) => FilterFunc(element, searchString);
+
+        private bool FilterFunc(TbTable element, string searchStrings)
+        {
+            if (string.IsNullOrWhiteSpace(searchString))
+                return true;
+            if (element.TableNumber.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                return true;
+            return false;
+        }
         private void OnExpandCollapseClick()
         {
             _expanded = !_expanded;
@@ -42,7 +53,7 @@ namespace MiniShopApp.Pages.Lists.TbTables
                 var result = await _context.GetAllAsync(_filter);
                 model = result.ToList();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw new Exception($"Error initializing List : {ex.Message}");
             }
@@ -69,7 +80,7 @@ namespace MiniShopApp.Pages.Lists.TbTables
             {
                 ["iTemid"] = id
             }
-            ,optionss);
+            , optionss);
             var result = await dialog.Result;
             if (!result!.Canceled)
             {
@@ -80,10 +91,46 @@ namespace MiniShopApp.Pages.Lists.TbTables
 
 
         }
+
         public async Task remove(int? id)
         {
-           //Dialog.
-        }
+            //Dialog.
+            var parameters = new DialogParameters { ["Message"] = $"Are you sure you want to delete?" };
+            var options = new DialogOptions { CloseOnEscapeKey = true };
 
+            var dialog = Dialog.Show<DeleteDialog>("Confirm Delete", parameters, options);
+            var result = await dialog.Result;
+
+            if (!result.Canceled)
+            {
+                await DeleteItem(id);
+            }
+
+        }
+        public async Task DeleteItem(int? id)
+        {
+            try
+            {
+                if (id.HasValue)
+                {
+                    var result = await _context.DeleteAsync(id.Value);
+                    if (result)
+                    {
+                        var tables = await _context.GetAllAsync(_filter);
+                        model = tables.ToList();
+                        StateHasChanged();
+                    }
+                    else
+                    {
+                        throw new Exception("Failed to delete the table.");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error deleting table: {ex.Message}");
+            }
+
+        }
     }
 }

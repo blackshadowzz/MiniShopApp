@@ -3,31 +3,33 @@
 @layout MainLayout
 <PageTitle>Categories</PageTitle>
 <div class="mt-3">
-    <div class="d-flex justify-content-between mb-2">
-        <h5>Table list</h5>
-        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="CreateNew">Create</MudButton>
-    </div>
-    <table class="table caption-top table-bordered table-hover table-responsive">
-        <thead>
-            <tr>
-                <th>No</th>
-                <th>Category</th>
-                <th>Descriptions</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @* @foreach (var _data in model) *@
-            @* { *@
-            @*     <tr> *@
-            @*         <th>@_data.</th> *@
-            @*         <th>@_data.TableNumber</th> *@
-            @*         <th>@_data.Description</th> *@
-            @*         <th></th> *@
-            @*     </tr> *@
-            @* } *@
-        </tbody>
-    </table>
+    <MudTable Items="@model" Filter="FilterFunc1" Bordered="true">
+        <ToolBarContent>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="CreateNew">Create</MudButton>
+            <MudSpacer />
+            <MudTextField @bind-Value="searchString" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+        </ToolBarContent>
+        <HeaderContent>
+            <MudTh>ID</MudTh>
+            <MudTh>Category</MudTh>
+            <MudTh>Descriptions</MudTh>
+            <MudTh>actions</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Nr">@context.CategoryId</MudTd>
+            <MudTd DataLabel="Sign">@context.CategoryName</MudTd>
+            <MudTd DataLabel="Name">@context.Description</MudTd>
+            <MudTd>
+                <MudMenu Icon="@Icons.Material.Filled.MoreVert" Variant="Variant.Text" Size=Size.Small EndIcon="@Icons.Material.Filled.KeyboardArrowDown">
+                    <MudMenuItem OnClick="@(() => Update(context.CategoryId))" Label="Edit" />
+                    <MudMenuItem OnClick="@(() => remove(context.CategoryId))" Label="Delete" />
+                </MudMenu>
+            </MudTd>
+        </RowTemplate>
+        <PagerContent>
+            <MudTablePager />
+        </PagerContent>
+    </MudTable>
 </div>
 
 

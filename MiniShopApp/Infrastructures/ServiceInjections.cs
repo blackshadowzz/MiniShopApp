@@ -35,6 +35,7 @@ namespace MiniShopApp.Infrastructures
                 config.SnackbarConfiguration.SnackbarVariant = Variant.Filled;
             });
             // Add any services below
+            services.TryAddTransient<ICategoryListService, CategoryListService>();
             services.TryAddTransient<ITableListService, TableListService>();
             services.TryAddTransient<IProductService, ProductService>();
             services.AddScoped<IOrderService, OrderService>();

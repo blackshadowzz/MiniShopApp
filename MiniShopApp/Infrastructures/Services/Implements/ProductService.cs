@@ -22,7 +22,7 @@ namespace MiniShopApp.Infrastructures.Services.Implements
             this.logger = logger;
         }
 
-        public async Task<string> CreateAsync( Product model)
+        public async Task<string> CreateAsync(Product model)
         {
             try
             {

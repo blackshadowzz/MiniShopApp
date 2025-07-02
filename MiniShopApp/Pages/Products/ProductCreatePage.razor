@@ -10,7 +10,7 @@
 
 <PageTitle>Create Product</PageTitle>
 
-<div>
+@* <div>
     <span> @alert </span>
     <form >
         <div class="mb-3">
@@ -40,15 +40,56 @@
        
         <button type="button" @onclick="CreateProduct" class="btn btn-primary">Create Product</button>
     </form>
-</div>
+</div> *@
+<MudForm @ref="form">
+    <MudTextField @bind-Value="@model.ProductCode" Label="Product Code" />
+    <MudTextField @bind-Value="@model.ProductName" Label="Product Name" />
+    <MudTextField @bind-Value="@model.Description" Label="Description" />
+    <MudNumericField @bind-Value="@model.Price" Label="Price" TValue="double?" />
+    <MudNumericField @bind-Value="@model.SubPrice" Label="Subprice" TValue="double?" />
+    <MudSelect T="int?" @bind-Value="@model.CategoryId" Label="Select Category">
+        @foreach(var cat in categories)
+        {
+            <MudSelectItem Value="@cat.CategoryId">@cat.CategoryName</MudSelectItem>
+        }
+    </MudSelect>
+    <InputFile OnChange="HandleFileSelected" />
+
+</MudForm>
 
 <p class="">User Id: @userId</p>
 <div>
     <NavLink class="btn btn-primary" href="/products">Back to Products</NavLink>
 </div>
-@* <button class="btn btn-primary" value="button" @onclick="CreateProduct">Create Product</button>
+<button class="btn btn-primary" value="button" @onclick="CreateProduct">Create Product</button>
 <br />
 
-<p class="">Product created: @message</p> *@
+<p class="">Product created: @message</p> 
+@code{
+    private IBrowserFile selectedFile;
 
+    private async Task HandleFileSelected(InputFileChangeEventArgs e)
+    {
+        selectedFile = e.File;
+    }
+    private async Task HandleValidSubmit()
+    {
+        if (selectedFile is not null)
+        {
+            var uploadsFolder = Path.Combine("wwwroot", "images", "products");
+            Directory.CreateDirectory(uploadsFolder); // Ensure folder exists
 
+            var fileName = $"{Guid.NewGuid()}{Path.GetExtension(selectedFile.Name)}";
+            var filePath = Path.Combine(uploadsFolder, fileName);
+
+            await using var stream = File.Create(filePath);
+            await selectedFile.OpenReadStream(maxAllowedSize: 5 * 1024 * 1024).CopyToAsync(stream);
+
+            // Set relative URL for DB
+            model.ImageUrl = $"images/products/{fileName}";
+        }
+
+        // Insert newProduct into the database here (e.g., via EF Core)
+    }
+
+}

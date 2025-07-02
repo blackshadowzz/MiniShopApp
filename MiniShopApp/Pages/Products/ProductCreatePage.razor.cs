@@ -1,19 +1,24 @@
+using DocumentFormat.OpenXml.Office2021.Excel.RichDataWebImage;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 using MiniShopApp.Data;
 using MiniShopApp.Infrastructures.Services.Interfaces;
 using MiniShopApp.Models.Items;
+using MudBlazor;
 
 namespace MiniShopApp.Pages.Products
 {
     public partial class ProductCreatePage
     {
         private readonly IProductService productService;
+        private readonly ICategoryListService categoryListService;
 
 
 
-        public ProductCreatePage(IProductService productService)
+        public ProductCreatePage(IProductService productService,ICategoryListService categoryListService)
         {
             this.productService = productService;
+            this.categoryListService = categoryListService;
 
             // Constructor logic can be added here if needed
         }
@@ -22,6 +27,10 @@ namespace MiniShopApp.Pages.Products
 
         string? userId = null;
         protected Product model = new Product();
+        protected List<Category> categories = new List<Category>();
+        [Inject] ISnackbar Snackbar { get; set; } = default!;
+        MudForm form;
+        
         protected override async Task OnInitializedAsync()
         {
             //if(userState.UserId == null)
@@ -33,15 +42,21 @@ namespace MiniShopApp.Pages.Products
 
             //userId =userState.OnUserIdChanged.ToString();
             //await CreateProduct();
+            await GetCategory();
+
             await base.OnInitializedAsync();
         }
-
+        private async Task GetCategory()
+        {
+            var result = await categoryListService.GetAllAsync();
+            categories = result.ToList();
+        }
         protected async Task CreateProduct()
         {
             try
             {
                 alert = null;
-         
+                await HandleValidSubmit();
                 var result = await productService.CreateAsync(model);
                 if (string.IsNullOrEmpty(result))
                 {

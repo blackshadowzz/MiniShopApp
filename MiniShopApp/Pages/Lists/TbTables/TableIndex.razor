@@ -5,35 +5,35 @@
 <div class="mt-3">
     <div class="d-flex justify-content-between mb-2">
         <h5>Table list</h5>
-        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="Createtable">Create</MudButton>
+        
     </div>
-    <table class="table caption-top table-bordered table-hover table-responsive">
-        <thead>
-            <tr>
-                <th width="10%">No</th>
-                <th>Table number</th>
-                <th>Descriptions</th>
-                <th width="20%" class="text-end">Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach(var _data in model)
-            {
-                <tr>
-                    <th>@_data.TableId</th>
-                    <th>@_data.TableNumber</th>
-                    <th>@_data.Description</th>
-                    <th class="text-end">
-                        <MudIconButton Icon="@Icons.Material.Filled.Edit" aria-label="edit" Color="Color.Info" Size="Size.Small" OnClick="@(() => Update(_data.TableId))">
-                        </MudIconButton>
-                        <MudIconButton Icon="@Icons.Material.Filled.Delete" aria-label="remove" Color="Color.Error" Size="Size.Small">
-                        </MudIconButton>
-
-                    </th>
-                </tr>
-            }
-        </tbody>
-    </table>
+    <MudTable Items="@model" Filter="FilterFunc1" Bordered="true">
+        <ToolBarContent>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="Createtable">Create</MudButton>
+            <MudSpacer />
+            <MudTextField @bind-Value="searchString" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+        </ToolBarContent>
+        <HeaderContent>
+            <MudTh>ID</MudTh>
+            <MudTh>Table Number</MudTh>
+            <MudTh>Descriptions</MudTh>
+            <MudTh>actions</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Nr">@context.TableId</MudTd>
+            <MudTd DataLabel="Sign">@context.TableNumber</MudTd>
+            <MudTd DataLabel="Name">@context.Description</MudTd>
+            <MudTd>
+                <MudMenu Icon="@Icons.Material.Filled.MoreVert" Variant="Variant.Text" Size=Size.Small EndIcon="@Icons.Material.Filled.KeyboardArrowDown">
+                    <MudMenuItem OnClick="@(() => Update(context.TableId))" Label="Edit" />
+                    <MudMenuItem OnClick="@(() => remove(context.TableId))" Label="Delete" />
+                </MudMenu>
+            </MudTd>
+        </RowTemplate>
+        <PagerContent>
+            <MudTablePager />
+        </PagerContent>
+    </MudTable>
 </div>
 
 
