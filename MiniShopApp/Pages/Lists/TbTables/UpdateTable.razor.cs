@@ -33,8 +33,11 @@ namespace MiniShopApp.Pages.Lists.TbTables
                 var result = await _context.UpdateAsync(data, iTemid);
                 if (result != false)
                 {
+                    SnackbarService.Add("Table updated successfully.", Severity.Success);
+                    model = new TbTable(); // Reset the model after successful update
                     Submit();
                 }
+                SnackbarService.Add("Table update failed.", Severity.Error);
                 Cancel();
             }
         }

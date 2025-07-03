@@ -95,16 +95,19 @@ namespace MiniShopApp.Pages.Lists.Categories
                     {
                         var tables = await _context.GetAllAsync(_filter);
                         model = tables.ToList();
+                        SnackbarService.Add("Category deleted successfully.", Severity.Success);
                         StateHasChanged();
                     }
                     else
                     {
+                        SnackbarService.Add("Failed to delete the category.", Severity.Error);
                         throw new Exception("Failed to delete the category.");
                     }
                 }
             }
             catch (Exception ex)
             {
+                SnackbarService.Add("Error deleting category: " + ex.Message, Severity.Error);
                 throw new Exception($"Error deleting category: {ex.Message}");
             }
 

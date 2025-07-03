@@ -28,13 +28,17 @@ namespace MiniShopApp.Pages.Lists.TbTables
                 var result = await tableService.CreateAsync(model);
                 if (string.IsNullOrEmpty(result))
                 {
+                    SnackbarService.Add("Table creation failed.", Severity.Error);
                     throw new Exception("creation failed.");
+                    
                 }
                 model = new TbTable();
+                SnackbarService.Add("Table created successfully.", Severity.Success);
                 Submit();
             }
             catch(Exception ex)
             {
+                SnackbarService.Add("Error creating table: " + ex.Message, Severity.Error);
                 throw new Exception("Error creating", ex);
             }
         }

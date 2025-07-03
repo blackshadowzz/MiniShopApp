@@ -12,7 +12,6 @@ namespace MiniShopApp.Pages.Lists.Categories
         {
             _categoryService = categoryService;
         }
-        [Inject] private ISnackbar Snackbar { get; set; } = default!;
         [CascadingParameter]
         private IMudDialogInstance MudDialog { get; set; }
         private void Submit() => MudDialog.Close(DialogResult.Ok(true));
@@ -38,15 +37,16 @@ namespace MiniShopApp.Pages.Lists.Categories
                     var result = await _categoryService.UpdateAsync(model, iTemid);
                     if (result != true)
                     {
-                        Snackbar.Add("Update failed", Severity.Error);
+                        SnackbarService.Add("Update failed", Severity.Error);
                         throw new Exception("Update failed.");
                     }
-                    Snackbar.Add("Category updated successfully", Severity.Success);
+                    SnackbarService.Add("Category updated successfully", Severity.Success);
                     Submit();
                 }
             }
             catch (Exception ex)
             {
+                SnackbarService.Add("Error updating", Severity.Error);
                 throw new Exception("Error updating", ex);
             }
 

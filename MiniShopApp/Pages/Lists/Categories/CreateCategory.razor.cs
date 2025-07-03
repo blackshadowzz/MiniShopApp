@@ -12,7 +12,6 @@ namespace MiniShopApp.Pages.Lists.Categories
         {
             _categoryService = categoryService;
         }
-        [Inject] private ISnackbar Snackbar { get; set; } = default!;
         [CascadingParameter]
         private IMudDialogInstance MudDialog { get; set; }
         private void Submit() => MudDialog.Close(DialogResult.Ok(true));
@@ -25,15 +24,16 @@ namespace MiniShopApp.Pages.Lists.Categories
                 var result = await _categoryService.CreateAsync(model);
                 if (result.IsSuccess!=true)
                 {
-                    Snackbar.Add("Creation failed", Severity.Error);
+                    SnackbarService.Add("Creation failed", Severity.Error);
                     throw new Exception("creation failed.");
                 }
                 model = new Category();
-                Snackbar.Add("Category created successfully", Severity.Success);
+                SnackbarService.Add("Category created successfully", Severity.Success);
                 Submit();
             }
             catch (Exception ex)
             {
+                SnackbarService.Add("Error creating", Severity.Error);
                 throw new Exception("Error creating", ex);
             }
         }
