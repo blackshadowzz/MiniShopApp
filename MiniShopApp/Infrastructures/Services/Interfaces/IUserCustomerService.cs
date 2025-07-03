@@ -1,5 +1,5 @@
 ﻿using Helpers.Responses;
-using MiniShopApp.Models;
+using MiniShopApp.Models.Customers;
 
 namespace MiniShopApp.Infrastructures.Services.Interfaces
 {

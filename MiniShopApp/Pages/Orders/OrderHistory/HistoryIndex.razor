@@ -1,8 +1,148 @@
 ﻿@page "/order/histories/{userId:long?}"
-@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
 @layout MainLayout2
-@rendermode InteractiveServer
+@using MiniShopApp.Models.Orders
+@using MudBlazor
+
 <PageTitle>Order Histories</PageTitle>
-<div class="mt-3">
-    <h4 class="mb-3">This feature not available now</h4>
-</div>
+
+@if (IsLoading)
+{
+    <MudProgressCircular Indeterminate="true" Color="Color.Primary" />
+}
+else if (!string.IsNullOrEmpty(ErrorMessage))
+{
+    <MudAlert Severity="Severity.Error">@ErrorMessage</MudAlert>
+}
+else if (Orders?.Any() == true)
+{
+
+        var now = DateTime.Now;
+        var today = now.Date;
+        var yesterday = today.AddDays(-1);
+
+        var todayOrders = Orders.Where(o => o.CreatedDT?.Date == today).OrderByDescending(o => o.CreatedDT).ToList();
+        var yesterdayOrders = Orders.Where(o => o.CreatedDT?.Date == yesterday).OrderByDescending(o => o.CreatedDT).ToList();
+        var thisMonthOrders = Orders.Where(o =>
+            o.CreatedDT?.Year == now.Year &&
+            o.CreatedDT?.Month == now.Month &&
+            o.CreatedDT?.Date != today &&
+            o.CreatedDT?.Date != yesterday
+        ).OrderByDescending(o => o.CreatedDT).ToList();
+        var thisYearOrders = Orders.Where(o =>
+            o.CreatedDT?.Year == now.Year &&
+            o.CreatedDT?.Month != now.Month
+        ).OrderByDescending(o => o.CreatedDT).ToList();
+        var earlierOrders = Orders.Where(o =>
+            o.CreatedDT?.Year < now.Year
+        ).OrderByDescending(o => o.CreatedDT).ToList();
+
+
+    <MudStack Spacing="3">
+        @if (todayOrders.Any())
+        {
+            <MudText Typo="Typo.h6" Color="Color.Primary">Today</MudText>
+            @foreach (var order in todayOrders)
+            {
+                @OrderCard(order)
+            }
+        }
+        @if (yesterdayOrders.Any())
+        {
+            <MudText Typo="Typo.h6" Color="Color.Secondary">Yesterday</MudText>
+            @foreach (var order in yesterdayOrders)
+            {
+                @OrderCard(order)
+            }
+        }
+        @if (thisMonthOrders.Any())
+        {
+            <MudText Typo="Typo.h6" Color="Color.Info">This Month</MudText>
+            @foreach (var order in thisMonthOrders)
+            {
+                @OrderCard(order)
+            }
+        }
+        @if (thisYearOrders.Any())
+        {
+            <MudText Typo="Typo.h6" Color="Color.Tertiary">This Year</MudText>
+            @foreach (var order in thisYearOrders)
+            {
+                @OrderCard(order)
+            }
+        }
+        @if (earlierOrders.Any())
+        {
+            <MudText Typo="Typo.h6" Color="Color.Default">Earlier</MudText>
+            @foreach (var order in earlierOrders)
+            {
+                @OrderCard(order)
+            }
+        }
+    </MudStack>
+}
+else
+{
+    <MudText>No orders found.</MudText>
+}
+
+@code {
+    RenderFragment OrderCard(ViewTbOrders order) => @<MudPaper Class="pa-2 mb-1" Elevation="2" Style="max-width: 500px;">
+        <MudStack Row=true Justify="Justify.SpaceBetween">
+        <MudText Typo="Typo.subtitle2" Color="Color.Primary">Order #@order.OrderCode</MudText>
+        
+        <MudText Typo="Typo.subtitle2" Color="Color.Secondary">@order.CreatedDT?.ToString("dd/MMM/yyyy h:mm tt")</MudText>
+        </MudStack>
+        <MudText Typo="Typo.body2">Table No: @order.TableNumber</MudText>
+        <MudText Typo="Typo.body2">Total Item: @order.ItemCount</MudText>
+        <MudStack Row Justify="Justify.SpaceBetween">
+            <MudText Typo="Typo.subtitle1" Class="text-danger">Total Price: @order.TotalPrice?.ToString("C2")</MudText>
+        @if (order.OrderStatus == Statuses.Paid.ToString())
+                {
+        <MudText Typo="Typo.subtitle2" Color="Color.Success">@order.OrderStatus</MudText>
+
+                }
+                else if (order.OrderStatus == Statuses.Canceled.ToString())
+                {
+        <MudText Typo="Typo.subtitle2" Color="Color.Info">@order.OrderStatus</MudText>
+
+                }
+                else
+                {
+        <MudText Typo="Typo.subtitle2" Color="Color.Secondary">@order.OrderStatus</MudText>
+
+                }
+        </MudStack>
+        
+
+        <MudDivider Class="my-2" />
+        <MudSimpleTable Dense="true" Hover="true" >
+        <tbody>
+        @foreach (var detail in order.TbOrderDetails ?? Enumerable.Empty<ViewTbOrderDetails>())
+            {
+                
+                <tr>
+                    <td>@detail.ItemName</td>
+                    <td>@detail.Quantity</td>
+                    <td>@detail.Price?.ToString("c2")</td>
+                <td>@detail.TotalPrice?.ToString("c2")</td>
+                </tr>
+                
+            }
+        </tbody>
+    </MudSimpleTable>
+       
+        @if (!string.IsNullOrWhiteSpace(order.Notes))
+        {
+            <MudText Typo="Typo.caption" Color="Color.Info">Notes: @order.Notes</MudText>
+        }
+    </MudPaper>;
+}
+
+@* <MudList Dense="true" T="ViewTbOrderDetails">
+    @foreach (var detail in order.TbOrderDetails ?? Enumerable.Empty<ViewTbOrderDetails>())
+    {
+        <MudListItem>
+            <MudText>@detail.ItemName x @detail.Quantity = @detail.TotalPrice?.ToString("C2")</MudText>
+        </MudListItem>
+    }
+</MudList> *@

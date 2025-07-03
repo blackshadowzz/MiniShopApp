@@ -5,6 +5,8 @@ using MiniShopApp.Data;
 using MiniShopApp.Data.TelegramStore;
 using MiniShopApp.Infrastructures.Services.Implements;
 using MiniShopApp.Models;
+using MiniShopApp.Models.Customers;
+using MiniShopApp.Models.Settings;
 using System.Threading;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
@@ -61,29 +63,51 @@ namespace MiniShopApp
             await _botClient.LogOut();
 
         }
-        
+        protected async Task<string> GetWebURLAsync()
+        {
+            await using var context = await dbContext.CreateDbContextAsync();
+            var reult= await context.TbTelegramBotTokens.FirstOrDefaultAsync();
+            if (reult != null)
+            {
+                return reult.WebAppUrl!;
+            }
+            return "";
+        }
         private async Task OnMessage(ITelegramBotClient telegramBot, Update update, CancellationToken cancellationToken)
         {
             try
             {
-                //string webappUrl = "https://minishopapp.runasp.net/index";
+                string url = await GetWebURLAsync();
+                var webURL=url+ $"/index?userid={update.Message!.Chat.Id}";
                 string webappUrl = $"https://minishopapp.runasp.net/index?userid={update.Message!.Chat.Id}";
-
+                //var groupId=update.Message.MediaGroupId;
                 //userState.UserId = update.Message!.Chat.Id;
                 if (update.Message!.Text == "/start")
                 {
 
+                    await _botClient.SetChatMenuButton(
+                             chatId: update.Message.Chat.Id,
+                             menuButton: new MenuButtonWebApp
+                             {
+                                 Text = "Open App",
+                                 WebApp = new WebAppInfo { Url = webURL }
+                             }
 
+                         );
                     await _botClient.SendMessage(
                         update.Message.Chat.Id,
                         $"Welcome to our Mini App Online! {update.Message.Chat.FirstName}\n\n" +
                         $"Our Mini App still developing while you testing if has some errors, please feedback to us by type or click command /feedback. \n" +
-                        $"\nThank you for testing! (_._) Click Open App",
+                        $"\nThanks for testing! (_._) Click Open App",
                         replyMarkup: new InlineKeyboardButton[]
                             {
-                            InlineKeyboardButton.WithWebApp("Open App",webappUrl),
-
+                            InlineKeyboardButton.WithWebApp("Open App",webURL),
+                           
+                            
+                           
                             }
+                           
+                        
 
 
                             );
@@ -118,7 +142,7 @@ namespace MiniShopApp
                         "Thank you!!!",
                         replyMarkup: new InlineKeyboardButton[]
                             {
-                            InlineKeyboardButton.WithWebApp("Open App",webappUrl),
+                            InlineKeyboardButton.WithWebApp("Open App",webURL),
 
                             }
 
@@ -133,6 +157,54 @@ namespace MiniShopApp
                                 InlineKeyboardButton.WithUrl("Send us feedback", "https://t.me/Mangry_off"),
                             }
                             );
+                }
+                else if (update.Message.Text == "/setgroupid")
+                {
+                    //this command working on group only
+                    if (update.Message.Chat.Type == ChatType.Group || update.Message.Chat.Type == ChatType.Supergroup)
+                    {
+                        long groupId = update.Message.Chat.Id;
+                        await using var context = await dbContext.CreateDbContextAsync();
+                        var result= await context.TbTelegramGroups.AsNoTracking().FirstOrDefaultAsync(x=>x.GroupId==groupId);
+                        if (result != null)
+                        {
+                            await _botClient.SendMessage(
+                                chatId: groupId,
+                                text: $"This group already set!!!"
+                            );
+                            return;
+                        }
+                        var data = new TbTelegramGroup
+                        {
+                            GroupId = groupId,
+                            GroupName = update.Message.Chat.Title,
+                            TelegramUserId=update.Message.From?.Id,
+                            Description= $"This group's ID is: {groupId} Group Name: {update.Message.Chat.Title}",
+                            IsActive=true
+                        };
+                        context.TbTelegramGroups.Add(data);
+                        var row= await context.SaveChangesAsync();
+                        if (row > 0)
+                        {
+                            await _botClient.SendMessage(
+                                chatId: groupId,
+                                text: $"This group was set to system succeed!!!"
+                            );
+                        }
+                    }
+                    else
+                    {
+                        await _botClient.SendMessage(
+                            chatId: update.Message.Chat.Id,
+                            text: "This command only works in groups."
+                        );
+                    }
+                }else if (update.Message.Text == "/paid")
+                {
+                    //delete all user data in bot and delete bot after user use command /paid
+                    //var chatId = update.Message.Chat.Id;
+                    //var messageId = update.Message.MessageId;
+                    //await _botClient.DeleteMessage(chatId,messageId);
                 }
                 else
                 {
@@ -175,17 +247,20 @@ namespace MiniShopApp
                 if(existingUser != null)
                 {
                     existingUser.LastLoginDT = DateTime.Now;
+                    existingUser.CustomerType = "Telegram";
+
                     context.Update(existingUser);
 
                 }
                 else
                 {
-                   
+
                     // Create a new user customer if it doesn't exist
                     context.TbUserCustomers.Add(new UserCustomer
                     {
-                        
+
                         CustomerId = update.Message.Chat.Id,
+                        CustomerType = "Telegram",
                         FirstName = update.Message.Chat.FirstName,
                         LastName = update.Message.Chat.LastName,
                         UserName = update.Message.Chat.Username,

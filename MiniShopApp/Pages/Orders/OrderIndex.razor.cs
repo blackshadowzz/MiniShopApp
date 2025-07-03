@@ -28,6 +28,7 @@ namespace MiniShopApp.Pages.Orders
            
         }
         protected List<ViewProductOrders> _products = [];
+        protected List<ViewProductOrders> _productsStore = [];
         protected List<TbOrderDetails> orderDetails = [];
         protected OrderCreateModel order = new OrderCreateModel();
         private string? _filter = null;
@@ -41,25 +42,26 @@ namespace MiniShopApp.Pages.Orders
             customerId =userId?.ToString();
             
             await FilterProducts();
-            //GetCustomerData();
-
+            _products = _productsStore;
             await base.OnInitializedAsync();
         }
         
         protected async void OnGetSearchRefresh()
         {
             await FilterProducts(_filter);
+            StateHasChanged();
+            IsLoading = false;
         }
         protected async Task FilterProducts(string? filter = null)
         {
-            IsLoading = true;
+            
             try
             {
-                
+                IsLoading = true;
                 _filter = filter;
                 var products = await productService.GetOrderAllAsync(_filter);
                 if(products.IsSuccess) {
-                    _products = products.Data!.OrderByDescending(x=>x.CategoryName).ToList();
+                    _productsStore = products.Data!.OrderByDescending(x=>x.CategoryName).ToList();
                     IsLoading = false;
                 }
                 else
@@ -69,7 +71,7 @@ namespace MiniShopApp.Pages.Orders
                     Console.WriteLine($"Error fetching products: {products.Errors}");
                     IsLoading = false;
                 }
-                
+                IsLoading = false;
             }
             catch (Exception ex)
             {
@@ -83,8 +85,12 @@ namespace MiniShopApp.Pages.Orders
         {
             try
             {
-                _filter = e.Value?.ToString(); 
-                await FilterProducts(_filter);
+                _filter = e.Value?.ToString();
+                var products = await productService.GetOrderAllAsync(_filter);
+                if (products.IsSuccess)
+                {
+                    _products = products.Data!.OrderByDescending(x => x.CategoryName).ToList();
+                }
                 StateHasChanged();
                 // Simulate async operation
             }
@@ -225,6 +231,37 @@ namespace MiniShopApp.Pages.Orders
         {
 
         }
+        async Task<bool> ValidatedProduct()
+        {
+            await FilterProducts();
+            foreach (var x in orderDetails)
+            {
+                var item = _productsStore.Where(p => p.Id == x.ItemId).FirstOrDefault();
+                if (item!.IsActive == false)
+                {
+                    // SnackbarService.Add($"This item {x.ItemName} not available to order now, some ingredients not enough.", MudBlazor.Severity.Info);
+                    var pro = await DialogService.ShowMessageBox(
+                        "Confirmation",
+                        $"This item [{x.ItemName}] not available to order now, some ingredients not enough. please remove from ordered list!",
+                        "Remove", "No");
+                    if (pro == true)
+                    {
+                        var detail = orderDetails.Where(x => x.ItemId == x.ItemId).First();
+                        orderDetails.Remove(detail);
+                        var itemlist = _products.Where(p => p.Id == item.Id).FirstOrDefault();
+
+                        itemlist!.QTYIncrease = 0;
+                        itemlist.IsActive = false;
+                        IsLoading = false;
+                        StateHasChanged();
+                        return false;
+
+                    }
+                    return false;
+                }
+            }
+            return true;
+        }
         protected async Task PlaceOrderAsync()
         {
             
@@ -251,20 +288,23 @@ namespace MiniShopApp.Pages.Orders
 
                 if (!string.IsNullOrEmpty(customerId))
                 {
-                    Console.WriteLine($"\n\n Customer ID: {customerId} \n\n");
-                    order.CustomerId = long.Parse(customerId);
-                    order.ItemCount = orderDetails.Count;
-                    order.SubPrice = orderDetails.Sum(od => od.TotalPrice);
-                    order.DiscountPrice = 0;
-                    order.TotalPrice = order.SubPrice - order.DiscountPrice;
-                    
-                    order.CreatedDT = DateTime.Now;
-                    order.TbOrderDetails = orderDetails;
-                    // Save order to local storage
-                    await localStorage.SetAsync("orderToCreate", order);
-                    //OrderCreatePage orderCreatePage = new OrderCreatePage(order);
-                    IsLoading= false;
-                    navigation.NavigateTo($"/orders/create/{userId}");
+                    if (await ValidatedProduct() == true)
+                    {
+                        Console.WriteLine($"\n\n Customer ID: {customerId} \n\n");
+                        order.CustomerId = long.Parse(customerId);
+                        order.ItemCount = orderDetails.Count;
+                        order.SubPrice = orderDetails.Sum(od => od.TotalPrice);
+                        order.DiscountPrice = 0;
+                        order.TotalPrice = order.SubPrice - order.DiscountPrice;
+
+                        order.CreatedDT = DateTime.Now;
+                        order.TbOrderDetails = orderDetails;
+                        // Save order to local storage
+                        await localStorage.SetAsync("orderToCreate", order);
+                        //OrderCreatePage orderCreatePage = new OrderCreatePage(order);
+                        IsLoading = false;
+                        navigation.NavigateTo($"/orders/create/{userId}");
+                    }
                 }
                 else
                 {

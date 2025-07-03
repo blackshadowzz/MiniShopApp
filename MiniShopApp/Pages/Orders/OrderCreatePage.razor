@@ -3,9 +3,30 @@
 @rendermode InteractiveServer
 @using MiniShopApp.Models.Orders
 <PageTitle>Create Order</PageTitle>
-
+<style>
+    .mud-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: transparent; /* light white overlay */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1300; /* ensure it layers over MudDrawer and AppBar */
+    }
+</style>
 <div>
-    
+    @if (IsLoading == true)
+    {
+        <MudPaper Class="mud-overlay" Elevation="0" Square="true">
+            <MudProgressCircular Indeterminate="true" Color="Color.Primary" />
+            <br/>
+            <MudText Typo="Typo.h6" Class="mx-2">Processing, please wait...</MudText>
+        </MudPaper>
+
+    }
     <table class="table table-hover table-responsive table-sm caption-top">
         <caption>Order details</caption>
         <thead>
@@ -14,7 +35,7 @@
                 <th scope="col">Quantity</th>
                 <th scope="col">Price</th>
                 <th scope="col">T.Price</th>
-                <th scope="col" style="width:35px">
+                <th scope="col" style="width:30px">
                     <MudIcon Icon="@Icons.Material.Filled.RemoveShoppingCart" Size=Size.Small Title="Favorite" />
                     </th>
             </tr>
@@ -80,12 +101,7 @@
             OnClick="HandleValidSubmit">Confirm Order</MudButton>
         </div>
     </MudForm>
-    @if (IsLoading == true)
-    {
-        <div class="text-center">
-            <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
-        </div>
-    }
+
 </div>
 
 @code{

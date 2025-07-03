@@ -1,0 +1,125 @@
+﻿@page "/Customers/list"
+@using MiniShopApp.Models.Customers
+@layout MainLayout
+<PageTitle>Customers</PageTitle>
+
+<MudPaper Class="pa-4">
+    <MudDataGrid @ref="dataGrid" T="ViewUserCustomers" ServerData="ServerReload" Filterable="false">
+        <ToolBarContent>
+            <MudText Typo="Typo.h6">Customer list</MudText>
+            <MudSpacer />
+            <MudTextField T="string" ValueChanged="@(s => OnSearch(s))" Placeholder="Search" Adornment="Adornment.Start"
+                          AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+        </ToolBarContent>
+        <Columns>
+            <PropertyColumn Property="x => x.CustomerId" Title="CustomerId" Sortable="true"/>
+            <PropertyColumn Property="x => x.CustomerType" Title="Type" Sortable="true" />
+            <PropertyColumn Property="x => x.FirstName" Sortable="true" />
+            <PropertyColumn Property="x => x.LastName" Sortable="true" />
+            <PropertyColumn Property="x => x.UserName" Sortable="true" />
+            <PropertyColumn Property="x => x.phoneNumber" Title="Phone" Sortable="true" />
+
+            <PropertyColumn Property="x => x.loginDateTime" Title="Login" />
+            
+            <PropertyColumn Property="x => x.Id" Title="More" Sortable="false">
+                <CellTemplate>
+                   
+                </CellTemplate>
+            </PropertyColumn>
+        </Columns>
+        <PagerContent>
+            <MudDataGridPager T="ViewUserCustomers" />
+        </PagerContent>
+    </MudDataGrid>
+</MudPaper>
+
+@code {
+    MudDataGrid<ViewUserCustomers> dataGrid;
+    string searchString = null;
+
+    /// <summary>
+    /// Here we simulate getting the paged, filtered and ordered data from the server
+    /// </summary>
+    private async Task<GridData<ViewUserCustomers>> ServerReload(GridState<ViewUserCustomers> state)
+    {
+        IEnumerable<ViewUserCustomers> data = customers;
+        await Task.Delay(300);
+        data = data.Where(element =>
+        {
+            if (string.IsNullOrWhiteSpace(searchString))
+                return true;
+            if (element.CustomerId.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                return true;
+            if (element.UserName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                return true;
+            if ($"{element.FirstName} {element.CustomerType} {element.LastName}".Contains(searchString))
+                return true;
+            return false;
+        }).ToArray();
+        var totalItems = data.Count();
+
+        var sortDefinition = state.SortDefinitions.FirstOrDefault();
+        if (sortDefinition != null)
+        {
+            switch (sortDefinition.SortBy)
+            {
+                case nameof(ViewUserCustomers.CustomerType):
+                    data = data.OrderByDirection(
+                        sortDefinition.Descending ? SortDirection.Descending : SortDirection.Ascending,
+                        o => o.CustomerType
+                    );
+                    break;
+                case nameof(ViewUserCustomers.UserName):
+                    data = data.OrderByDirection(
+                        sortDefinition.Descending ? SortDirection.Descending : SortDirection.Ascending,
+                        o => o.UserName
+                    );
+                    break;
+                case nameof(ViewUserCustomers.CustomerId):
+                    data = data.OrderByDirection(
+                        sortDefinition.Descending ? SortDirection.Descending : SortDirection.Ascending,
+                        o => o.CustomerId
+                    );
+                    break;
+                case nameof(ViewUserCustomers.FirstName):
+                    data = data.OrderByDirection(
+                        sortDefinition.Descending ? SortDirection.Descending : SortDirection.Ascending,
+                        o => o.FirstName
+                    );
+                    break;
+                case nameof(ViewUserCustomers.LastName):
+                    data = data.OrderByDirection(
+                        sortDefinition.Descending ? SortDirection.Descending : SortDirection.Ascending,
+                        o => o.LastName
+                    );
+                    break;
+                default:
+                    var sortByColumn = dataGrid.RenderedColumns.First(c => c.PropertyName == sortDefinition.SortBy);
+                    switch (sortByColumn.Title)
+                    {
+                        case nameof(ViewUserCustomers.FirstName):
+                            data = data.OrderByDirection(
+                                sortDefinition.Descending ? SortDirection.Descending : SortDirection.Ascending,
+                                o => o.FirstName
+                            );
+                            break;
+                    }
+                    break;
+            }
+        }
+
+        var pagedData = data.Skip(state.Page * state.PageSize).Take(state.PageSize).ToArray();
+        return new GridData<ViewUserCustomers>
+        {
+            TotalItems = totalItems,
+            Items = pagedData
+        };
+    }
+
+    private Task OnSearch(string text)
+    {
+        searchString = text;
+        return dataGrid.ReloadServerData();
+    }
+}
+

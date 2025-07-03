@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using MiniShopApp.Data;
 using MiniShopApp.Data.TelegramStore;
 using MiniShopApp.Infrastructures.Services.Interfaces;
-using MiniShopApp.Models;
+using MiniShopApp.Models.Customers;
 using Telegram.Bot;
 using Telegram.Bot.Types.ReplyMarkups;
 
@@ -23,15 +23,27 @@ namespace MiniShopApp.Infrastructures.Services.Implements
             this.logger = logger;
             this.botClient = botClient;
         }
-
+        protected async Task<string> GetWebURLAsync()
+        {
+            await using var context = await contextFactory.CreateDbContextAsync();
+            var reult = await context.TbTelegramBotTokens.FirstOrDefaultAsync();
+            if (reult != null)
+            {
+                return reult.WebAppUrl!;
+            }
+            return "";
+        }
         public async Task<Result<string>> CreateUserAlertAsync(List<CustomerAlertMessege> alertMesseges)
         {
             try
             {
                 if (alertMesseges!.Count > 0)
                 {
+                   
                     foreach (var user in alertMesseges)
                     {
+                        string url = await GetWebURLAsync();
+                        var webURL = url + $"/index?userid={user.CustomerId}";
                         await botClient.SendMessage(user.CustomerId!, $"Hi {user.FirstName}! we missing u :)\n\n" +
                         $"{user.AlertMessege}\r\n\n" +
                         "Our App:\n" +
@@ -41,7 +53,7 @@ namespace MiniShopApp.Infrastructures.Services.Implements
                         "Thank you!!!",
                         replyMarkup: new InlineKeyboardButton[]
                             {
-                            InlineKeyboardButton.WithWebApp("Open App",$"https://minishopapp.runasp.net/index?userid={user.CustomerId}"),
+                            InlineKeyboardButton.WithWebApp("Open App",webURL),
 
                             }
 
@@ -55,7 +67,7 @@ namespace MiniShopApp.Infrastructures.Services.Implements
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Error retrieving user customers with filter: {Filter}", alertMesseges);
+                logger.LogError($"User Count: {alertMesseges.Count}"+ "Error retrieving user customers with filter: {Filter}", ex.Message);
                 return Result.Failure<string>(ErrorResponse.ServerError(ex.Message));
             }
         }
@@ -108,6 +120,7 @@ namespace MiniShopApp.Infrastructures.Services.Implements
                     {
                         Id = c.Id,
                         CustomerId = c.CustomerId,
+                        CustomerType = c.CustomerType,
                         FirstName = c.FirstName,
                         LastName = c.LastName,
                         UserName = c.UserName,

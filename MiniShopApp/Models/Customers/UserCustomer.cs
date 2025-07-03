@@ -1,12 +1,13 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace MiniShopApp.Models
+namespace MiniShopApp.Models.Customers
 {
     public class UserCustomer
     {
         public int Id { get; set; }
         public long CustomerId { get; set; }
+        public string? CustomerType { get; set; }
         public string? FirstName { get; set; }
         public string? LastName { get; set; }
         public string? UserName { get; set; }
@@ -18,6 +19,8 @@ namespace MiniShopApp.Models
     {
         public int Id { get; set; }
         public long CustomerId { get; set; }
+        public string? CustomerType { get; set; }
+
         public string? FirstName { get; set; }
         public string? LastName { get; set; }
         public string? UserName { get; set; }

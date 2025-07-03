@@ -1,0 +1,354 @@
+﻿@page "/page/orders/create"
+@using MiniShopApp.Models.Items
+@using MiniShopApp.Models.Orders
+@layout MainLayout
+<PageTitle>New Order</PageTitle>
+@if (IsLoading)
+{
+    <MudProgressLinear Color="Color.Primary" Indeterminate="true" />
+}
+<MudGrid>
+    <!-- Scrollable item list -->
+    <MudItem xs="12" sm="8">
+        <MudStack Row Justify="Justify.SpaceBetween" StretchItems="StretchItems.All">
+            <MudSelect 
+                        T="string"
+                       Variant="Variant.Text"
+                       Label="Category"
+                       Dense=true
+                       ValueChanged="@((e)=>OnCategoryChanged(e))"
+                       OnClearButtonClick="OnGetSearchRefresh"
+                       Clearable="true">
+                <MudSelectItem T="string" Value="@("Food")">Food</MudSelectItem>
+                <MudSelectItem T="string" Value="@("Drink")">Drink</MudSelectItem>
+               @*  @foreach (var state in viewCustomerTypes)
+                {
+                    <MudSelectItem T="long" Value="state.Id">@state.TypeName</MudSelectItem>
+                } *@
+            </MudSelect>
+            <div class="input-group mb-3">
+                <input type="text"
+                       class="form-control"
+                       @bind-value="_filter"
+                       @oninput="@((e) => OnSearch(e))"
+                       placeholder="Search here..."
+                       aria-describedby="button-addon2" />
+                <button class="btn btn-outline-secondary" @onclick="OnGetSearchRefresh" type="button" id="button-addon2"><i class="bi bi-search"></i></button>
+            </div>
+        </MudStack>
+        
+        <div style="max-height: 80vh; overflow-y: auto;">
+            @if (LoadingProducts)
+            {
+                <MudProgressLinear Color="Color.Primary" Indeterminate="true" />
+            }
+            else
+            {
+                <MudGrid Class="mt-1">
+                    @foreach (var list in _products)
+                    {
+                        <MudItem>
+                            <MudCard Elevation="2" Style="width:160px;max-width:250px">
+                                @if (list?.QTYIncrease > 0)
+                                {
+                                    <MudBadge Content="@list.QTYIncrease" Color="Color.Secondary" Overlap="true">
+                                        <MudIcon Icon="@Icons.Material.Filled.AddShoppingCart" Color="Color.Secondary" />
+                                    </MudBadge>
+
+                                }
+                                <MudCardMedia Image="/images/MiniLogo.jpg" Height="120" @onclick="@(() => GetItemDetails(list!.Id))" />
+                                <MudCardContent Class="p-0">
+
+                                    <MudText Class="pl-2" @onclick="@(() => GetItemDetails(list!.Id))">@list?.ProductName</MudText>
+                                    <MudText Class="pl-2" @onclick="@(() => GetItemDetails(list!.Id))" Typo="Typo.subtitle1" Color="Color.Secondary">@list?.Price?.ToString("c2")</MudText>
+                                    <MudStack Row Justify="Justify.SpaceBetween">
+                                        @if (list!.IsActive==false)
+                                        {
+                                            <MudText Typo="Typo.body2" Color="Color.Secondary" Class="text-center bg-dark bg-opacity-75 w-100 p-2">Not Available</MudText>
+
+                                        }
+                                        else
+                                        {
+                                            <MudIconButton Icon="@Icons.Material.Outlined.RemoveCircleOutline" OnClick="@(() => DescreasProduct(list!.Id))" Color="Color.Info" Size="Size.Medium" />
+                                            <MudIconButton Icon="@Icons.Material.Outlined.AddCircleOutline" OnClick="@(() => AddProduct(list!.Id))" Color="Color.Primary" Size="Size.Medium" />
+                                        }
+                                       
+                                    </MudStack>
+                                </MudCardContent>
+
+                            </MudCard>
+                        </MudItem>
+                    }
+                </MudGrid>
+               
+
+            }
+        </div>
+    </MudItem>
+
+    <!-- Sticky order summary -->
+    <MudItem xs="12" sm="4">
+        <div style="position: sticky; top: 0;left:0;">
+            <MudStack Row Justify="Justify.FlexStart" Class="mb-2" StretchItems="StretchItems.All">
+                <MudStack StretchItems="StretchItems.All">
+                    <MudSelect @bind-Value="Order.CustomerId"
+                               T="long"
+                               Variant="Variant.Text"
+                               Label="Customer "
+                               Dense=true
+                               Required=true
+                               RequiredError="Select customer is Required"
+                               Placeholder="Select customer"
+                               Clearable="true">
+                        @foreach (var state in viewCustomerTypes)
+                        {
+                            <MudSelectItem T="long" Value="state.Id">@state.TypeName</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudStack>
+
+            </MudStack>
+
+            <MudPaper Width="500px" Elevation="1" Class="p-1 mb-2">
+
+                <MudSimpleTable Dense=true FixedHeader="true" Style="height:300px;">
+                    <thead>
+                        <tr>
+                            <th style="width:8px">#</th>
+                            <th>Name</th>
+                            <th>Qty</th>
+                            <th>Price</th>
+                            <th>Total</th>
+                            <th>-</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in orderDetails)
+                        {
+                            var index = orderDetails.IndexOf(item) + 1;
+                            <tr>
+                                <td>@index</td>
+                                <td>@item.ItemName</td>
+                                <td class="text-end d-flex justify-content-between align-items-center">
+                                    <MudIconButton Icon="@Icons.Material.Outlined.RemoveCircleOutline"
+                                                   OnClick="@(() => DescreasProduct(item.ItemId??default))" Color="Color.Info" Size="Size.Small" />
+                                    @item.Quantity
+                                    <MudIconButton Icon="@Icons.Material.Outlined.AddCircleOutline"
+                                                   OnClick="@(() => AddProduct(item.ItemId??default))" Color="Color.Primary" Size="Size.Small" />
+                                </td>
+                                <td class="text-end"> @String.Format("${0:N2}", @item.Price)</td>
+                                <td class="text-end"> @String.Format("${0:N2}", @item.TotalPrice)</td>
+                                <td class="align-items-center">
+                                    <MudIconButton Icon="@Icons.Material.Outlined.DeleteForever"
+                                                   OnClick="@(() => RemoveProduct(item.ItemId??default))"
+                                                   Color="Color.Info"
+                                                   Size="Size.Small" />
+                                </td>
+                            </tr>
+                        }
+
+                    </tbody>
+                    <tfoot>
+                        <tr class="table-active ">
+                            <th></th>
+                            <th>Total</th>
+                            <th class="text-end"></th>
+                            <th class="text-end"></th>
+                            <th class="text-end text-danger">@String.Format("${0:N2}", @orderDetails?.Sum(x => x.TotalPrice))</th>
+                        </tr>
+                        <tr>
+                            <th></th>
+                            <th></th>
+                            <th class="text-end"></th>
+                            <th class="text-end"></th>
+                            <th class="text-end text-danger table-active">@String.Format("R {0:N2}", @orderDetails?.Sum(x => x.TotalPrice) * 4050)</th>
+                        </tr>
+                    </tfoot>
+                </MudSimpleTable>
+                <MudDivider />
+
+                <MudForm @ref="form" @bind-IsValid="@success" @bind-Errors="@errors">
+                    <MudSelect @bind-Value="Order.TableNumber"
+                               Variant="Variant.Outlined"
+                               Label="Table N0 "
+                               Required=true
+                               RequiredError="Table N0 is Required"
+                               Placeholder="Select table N0"
+                               Clearable="true">
+                        @foreach (var state in tables)
+                        {
+                            <MudSelectItem Value="state.TableNumber">@state.TableNumber</MudSelectItem>
+                        }
+                    </MudSelect>
+
+
+                    <div class="form-floating mt-3">
+                        <textarea class="form-control" @bind="@Order.Notes" placeholder="Leave a note here..." id="floatingTextarea2" style="height: 80px"></textarea>
+                        <label for="floatingTextarea2">Notes</label>
+                    </div>
+
+                    <div class="d-flex align-center justify-space-between mt-4">
+                        <button class="btn btn-secondary" type="button"><i class="bi bi-caret-left-fill"></i> Cancel</button>
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary"
+                                   StartIcon="@Icons.Material.Filled.AddCircleOutline"
+                                   Class="ml-auto"
+                                   OnClick="HandleValidSubmit">Confirm Order</MudButton>
+                    </div>
+                </MudForm>
+            </MudPaper>
+        </div>
+    </MudItem>
+</MudGrid>
+
+
+
+@code{
+    bool success;
+    string[] errors = { };
+    MudForm form;
+    List<TbTable> tables = [];
+    async Task GetItemDetails(int id)
+    {
+        var item = _products.FirstOrDefault(x => x.Id == id);
+        bool? result = await DialogService.ShowMessageBox(
+            $"Details: {item?.ProductName}",
+            (MarkupString)
+            $"Name: {item?.ProductName} <br /> Price: {item?.Price?.ToString("c2")} <br /> Description: {item?.Description} <br /> ");
+        StateHasChanged();
+    }
+    async void OnCategoryChanged(string? text="")
+    {
+        IEnumerable<ViewProductOrders> enumerable = _productsStore.Where(x => x.CategoryName!.Equals(text!));
+        _products = enumerable.ToList();
+        StateHasChanged();
+    }
+    protected async void RemoveProduct(int? proId)
+    {
+        if (proId is not null)
+        {
+            var result = await DialogService.ShowMessageBox(
+                    "Remove",
+                    $"Are you sure to remove this item?",
+                    "Yes", "No");
+            if (result == true)
+            {
+                var prolist = _products.Where(x => x.Id == proId).FirstOrDefault();
+                prolist!.QTYIncrease = 0;
+                var pro = orderDetails!.Where(x => x.ItemId == proId).FirstOrDefault();
+                orderDetails!.Remove(pro!);
+                StateHasChanged();
+            }
+
+        }
+    }
+    async Task<bool> ValidatedProduct()
+    {
+        await FilterProducts();
+        foreach(var x in orderDetails)
+        {
+            var item = _productsStore.Where(p => p.Id == x.ItemId).FirstOrDefault();
+            if (item!.IsActive == false)
+            {
+                // SnackbarService.Add($"This item {x.ItemName} not available to order now, some ingredients not enough.", MudBlazor.Severity.Info);
+                var pro = await DialogService.ShowMessageBox(
+                    "Confirmation",
+                    $"This item [{x.ItemName}] not available to order now, some ingredients not enough. please remove from ordered list!",
+                    "Remove", "No");
+                if (pro == true)
+                {
+                    var detail = orderDetails.Where(x => x.ItemId == x.ItemId).First();
+                    orderDetails.Remove(detail);
+                    var itemlist = _products.Where(p => p.Id == item.Id).FirstOrDefault();
+
+                    itemlist!.QTYIncrease = 0;
+                    itemlist.IsActive = false;
+                    IsLoading = false;
+                    StateHasChanged();
+                    return false;
+
+                }
+                return false;
+            }
+        }
+        return true;
+    }
+    protected async Task HandleValidSubmit()
+    {
+        try
+        {
+            IsLoading = true;
+            if (Order.TableNumber == null)
+            {
+                SnackbarService.Add("Please enter a valid table number.", MudBlazor.Severity.Warning);
+                IsLoading = false;
+
+                // NotificationService.Notify(Radzen.NotificationSeverity.Error, "Invalid Table Number", "Please enter a valid table number.");
+                return;
+            }
+            if (orderDetails == null || !orderDetails.Any())
+            {
+                IsLoading = false;
+
+                SnackbarService.Add("Please back to add at least one item to the order.", MudBlazor.Severity.Warning);
+                return;
+            }
+            if (await ValidatedProduct() == true)
+            {
+                var custType = viewCustomerTypes.Where(x => x.Id == Order.CustomerId).FirstOrDefault();
+
+                var result = await DialogService.ShowMessageBox(
+                    "Confirmation",
+                    $"Are you sure to submit this order with total price: {orderDetails.Sum(x => x.TotalPrice)?.ToString("c2")}?",
+                    "Yes", "No");
+                IsLoading = false;
+                if (result == true)
+                {
+                    IsLoading = true;
+                    
+                    TbOrder order = new TbOrder
+                        {
+                            CustomerType=custType?.TypeName,
+                            CustomerId = Order.CustomerId,
+                            TableNumber = Order.TableNumber,
+                            ItemCount = orderDetails.Count,
+                            SubPrice = orderDetails.Sum(x => x.TotalPrice),
+                            DiscountPrice = Order.DiscountPrice,
+                            TotalPrice = orderDetails.Sum(x => x.TotalPrice),
+                            Notes = Order.Notes,
+                            CreatedDT = DateTime.Now,
+                            TbOrderDetails = orderDetails,
+                        };
+                    var message = await orderService.CreateAsync(order);
+
+                    if (message.IsSuccess)
+                    {
+                        // Clear the order details after successful submission
+                        orderDetails!.Clear();
+                        await FilterProducts();
+                        _products = _productsStore;
+                        Order = new OrderCreateModel(); // Reset the order model
+                        SnackbarService.Add("Your order has been successfully created.", MudBlazor.Severity.Success);
+                        IsLoading = false;
+
+                    }
+                    else
+                    {
+                        IsLoading = false;
+
+                        Console.WriteLine($"Error creating order: {message.Errors}");
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            IsLoading = false;
+
+            // Handle any exceptions that occur during form submission
+            Console.WriteLine($"Error during form submission: {ex.Message}");
+            SnackbarService.Add("An error occurred while creating the order. Please try again." + ex.InnerException!.Message, MudBlazor.Severity.Error);
+            return;
+        }
+
+    }
+}

@@ -11,11 +11,20 @@
 
 
 <MudLayout>
-    <MudAppBar Elevation="1" Dense="false">
+    <MudAppBar Elevation="1" Dense="false" Color="Color.Dark">
         <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
         Mini Order App
         <MudSpacer />
-        <MudSwitch @bind-Value="_isDarkMode" Color="Color.Primary" Class="ma-4" T="bool" Label="Light/Dark" />
+@*         <MudSwitch @bind-Value="_isDarkMode" Color="Color.Primary" Class="ma-4" T="bool" Label="Light/Dark" /> *@
+        <MudToggleIconButton @bind-Toggled="_isDarkMode"
+                             Class="ma-4"
+                             Icon="@Icons.Material.Outlined.LightMode"
+                             Color="@Color.Info"
+                             ToggledIcon="@Icons.Material.Outlined.DarkMode"
+                             ToggledColor="@Color.Success"
+                              >
+           
+                          </MudToggleIconButton>
 
         <MudMenu>
             <ActivatorContent>
@@ -38,8 +47,9 @@
             <MudNavMenu Class="mud-width-full">
                 <MudNavLink Href="/" Icon="@Icons.Material.Filled.Dashboard">Dashboard</MudNavLink>
                 <MudNavGroup Title="Orders" Icon="@Icons.Material.Filled.Lan">
-                    <MudNavLink Href="/orders/views" Icon="@Icons.Material.Filled.Storefront" IconColor="Color.Success">Orders</MudNavLink>
-                    <MudNavLink Icon="@Icons.Material.Filled.ReceiptLong" IconColor="Color.Info">Order Details</MudNavLink>
+                <MudNavLink Href="/page/orders/create" Icon="@Icons.Material.Filled.Storefront" IconColor="Color.Success">New Order</MudNavLink>
+                    <MudNavLink Href="/orders/views/today" Icon="@Icons.Material.Filled.Storefront" IconColor="Color.Success">Order Today</MudNavLink>
+                    <MudNavLink Href="/orders/views" Icon="@Icons.Material.Filled.Storefront" IconColor="Color.Success">Order History</MudNavLink>
                 </MudNavGroup>
                 <MudNavGroup Title="Products" Icon="@Icons.Material.Filled.ListAlt">
                     <MudNavLink Href="/products" Icon="@Icons.Material.Filled.ListAlt" IconColor="Color.Success">Product</MudNavLink>
@@ -48,8 +58,8 @@
                 <MudNavLink Href="/table" Icon="@Icons.Material.Filled.TableBar">Table</MudNavLink>
                 
                 <MudNavGroup Title="Customers" Icon="@Icons.Material.Filled.Groups2">
-                    <MudNavLink Href="/" Icon="@Icons.Material.Filled.Groups3" IconColor="Color.Success">Customer</MudNavLink>
-                    <MudNavLink Href="/" Icon="@Icons.Material.Filled.Security" IconColor="Color.Info">Security</MudNavLink>
+                <MudNavLink Href="/Customers/list" Icon="@Icons.Material.Filled.Groups3" IconColor="Color.Success">Customer</MudNavLink>
+                    <MudNavLink Href="/Customers/Type/list" Icon="@Icons.Material.Filled.Category" IconColor="Color.Info">Customer Type</MudNavLink>
                 </MudNavGroup>
                 <MudNavGroup Title="User management" Icon="@Icons.Material.Filled.Group">
                     <MudNavLink Href="/" Icon="@Icons.Material.Filled.ManageAccounts" IconColor="Color.Success">User</MudNavLink>
@@ -57,8 +67,8 @@
                 </MudNavGroup>
                 <MudNavGroup Title="Settings" Icon="@Icons.Material.Filled.Settings">
                     <MudNavLink Href="/settings/user/customer-log" Icon="@Icons.Material.Filled.LockPerson">Customer log</MudNavLink>
-                    <MudNavLink Href="/" Icon="@Icons.Material.Filled.RoomService" IconColor="Color.Info">Service</MudNavLink>
-                    <MudNavLink Href="/" Icon="@Icons.Material.Filled.Info" IconColor="Color.Info">About</MudNavLink>
+                    <MudNavLink Href="/settings/user/telegram-config" Icon="@Icons.Custom.Brands.Telegram">Telegram</MudNavLink>
+                   
                 </MudNavGroup>
                 
 

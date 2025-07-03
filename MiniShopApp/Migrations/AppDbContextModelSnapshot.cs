@@ -22,6 +22,92 @@ namespace MiniShopApp.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("MiniShopApp.Models.Customers.CustomerType", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime?>("CreatedDT")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("getdate()");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal?>("DiscountRate")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int?>("EditSeq")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
+
+                    b.Property<bool?>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime?>("ModifiedDT")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("getdate()");
+
+                    b.Property<string>("TypeName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("TbCustomerType", (string)null);
+                });
+
+            modelBuilder.Entity("MiniShopApp.Models.Customers.UserCustomer", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<long>("CustomerId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("CustomerType")
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("FirstName")
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime?>("LastLoginDT")
+                        .HasColumnType("datetime");
+
+                    b.Property<string>("LastName")
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("UserName")
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime?>("loginDateTime")
+                        .HasColumnType("datetime");
+
+                    b.Property<string>("phoneNumber")
+                        .HasColumnType("nvarchar(20)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("TbUserCustomers", (string)null);
+                });
+
             modelBuilder.Entity("MiniShopApp.Models.Items.Category", b =>
                 {
                     b.Property<int>("CategoryId")
@@ -31,17 +117,41 @@ namespace MiniShopApp.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CategoryId"));
 
                     b.Property<string>("CategoryName")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CreatedBy")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(max)")
+                        .HasDefaultValueSql("getdate()");
+
+                    b.Property<DateTime?>("CreatedDT")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("EditSeq")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
+
                     b.Property<bool?>("IsActive")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("ModifiedBy")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(max)")
+                        .HasDefaultValueSql("getdate()");
+
+                    b.Property<DateTime?>("ModifiedDT")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("CategoryId");
 
-                    b.ToTable("TbCategories");
+                    b.ToTable("TbCategories", (string)null);
                 });
 
             modelBuilder.Entity("MiniShopApp.Models.Items.Product", b =>
@@ -55,25 +165,49 @@ namespace MiniShopApp.Migrations
                     b.Property<int?>("CategoryId")
                         .HasColumnType("int");
 
-                    b.Property<string>("Description")
+                    b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("CreatedDT")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("getdate()");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)")
+                        .UseCollation("Khmer_100_CI_AI_SC_UTF8");
+
+                    b.Property<int?>("EditSeq")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
 
                     b.Property<string>("ImageUrl")
                         .HasColumnType("text");
 
-                    b.Property<bool>("IsActive")
+                    b.Property<bool?>("IsActive")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
                         .HasDefaultValue(true);
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("ModifiedDT")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("getdate()");
 
                     b.Property<decimal?>("Price")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("ProductCode")
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("nvarchar(50)")
+                        .UseCollation("Khmer_100_CI_AI_SC_UTF8");
 
                     b.Property<string>("ProductName")
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("nvarchar(100)")
+                        .UseCollation("Khmer_100_CI_AI_SC_UTF8");
 
                     b.Property<decimal?>("SubPrice")
                         .HasColumnType("decimal(18,2)");
@@ -91,8 +225,32 @@ namespace MiniShopApp.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TableId"));
 
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("CreatedDT")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("getdate()");
+
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(100)");
+
+                    b.Property<int?>("EditSeq")
+                        .HasColumnType("int");
+
+                    b.Property<bool?>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("ModifiedDT")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("getdate()");
 
                     b.Property<string>("TableNumber")
                         .HasColumnType("nvarchar(30)");
@@ -110,6 +268,9 @@ namespace MiniShopApp.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime?>("CreatedDT")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime")
@@ -118,14 +279,45 @@ namespace MiniShopApp.Migrations
                     b.Property<long>("CustomerId")
                         .HasColumnType("bigint");
 
+                    b.Property<string>("CustomerType")
+                        .HasColumnType("nvarchar(100)");
+
                     b.Property<decimal?>("DiscountPrice")
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<int?>("EditSeq")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
+
+                    b.Property<bool?>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
 
                     b.Property<int?>("ItemCount")
                         .HasColumnType("int");
 
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("ModifiedDT")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime")
+                        .HasDefaultValueSql("GETDATE()");
+
                     b.Property<string>("Notes")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("OrderCode")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("nvarchar(100)")
+                        .HasComputedColumnSql("'OR'+ FORMAT(GETDATE(), 'ddMMyy')+ CAST([Id] AS nvarchar)");
+
+                    b.Property<string>("OrderStatus")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(20)")
+                        .HasDefaultValue("Pending");
 
                     b.Property<decimal?>("SubPrice")
                         .HasColumnType("decimal(18,2)");
@@ -133,12 +325,21 @@ namespace MiniShopApp.Migrations
                     b.Property<string>("TableNumber")
                         .HasColumnType("nvarchar(30)");
 
+                    b.Property<decimal?>("TaxRate")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<decimal?>("TotalPrice")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<long?>("UserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("UserName")
+                        .HasColumnType("nvarchar(100)");
+
                     b.HasKey("Id");
 
-                    b.ToTable("TbOrders", (string)null);
+                    b.ToTable("TTbOrders", (string)null);
                 });
 
             modelBuilder.Entity("MiniShopApp.Models.Orders.TbOrderDetails", b =>
@@ -172,10 +373,10 @@ namespace MiniShopApp.Migrations
 
                     b.HasIndex("OrderId");
 
-                    b.ToTable("TbOrderDetails", (string)null);
+                    b.ToTable("TTbOrderDetails", (string)null);
                 });
 
-            modelBuilder.Entity("MiniShopApp.Models.UserCustomer", b =>
+            modelBuilder.Entity("MiniShopApp.Models.Settings.TbTelegramBotToken", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -183,30 +384,73 @@ namespace MiniShopApp.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<long>("CustomerId")
+                    b.Property<string>("BotToken")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("BotTokenSecret")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("CreatedDT")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("getdate()");
+
+                    b.Property<int?>("EditSeq")
+                        .HasColumnType("int");
+
+                    b.Property<bool?>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("ModifiedDT")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("getdate()");
+
+                    b.Property<long?>("UserId")
                         .HasColumnType("bigint");
 
-                    b.Property<string>("FirstName")
-                        .HasColumnType("nvarchar(50)");
+                    b.Property<string>("UserType")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("LastLoginDT")
-                        .HasColumnType("datetime");
-
-                    b.Property<string>("LastName")
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("UserName")
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<DateTime?>("loginDateTime")
-                        .HasColumnType("datetime");
-
-                    b.Property<string>("phoneNumber")
-                        .HasColumnType("nvarchar(20)");
+                    b.Property<string>("WebAppUrl")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("TbUserCustomers", (string)null);
+                    b.ToTable("TbTelegramBotToken", (string)null);
+                });
+
+            modelBuilder.Entity("MiniShopApp.Models.Settings.TbTelegramGroup", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("BotToken")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long?>("GroupId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("GroupName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool?>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<long?>("TelegramUserId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("TbTelegramGroup", (string)null);
                 });
 
             modelBuilder.Entity("MiniShopApp.Models.Orders.TbOrderDetails", b =>

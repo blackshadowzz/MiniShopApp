@@ -80,7 +80,6 @@ namespace MiniShopApp.Infrastructures.Services.Implements
                                join cat in dbContext.TbCategories
                                on pro.CategoryId equals cat.CategoryId into catg
                                from cat in catg.DefaultIfEmpty()
-                               where pro.IsActive == true
                                select new ViewProductOrders
                                {
                                    Id = pro.Id,

@@ -51,7 +51,7 @@ namespace MiniShopApp.Pages
             //isLoading = true;
             //await localStorage.SetAsync("customerId", userState.UserId.ToString()!);
             userState.UserId=userId;
-            NavigationManager.NavigateTo($"/order/ordering/{userId}");
+            //NavigationManager.NavigateTo($"/order/ordering/{userId}");
             //await Task.Delay(500).ContinueWith(_ => 
             //{
             //    isLoading = false;
