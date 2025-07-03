@@ -68,7 +68,7 @@
                                 customer = order.CustomerId.ToString();
                             else
                                 customer = order.FirstName + " " + order.LastName;
-                            col.Item().Text($"Ordered #: OR{order.OrderCode??order.Id.ToString()}").FontSize(10);
+                            col.Item().Text($"Ordered #: {order.OrderCode??order.Id.ToString()}").FontSize(10);
                             col.Item().Text($"Customer: {customer} ").FontSize(10);
                             col.Item().Text($"Date: {order.CreatedDT?.ToString("dd/MMM/yy hh:mm tt")}").FontSize(10);
 

@@ -85,15 +85,15 @@ namespace MiniShopApp
                 if (update.Message!.Text == "/start")
                 {
 
-                    //await _botClient.SetChatMenuButton(
-                    //         chatId: update.Message.Chat.Id,
-                    //         menuButton: new MenuButtonWebApp
-                    //         {
-                    //             Text = "Open App",
-                    //             WebApp = new WebAppInfo { Url = webURL }
-                    //         }
-                             
-                    //     );
+                    await _botClient.SetChatMenuButton(
+                             chatId: update.Message.Chat.Id,
+                             menuButton: new MenuButtonWebApp
+                             {
+                                 Text = "Open App",
+                                 WebApp = new WebAppInfo { Url = webURL }
+                             }
+
+                         );
                     await _botClient.SendMessage(
                         update.Message.Chat.Id,
                         $"Welcome to our Mini App Online! {update.Message.Chat.FirstName}\n\n" +

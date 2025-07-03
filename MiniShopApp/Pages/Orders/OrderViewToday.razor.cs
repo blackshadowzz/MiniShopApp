@@ -7,6 +7,7 @@ using MiniShopApp.Shared.AdditionalServices;
 using System.Buffers.Text;
 using System.Text;
 using System.Threading.Tasks;
+using Telegram.Bot.Types;
 
 namespace MiniShopApp.Pages.Orders
 {
@@ -49,7 +50,124 @@ namespace MiniShopApp.Pages.Orders
                 years = new List<int> { DateTime.Now.Year };
             }
         }
+        async Task ConfirmPayment(long Id)
+        {
+            try
+            {
+                var confirm = await DialogService.ShowMessageBox(
+                    "Confirmation",
+                    $"Modified confirm payment?",
+                    "Yes", "No");
+                if (confirm == true)
+                {
+                    var result = await orderService.ModifiedStatusAsync(Id, Statuses.Paid, default);
+                    if (result.IsSuccess)
+                    {
+                        SnackbarService.Add(result.Data!, MudBlazor.Severity.Success);
+                        await GetOrderToday();
+                        StateHasChanged();
+                        return;
+                    }
+                    SnackbarService.Add(result.ErrMessage, MudBlazor.Severity.Error);
+                }
+                
+            }
+            catch (Exception ex)
+            {
+                
+                SnackbarService.Add(ex.Message, MudBlazor.Severity.Error);
+                throw new Exception(ex.InnerException!.Message, ex);
+            }
+        }
+        async Task ConfirmPaidBulk(List<ViewTbOrders> viewTbOrders)
+        {
+            try
+            {
+                var confirm = await DialogService.ShowMessageBox(
+                    "Confirmation",
+                    $"Modified confirm payment?",
+                    "Yes", "No");
+                if (confirm == true)
+                {
+                    var result = await orderService.ModifiedStatusAsync(viewTbOrders.Select(o => o.Id).ToList(), Statuses.Paid, default);
+                    if (result.IsSuccess)
+                    {
+                        SnackbarService.Add(result.Data!, MudBlazor.Severity.Success);
+                        await GetOrderToday();
+                        clearData();
+                        StateHasChanged();
+                        return;
+                    }
+                    SnackbarService.Add(result.ErrMessage, MudBlazor.Severity.Error);
+                }
+                
+            }
+            catch (Exception ex)
+            {
+                
+                SnackbarService.Add(ex.Message, MudBlazor.Severity.Error);
+                throw new Exception(ex.InnerException!.Message, ex);
+            }
+        }
+        async Task ConfirmCancelBulk(List<ViewTbOrders> viewTbOrders)
+        {
+            try
+            {
+                var confirm = await DialogService.ShowMessageBox(
+                    "Confirmation",
+                    $"Modified confirm payment?",
+                    "Yes", "No");
+                if (confirm == true)
+                {
+                    var result = await orderService.ModifiedStatusAsync(viewTbOrders.Select(o => o.Id).ToList(), Statuses.Canceled, default);
+                    if (result.IsSuccess)
+                    {
+                        SnackbarService.Add(result.Data!, MudBlazor.Severity.Success);
+                        await GetOrderToday();
+                        clearData();
 
+                        StateHasChanged();
+                        return;
+                    }
+                    SnackbarService.Add(result.ErrMessage, MudBlazor.Severity.Error);
+                }
+
+            }
+            catch (Exception ex)
+            {
+
+                SnackbarService.Add(ex.Message, MudBlazor.Severity.Error);
+                throw new Exception(ex.InnerException!.Message, ex);
+            }
+        }
+        async Task ConfirmPaymentCancel (long Id)
+        {
+            try
+            {
+                var confirm = await DialogService.ShowMessageBox(
+                   "Confirmation",
+                   $"Modified confirm cancel order?",
+                   "Yes", "No");
+                if (confirm == true)
+                {
+                    var result = await orderService.ModifiedStatusAsync(Id, Statuses.Canceled, default);
+                    if (result.IsSuccess)
+                    {
+                        SnackbarService.Add(result.Data!, MudBlazor.Severity.Success);
+                        await GetOrderToday();
+                        StateHasChanged();
+                        return;
+                    }
+                    SnackbarService.Add(result.ErrMessage, MudBlazor.Severity.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+
+                SnackbarService.Add(ex.Message, MudBlazor.Severity.Error);
+                throw new Exception(ex.InnerException!.Message, ex);
+            }
+        }
         async Task GetOrderToday()
         {
             try

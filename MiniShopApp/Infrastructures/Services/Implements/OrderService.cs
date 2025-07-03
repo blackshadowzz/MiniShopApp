@@ -158,7 +158,7 @@ namespace MiniShopApp.Infrastructures.Services.Implements
                                 await _botClient.SendDocument(
                                       chatId: x.GroupId ?? groupId,
                                       document: reinputFile,
-                                      caption: "This your ordered Receipt!"
+                                      caption: "Ordered Receipt!"
                                       );
                             }
                         }
@@ -220,6 +220,13 @@ namespace MiniShopApp.Infrastructures.Services.Implements
                     .Select(x => new ViewTbOrders
                     {
                         Id = x.Order.Id,
+
+                        OrderCode=x.Order.OrderCode,
+                        OrderStatus=x.Order.OrderStatus,
+                        UserId=x.Order.UserId,
+                        TaxRate=x.Order.TaxRate,
+                        CustomerType=x.Order.CustomerType,
+
                         CustomerId = x.Order.CustomerId,
                         FirstName = x.User.FirstName,
                         LastName = x.User.LastName,
@@ -310,6 +317,13 @@ namespace MiniShopApp.Infrastructures.Services.Implements
                     .Select(o => new ViewTbOrders
                     {
                         Id = o.Id,
+
+                        OrderCode = o.OrderCode,
+                        OrderStatus = o.OrderStatus,
+                        UserId = o.UserId,
+                        TaxRate =o.TaxRate,
+                        CustomerType = o.CustomerType,
+
                         CustomerId = o.CustomerId,
                         TableNumber = o.TableNumber,
                         ItemCount = o.ItemCount,
@@ -384,6 +398,13 @@ namespace MiniShopApp.Infrastructures.Services.Implements
                     .Select(x => new ViewTbOrders
                     {
                         Id = x.Order.Id,
+
+                        OrderCode = x.Order.OrderCode,
+                        OrderStatus = x.Order.OrderStatus,
+                        UserId = x.Order.UserId,
+                        TaxRate = x.Order.TaxRate,
+                        CustomerType = x.Order.CustomerType,
+
                         CustomerId = x.Order.CustomerId,
                         FirstName = x.User.FirstName,
                         LastName = x.User.LastName,
@@ -478,7 +499,7 @@ namespace MiniShopApp.Infrastructures.Services.Implements
                             await _botClient.SendDocument(
                               chatId: x.GroupId ?? groupId,
                               document: inputFile,
-                              caption: "This your ordered Receipt!"
+                              caption: "Ordered Receipt!"
                               );
 
                         }
@@ -495,6 +516,73 @@ namespace MiniShopApp.Infrastructures.Services.Implements
             {
                 context.Database.RollbackTransaction(); // Rollback transaction on error
                 logger.LogError(ex, "Error creating order for customer General");
+                return await Result.FailureAsync<string>(new ErrorResponse(ex.Message));
+            }
+        }
+
+        public Task<Result<string>> ModifiedAsync(OrderUpdateModel model, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<Result<string>> ModifiedStatusAsync(long Id, Statuses statuses, CancellationToken cancellationToken = default)
+        {
+            await using var context = await contextFactory.CreateDbContextAsync(cancellationToken);
+            try
+            {
+                context.Database.BeginTransaction(); // Start transaction
+
+                var result = await context.TbOrders.Where(o => o.Id == Id).FirstOrDefaultAsync(cancellationToken);
+                if (result == null)
+                {
+                    return await Result.FailureAsync<string>(new ErrorResponse("Order not found!"));
+                }
+                result.OrderStatus=statuses.ToString();
+                result.EditSeq = +1;
+                result.ModifiedDT=DateTime.Now;
+                context.TbOrders.Update(result!);
+
+                await context.SaveChangesAsync();
+                
+
+                context.Database.CommitTransaction(); // Ensure transaction is committed
+
+                return await Result.SuccessAsync<string>("Order updated successfully.");
+            }
+            catch (Exception ex)
+            {
+                context.Database.RollbackTransaction(); // Rollback transaction on error
+                logger.LogError(ex, "Updated order statuses");
+                return await Result.FailureAsync<string>(new ErrorResponse(ex.Message));
+            }
+        }
+
+        public async Task<Result<string>> ModifiedStatusAsync(List<long> Id, Statuses statuses, CancellationToken cancellationToken = default)
+        {
+            await using var context = await contextFactory.CreateDbContextAsync(cancellationToken);
+            try
+            {
+                context.Database.BeginTransaction(); // Start transaction
+                foreach (var id in Id) {
+
+                    var result = await context.TbOrders.Where(o => o.Id == id).FirstOrDefaultAsync(cancellationToken);
+                    if (result == null)
+                    {
+                        return await Result.FailureAsync<string>(new ErrorResponse("Order not found!"));
+                    }
+                    result.OrderStatus = statuses.ToString();
+                    result.EditSeq = +1;
+                    result.ModifiedDT = DateTime.Now;
+                    context.TbOrders.Update(result!);
+                }
+                await context.SaveChangesAsync();
+                context.Database.CommitTransaction(); // Ensure transaction is committed
+                return await Result.SuccessAsync<string>("Order updated successfully.");
+            }
+            catch (Exception ex)
+            {
+                context.Database.RollbackTransaction(); // Rollback transaction on error
+                logger.LogError(ex, "Updated order statuses");
                 return await Result.FailureAsync<string>(new ErrorResponse(ex.Message));
             }
         }

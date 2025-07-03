@@ -294,6 +294,8 @@
             }
             if (await ValidatedProduct() == true)
             {
+                var custType = viewCustomerTypes.Where(x => x.Id == Order.CustomerId).FirstOrDefault();
+
                 var result = await DialogService.ShowMessageBox(
                     "Confirmation",
                     $"Are you sure to submit this order with total price: {orderDetails.Sum(x => x.TotalPrice)?.ToString("c2")}?",
@@ -302,9 +304,10 @@
                 if (result == true)
                 {
                     IsLoading = true;
-
+                    
                     TbOrder order = new TbOrder
                         {
+                            CustomerType=custType?.TypeName,
                             CustomerId = Order.CustomerId,
                             TableNumber = Order.TableNumber,
                             ItemCount = orderDetails.Count,

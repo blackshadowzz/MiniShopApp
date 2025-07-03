@@ -46,7 +46,7 @@ namespace MiniShopApp.Models.Orders
         public List<ViewTbOrderDetails>? TbOrderDetails { get; set; }=new List<ViewTbOrderDetails>();
 
     }
-    public class OrderCreateModel
+    public class OrderCreateModel : BaseEntity
     {
         
         public long CustomerId { get; set; }
@@ -57,7 +57,6 @@ namespace MiniShopApp.Models.Orders
         public double? DiscountPrice { get; set; }
         public double? TotalPrice { get; set; }
         public string? Notes { get; set; }
-        public DateTime? CreatedDT { get; set; }
         //Ad-on fields
         public long? UserId { get; set; }
         public string? UserName { get; set; }
@@ -68,7 +67,26 @@ namespace MiniShopApp.Models.Orders
 
         public ICollection<TbOrderDetails>? TbOrderDetails { get; set; }
     }
+    public class OrderUpdateModel : BaseEntity
+    {
 
+        public long Id { get; set; }
+        public long CustomerId { get; set; }
+        public string? TableNumber { get; set; }
+        public int? ItemCount { get; set; }
+        public double? SubPrice { get; set; }
+        public double? DiscountPrice { get; set; }
+        public double? TotalPrice { get; set; }
+        public string? Notes { get; set; }
+        //Ad-on fields
+        public long? UserId { get; set; }
+        public string? UserName { get; set; }
+        public string? OrderCode { get; set; }
+        public double? TaxRate { get; set; }
+        public string? OrderStatus { get; set; }
+        public string? CustomerType { get; set; }
+        public ICollection<TbOrderDetails>? TbOrderDetails { get; set; }
+    }
     public enum Statuses
     {
         None = 0,
@@ -77,4 +95,5 @@ namespace MiniShopApp.Models.Orders
         Paid
 
     }
+
 }

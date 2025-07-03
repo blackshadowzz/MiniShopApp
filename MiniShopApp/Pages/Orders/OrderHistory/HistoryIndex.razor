@@ -88,12 +88,32 @@ else
 @code {
     RenderFragment OrderCard(ViewTbOrders order) => @<MudPaper Class="pa-2 mb-1" Elevation="2" Style="max-width: 500px;">
         <MudStack Row=true Justify="Justify.SpaceBetween">
-            <MudText Typo="Typo.subtitle2" Color="Color.Primary">Order #@order.Id</MudText>
+        <MudText Typo="Typo.subtitle2" Color="Color.Primary">Order #@order.OrderCode</MudText>
+        
         <MudText Typo="Typo.subtitle2" Color="Color.Secondary">@order.CreatedDT?.ToString("dd/MMM/yyyy h:mm tt")</MudText>
         </MudStack>
         <MudText Typo="Typo.body2">Table No: @order.TableNumber</MudText>
         <MudText Typo="Typo.body2">Total Item: @order.ItemCount</MudText>
-        <MudText Typo="Typo.subtitle1" Class="text-danger">Total Price: @order.TotalPrice?.ToString("C2")</MudText>
+        <MudStack Row Justify="Justify.SpaceBetween">
+            <MudText Typo="Typo.subtitle1" Class="text-danger">Total Price: @order.TotalPrice?.ToString("C2")</MudText>
+        @if (order.OrderStatus == Statuses.Paid.ToString())
+                {
+        <MudText Typo="Typo.subtitle2" Color="Color.Success">@order.OrderStatus</MudText>
+
+                }
+                else if (order.OrderStatus == Statuses.Canceled.ToString())
+                {
+        <MudText Typo="Typo.subtitle2" Color="Color.Info">@order.OrderStatus</MudText>
+
+                }
+                else
+                {
+        <MudText Typo="Typo.subtitle2" Color="Color.Secondary">@order.OrderStatus</MudText>
+
+                }
+        </MudStack>
+        
+
         <MudDivider Class="my-2" />
         <MudSimpleTable Dense="true" Hover="true" >
         <tbody>
