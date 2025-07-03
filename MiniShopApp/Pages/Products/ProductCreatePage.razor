@@ -10,54 +10,23 @@
 
 <PageTitle>Create Product</PageTitle>
 
-@* <div>
-    <span> @alert </span>
-    <form >
-        <div class="mb-3">
-            <label for="exampleInputEmail1" class="form-label">Product Code</label>
-            <input type="text" class="form-control" @bind="@model.ProductCode">
-            
-        </div>
-        <div class="mb-3">
-            <label for="exampleInputEmail1" class="form-label">Product Name</label>
-            <input type="text" class="form-control" @bind="@model.ProductName">
-            
-        </div>
-        <div class="mb-3">
-            <label for="exampleInputEmail1" class="form-label">Product Price</label>
-            <InputNumber  class="form-control"
-                          
-                            TValue="double?"
-                         @bind-value="@model.Price"/>
-            
-        </div>
-        <div class="mb-3">
-            <label for="exampleInputEmail1" class="form-label">Description</label>
-            <textarea class="form-control" @bind="@model.Description" />
-            
-        </div>
-       
-       
-        <button type="button" @onclick="CreateProduct" class="btn btn-primary">Create Product</button>
-    </form>
-</div> *@
 <MudForm @ref="form">
     <MudGrid>
         <MudItem xs="12" md="8">
             <MudPaper Class="p-4">
-                <MudTextField @bind-Value="@model.ProductCode" Label="Product Code" />
-                <MudTextField @bind-Value="@model.ProductName" Label="Product Name" />
-                <MudTextField @bind-Value="@model.Description" Label="Description" />
-                <MudNumericField @bind-Value="@model.Price" Label="Price" TValue="double?" />
-                <MudNumericField @bind-Value="@model.SubPrice" Label="Subprice" TValue="double?" />
-                <MudSelect T="int?" @bind-Value="@model.CategoryId" Label="Select Category">
+                <MudTextField @bind-Value="@model.ProductCode" Label="Product Code" Variant="Variant.Outlined" Required="true"/>
+                <MudTextField @bind-Value="@model.ProductName" Label="Product Name" Variant="Variant.Outlined" Required="true" />
+                <MudTextField @bind-Value="@model.Description" Label="Description" Variant="Variant.Outlined" />
+                <MudNumericField @bind-Value="@model.Price" Label="Price" TValue="double?" Variant="Variant.Outlined" />
+                <MudNumericField @bind-Value="@model.SubPrice" Label="Subprice" TValue="double?" Variant="Variant.Outlined" />
+                <MudSelect T="int?" @bind-Value="@model.CategoryId" Label="Select Category" Variant="Variant.Outlined" Required="true">
                     @foreach (var cat in categories)
                     {
                         <MudSelectItem Value="@cat.CategoryId">@cat.CategoryName</MudSelectItem>
                     }
                 </MudSelect>
                 <MudSpacer />
-                <MudFileUpload T="IBrowserFile" OnFilesChanged="@HandleFileSelected" ma accept=".jpg,.jpeg,.png" Class="mb-2">
+                <MudFileUpload T="IBrowserFile" OnFilesChanged="@HandleFileSelected" ma accept=".jpg,.jpeg,.png" Class="mt-2">
                     <ActivatorContent>
                         <MudButton Variant="Variant.Filled"
                                    Color="Color.Primary"
@@ -66,6 +35,19 @@
                         </MudButton>
                     </ActivatorContent>
                 </MudFileUpload>
+                <MudItem Class="d-flex justify-content-end mt-5">
+                    <MudButton Variant="Variant.Filled"
+                               Href="/products" Class="mt-2">
+                        Back to list
+                    </MudButton>
+                    <MudSpacer/>
+                    <MudButton Variant="Variant.Filled"
+                               Color="Color.Primary"
+                               OnClick="@CreateProduct" Class="mt-2">
+                        Submit
+                    </MudButton>
+                </MudItem>
+                
             </MudPaper>
         </MudItem>
         <MudItem xs="12" md="4" Class="d-flex justify-center align-center">
@@ -74,7 +56,6 @@
                 {
                         <MudCardMedia Image="@imagePreviewUrl" Height="200"  />
                         
-                    @* <img src="@imagePreviewUrl" width="200" alt="Preview" /> *@
                 }
                 <MudCardContent>
                     <MudText Typo="Typo.body1">
@@ -102,13 +83,6 @@
 </MudForm>
 
 <p class="">User Id: @userId</p>
-<div>
-    <NavLink class="btn btn-primary" href="/products">Back to Products</NavLink>
-</div>
-<button class="btn btn-primary" value="button" @onclick="CreateProduct">Create Product</button>
-<br />
-
-<p class="">Product created: @message</p> 
 @code{
     private IBrowserFile selectedFile;
     private string imagePreviewUrl;

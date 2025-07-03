@@ -42,7 +42,9 @@ namespace MiniShopApp.Pages.Lists.Categories
                     }
                     SnackbarService.Add("Category updated successfully", Severity.Success);
                     Submit();
+                    return;
                 }
+                SnackbarService.Add("Please enter update", Severity.Warning);
             }
             catch (Exception ex)
             {

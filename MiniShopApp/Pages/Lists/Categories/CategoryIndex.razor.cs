@@ -24,8 +24,9 @@ namespace MiniShopApp.Pages.Lists.Categories
         private readonly DialogOptions _backdropClick = new()
         {
             BackdropClick = false,
-            MaxWidth = MaxWidth.Medium,
+            MaxWidth = MaxWidth.Small,
             FullWidth = true,
+            Position = DialogPosition.Center,
         };
         private bool FilterFunc1(Category element) => FilterFunc(element, searchString);
 
