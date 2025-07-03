@@ -30,8 +30,8 @@
                                         
                                         <CardHeaderActions>
                                             <DropdownOrder ClickPrint="@(() => GenerateReceiptAsync(new[] { order }))" 
-                                                ClickModifyPaid="@(()=>ConfirmPayment(order.Id))"
-                                                           ClickModifyCancel="@(()=>ConfirmPaymentCancel(order.Id))" />
+                                                ClickModifyPaid="@(()=>ConfirmPayment(order))"
+                                                           ClickModifyCancel="@(()=>ConfirmPaymentCancel(order))" />
                                             
                                         </CardHeaderActions>
                                     </MudCardHeader>

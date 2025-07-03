@@ -87,6 +87,7 @@
     </MudItem>
 
     <!-- Sticky order summary -->
+
     <MudItem xs="12" sm="4">
         <div style="position: sticky; top: 0;left:0;">
             <MudStack Row Justify="Justify.FlexStart" Class="mb-2" StretchItems="StretchItems.All">
@@ -100,6 +101,7 @@
                                RequiredError="Select customer is Required"
                                Placeholder="Select customer"
                                Clearable="true">
+
                         @foreach (var state in viewCustomerTypes)
                         {
                             <MudSelectItem T="long" Value="state.Id">@state.TypeName</MudSelectItem>
@@ -146,7 +148,6 @@
                                 </td>
                             </tr>
                         }
-
                     </tbody>
                     <tfoot>
                         <tr class="table-active ">
@@ -181,19 +182,30 @@
                         }
                     </MudSelect>
 
+                    <MudTextField T="string" 
+                                    Lines="5" 
+                                    AutoGrow="false" 
+                                    Label="Notes"
+                                    
+                                    @bind-Text="@Order.Notes"
+                                  Placeholder="Leave a note here..." 
+                                  Class="" />
+                   
 
-                    <div class="form-floating mt-3">
-                        <textarea class="form-control" @bind="@Order.Notes" placeholder="Leave a note here..." id="floatingTextarea2" style="height: 80px"></textarea>
-                        <label for="floatingTextarea2">Notes</label>
-                    </div>
+                    <MudStack Row Justify="Justify.SpaceBetween" Class="my-3">
 
-                    <div class="d-flex align-center justify-space-between mt-4">
-                        <button class="btn btn-secondary" type="button"><i class="bi bi-caret-left-fill"></i> Cancel</button>
+                        <MudButton Variant="Variant.Filled" 
+                                    Color="Color.Dark"
+                                    OnClick="clearData"
+                                    ButtonType="ButtonType.Button"
+                                   StartIcon="@Icons.Material.Filled.Close"
+                                   
+                                   >Clear</MudButton>
                         <MudButton Variant="Variant.Filled" Color="Color.Primary"
                                    StartIcon="@Icons.Material.Filled.AddCircleOutline"
-                                   Class="ml-auto"
+                                   ButtonType="ButtonType.Submit"
                                    OnClick="HandleValidSubmit">Confirm Order</MudButton>
-                    </div>
+                    </MudStack>
                 </MudForm>
             </MudPaper>
         </div>
@@ -207,6 +219,15 @@
     string[] errors = { };
     MudForm form;
     List<TbTable> tables = [];
+
+    async Task clearData()
+    {
+        await FilterProducts(_filter);
+        _products = _productsStore;
+        orderDetails.Clear();
+        StateHasChanged();
+
+    }
     async Task GetItemDetails(int id)
     {
         var item = _products.FirstOrDefault(x => x.Id == id);

@@ -239,6 +239,7 @@ namespace MiniShopApp.Infrastructures.Services.Implements
                         CreatedDT = x.Order.CreatedDT,
                         ModifiedDT = x.Order.ModifiedDT,
                         IsActive = x.Order.IsActive,
+                        EditSeq=x.Order.EditSeq,
                         TbOrderDetails = x.Order.TbOrderDetails != null
                             ? x.Order.TbOrderDetails.Select(d => new ViewTbOrderDetails
                             {
@@ -334,6 +335,7 @@ namespace MiniShopApp.Infrastructures.Services.Implements
                         CreatedDT = o.CreatedDT,
                         ModifiedDT = o.ModifiedDT,
                         IsActive = o.IsActive,
+                        EditSeq=o.EditSeq,
                         TbOrderDetails = o.TbOrderDetails != null ? o.TbOrderDetails.Select(d => new ViewTbOrderDetails
                         {
                             Id = d.Id,
@@ -417,6 +419,7 @@ namespace MiniShopApp.Infrastructures.Services.Implements
                         CreatedDT = x.Order.CreatedDT,
                         ModifiedDT = x.Order.ModifiedDT,
                         IsActive = x.Order.IsActive,
+                        EditSeq=x.Order.EditSeq,
                         TbOrderDetails = x.Order.TbOrderDetails != null
                             ? x.Order.TbOrderDetails.Select(d => new ViewTbOrderDetails
                             {
@@ -525,20 +528,24 @@ namespace MiniShopApp.Infrastructures.Services.Implements
             throw new NotImplementedException();
         }
 
-        public async Task<Result<string>> ModifiedStatusAsync(long Id, Statuses statuses, CancellationToken cancellationToken = default)
+        public async Task<Result<string>> ModifiedStatusAsync(OrderStatusDto statuses, CancellationToken cancellationToken = default)
         {
             await using var context = await contextFactory.CreateDbContextAsync(cancellationToken);
             try
             {
                 context.Database.BeginTransaction(); // Start transaction
 
-                var result = await context.TbOrders.Where(o => o.Id == Id).FirstOrDefaultAsync(cancellationToken);
+                var result = await context.TbOrders.Where(o => o.Id == statuses.Id).FirstOrDefaultAsync(cancellationToken);
                 if (result == null)
                 {
                     return await Result.FailureAsync<string>(new ErrorResponse("Order not found!"));
+                }else if (result.EditSeq !=statuses.EditSeq)
+                {
+                    return await Result.FailureAsync<string>(new ErrorResponse("This Data already edited by others user, please refresh page to get Refresh data!"));
                 }
-                result.OrderStatus=statuses.ToString();
-                result.EditSeq = +1;
+
+                    result.OrderStatus = statuses.Statuses.ToString();
+                result.EditSeq += 1;
                 result.ModifiedDT=DateTime.Now;
                 context.TbOrders.Update(result!);
 
@@ -557,21 +564,25 @@ namespace MiniShopApp.Infrastructures.Services.Implements
             }
         }
 
-        public async Task<Result<string>> ModifiedStatusAsync(List<long> Id, Statuses statuses, CancellationToken cancellationToken = default)
+        public async Task<Result<string>> ModifiedStatusAsync(List<OrderStatusDto> statuses, CancellationToken cancellationToken = default)
         {
             await using var context = await contextFactory.CreateDbContextAsync(cancellationToken);
             try
             {
                 context.Database.BeginTransaction(); // Start transaction
-                foreach (var id in Id) {
+                foreach (var item in statuses) {
 
-                    var result = await context.TbOrders.Where(o => o.Id == id).FirstOrDefaultAsync(cancellationToken);
+                    var result = await context.TbOrders.Where(o => o.Id == item.Id).FirstOrDefaultAsync(cancellationToken);
                     if (result == null)
                     {
                         return await Result.FailureAsync<string>(new ErrorResponse("Order not found!"));
                     }
-                    result.OrderStatus = statuses.ToString();
-                    result.EditSeq = +1;
+                    else if (result.EditSeq !=item.Id )
+                    {
+                        return await Result.FailureAsync<string>(new ErrorResponse("This Data already edited by others user, please refresh page to get Refresh data!"));
+                    }
+                    result.OrderStatus = item.Statuses.ToString();
+                    result.EditSeq +=1;
                     result.ModifiedDT = DateTime.Now;
                     context.TbOrders.Update(result!);
                 }
