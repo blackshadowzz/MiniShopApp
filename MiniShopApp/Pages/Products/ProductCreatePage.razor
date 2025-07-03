@@ -56,7 +56,7 @@
                         <MudSelectItem Value="@cat.CategoryId">@cat.CategoryName</MudSelectItem>
                     }
                 </MudSelect>
-                
+                <MudSpacer />
                 <MudFileUpload T="IBrowserFile" OnFilesChanged="@HandleFileSelected" ma accept=".jpg,.jpeg,.png" Class="mb-2">
                     <ActivatorContent>
                         <MudButton Variant="Variant.Filled"
