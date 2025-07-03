@@ -1,14 +1,14 @@
-﻿<MudDialog>
-    <DialogContent>
-        <MudForm>
-            <div class="mb-2">
-                <label class="form-label" for="name">Category name</label>
-                <input type="text" id="name" class="form-control" @bind="model.CategoryName" />
-            </div>
-            <div class="mb-2">
-                <label class="form-label" for="desc">Descriptions</label>
-                <textarea type="text" id="desc" class="form-control" @bind="model.Description" />
-            </div>
+﻿<MudDialog >
+    <DialogContent >
+        <MudForm @ref="form">
+            <MudTextField @bind-Value="@model.CategoryName"
+                          Label="Category Name"
+                          Required="true"
+                          Variant="Variant.Outlined" />
+            <MudTextField @bind-Value="@model.Description"
+                          Label="Description"
+                          Lines="5"
+                          Variant="Variant.Outlined"/>
         </MudForm>
     </DialogContent>
     <DialogActions>
@@ -16,5 +16,8 @@
         <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SaveData">Save</MudButton>
     </DialogActions>
 </MudDialog>
+@code{
+    MudForm form;
+}
 
 

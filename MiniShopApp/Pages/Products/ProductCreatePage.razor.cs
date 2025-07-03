@@ -56,21 +56,26 @@ namespace MiniShopApp.Pages.Products
         {
             try
             {
-                alert = null;
-                var insertimg = await HandleValidSubmit();
-                if(insertimg!=false&&model.ImageUrl!=null)
+                if (form.IsValid)
                 {
-                    var result = await productService.CreateAsync(model);
-                    if (string.IsNullOrEmpty(result))
+                    alert = null;
+                    var insertimg = await HandleValidSubmit();
+                    if (insertimg != false && model.ImageUrl != null)
                     {
-                        throw new Exception("Product creation failed.");
+                        var result = await productService.CreateAsync(model);
+                        if (string.IsNullOrEmpty(result))
+                        {
+                            throw new Exception("Product creation failed.");
+                        }
+                        alert = result + ": " + model.ProductName;
+                        model = new Product(); // Reset the model after successful creation
+                                               // Handle success, e.g., show a message or redirect
+                        return;
                     }
-                    alert = result + ": " + model.ProductName;
-                    model = new Product(); // Reset the model after successful creation
-                                           // Handle success, e.g., show a message or redirect
+                    Snackbar.Add("Please upload an image", Severity.Error);
                     return;
                 }
-                Snackbar.Add("Please upload an image", Severity.Error);
+                Snackbar.Add("Please fill in the required fields.", Severity.Warning);
 
             }
             catch (Exception ex)

@@ -14,18 +14,14 @@ namespace MiniShopApp.Pages.Lists.TbTables
         private readonly DialogOptions _backdropClick = new()
         {
             BackdropClick = false,
-            MaxWidth = MaxWidth.Medium,
+            MaxWidth = MaxWidth.Small,
             FullWidth = true,
+            Position = DialogPosition.Center,
         };
         public TableIndex(ITableListService tableListService)
         {
             _context = tableListService;
         }
-
-        //void ShowNotification(NotificationMessage message)
-        //{
-        //    NotificationService.Notify(message);
-        //}
         private List<TbTable> model = new List<TbTable>();
         private string searchString = "";
 

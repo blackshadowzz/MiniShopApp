@@ -26,19 +26,30 @@ namespace MiniShopApp.Pages.Lists.TbTables
         }
         private async Task SaveUpdate()
         {
-            if(model != null)
+            try
             {
-                var data = new TbTable();
-                data = model;
-                var result = await _context.UpdateAsync(data, iTemid);
-                if (result != false)
+                if (model != null)
                 {
-                    SnackbarService.Add("Table updated successfully.", Severity.Success);
-                    model = new TbTable(); // Reset the model after successful update
-                    Submit();
+                    var data = new TbTable();
+                    data = model;
+                    var result = await _context.UpdateAsync(data, iTemid);
+                    if (result != false)
+                    {
+                        SnackbarService.Add("Table updated successfully.", Severity.Success);
+                        model = new TbTable(); // Reset the model after successful update
+                        Submit();
+                        return;
+                    }
+                    SnackbarService.Add("Table update failed.", Severity.Error);
+                    Cancel();
+                    return;
                 }
-                SnackbarService.Add("Table update failed.", Severity.Error);
-                Cancel();
+                SnackbarService.Add("Please enter update details.", Severity.Warning);
+            }
+            catch (Exception ex)
+            {
+                SnackbarService.Add("Error updating table: " + ex.Message, Severity.Error);
+                throw new Exception("Error updating", ex);
             }
         }
         

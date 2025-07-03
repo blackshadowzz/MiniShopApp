@@ -25,16 +25,21 @@ namespace MiniShopApp.Pages.Lists.TbTables
         {
             try
             {
-                var result = await tableService.CreateAsync(model);
-                if (string.IsNullOrEmpty(result))
+                if (form.IsValid)
                 {
-                    SnackbarService.Add("Table creation failed.", Severity.Error);
-                    throw new Exception("creation failed.");
-                    
+                    var result = await tableService.CreateAsync(model);
+                    if (string.IsNullOrEmpty(result))
+                    {
+                        SnackbarService.Add("Table creation failed.", Severity.Error);
+                        throw new Exception("creation failed.");
+
+                    }
+                    model = new TbTable();
+                    SnackbarService.Add("Table created successfully.", Severity.Success);
+                    Submit();
+                    return;
                 }
-                model = new TbTable();
-                SnackbarService.Add("Table created successfully.", Severity.Success);
-                Submit();
+                SnackbarService.Add("Please fill in the required fields.", Severity.Warning);
             }
             catch(Exception ex)
             {

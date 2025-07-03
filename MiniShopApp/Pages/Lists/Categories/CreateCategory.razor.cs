@@ -21,15 +21,24 @@ namespace MiniShopApp.Pages.Lists.Categories
         {
             try
             {
-                var result = await _categoryService.CreateAsync(model);
-                if (result.IsSuccess!=true)
+                if (form.IsValid)
                 {
-                    SnackbarService.Add("Creation failed", Severity.Error);
-                    throw new Exception("creation failed.");
+                    var result = await _categoryService.CreateAsync(model);
+                    if (result.IsSuccess != true)
+                    {
+                        SnackbarService.Add("Creation failed", Severity.Error);
+                        throw new Exception("creation failed.");
+                    }
+                    model = new Category();
+                    SnackbarService.Add("Category created successfully", Severity.Success);
+                    Submit();
+                    return;
                 }
-                model = new Category();
-                SnackbarService.Add("Category created successfully", Severity.Success);
-                Submit();
+                else
+                {
+                    SnackbarService.Add("Please fill in all required fields", Severity.Warning);
+                }
+                
             }
             catch (Exception ex)
             {
