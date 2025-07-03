@@ -95,5 +95,12 @@ namespace MiniShopApp.Models.Orders
         Paid
 
     }
+    public class OrderStatusDto
+    {
+        public long Id { get; set; }
+        public bool? IsActive { get; set; }
+        public int? EditSeq {  get; set; }
+        public Statuses? Statuses { get; set; }
+    }
 
 }

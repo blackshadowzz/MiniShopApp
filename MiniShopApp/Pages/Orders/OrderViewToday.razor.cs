@@ -1,4 +1,5 @@
 using DocumentFormat.OpenXml.Spreadsheet;
+using Mapster;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using MiniShopApp.Infrastructures.Services.Interfaces;
@@ -17,7 +18,7 @@ namespace MiniShopApp.Pages.Orders
         List<ViewTbOrders> orders = new List<ViewTbOrders>();
         protected DateTime today = DateTime.Now.Date;
         //string? filter = string.Empty;
-
+        protected OrderStatusDto orderStatus=new();
         // Month/Year selection for Months tab
         protected int selectedMonth = DateTime.Now.Month;
         protected int selectedYear = DateTime.Now.Year;
@@ -50,7 +51,7 @@ namespace MiniShopApp.Pages.Orders
                 years = new List<int> { DateTime.Now.Year };
             }
         }
-        async Task ConfirmPayment(long Id)
+        async Task ConfirmPayment(ViewTbOrders viewTbOrders)
         {
             try
             {
@@ -60,7 +61,12 @@ namespace MiniShopApp.Pages.Orders
                     "Yes", "No");
                 if (confirm == true)
                 {
-                    var result = await orderService.ModifiedStatusAsync(Id, Statuses.Paid, default);
+                    orderStatus.Id=viewTbOrders.Id;
+                    orderStatus.Statuses=Statuses.Paid;
+                    orderStatus.EditSeq=viewTbOrders.EditSeq;
+                    orderStatus.IsActive=viewTbOrders.IsActive;
+
+                    var result = await orderService.ModifiedStatusAsync(orderStatus, default);
                     if (result.IsSuccess)
                     {
                         SnackbarService.Add(result.Data!, MudBlazor.Severity.Success);
@@ -89,7 +95,16 @@ namespace MiniShopApp.Pages.Orders
                     "Yes", "No");
                 if (confirm == true)
                 {
-                    var result = await orderService.ModifiedStatusAsync(viewTbOrders.Select(o => o.Id).ToList(), Statuses.Paid, default);
+
+                    var statuses = viewTbOrders.Select(x=>new OrderStatusDto
+                    {
+                        Id = x.Id,
+                        Statuses = Statuses.Paid,
+                        EditSeq = x.EditSeq,
+                        IsActive = x.IsActive
+                    }).ToList();
+
+                    var result = await orderService.ModifiedStatusAsync(statuses, default);
                     if (result.IsSuccess)
                     {
                         SnackbarService.Add(result.Data!, MudBlazor.Severity.Success);
@@ -119,7 +134,14 @@ namespace MiniShopApp.Pages.Orders
                     "Yes", "No");
                 if (confirm == true)
                 {
-                    var result = await orderService.ModifiedStatusAsync(viewTbOrders.Select(o => o.Id).ToList(), Statuses.Canceled, default);
+                    var statuses = viewTbOrders.Select(x => new OrderStatusDto
+                    {
+                        Id = x.Id,
+                        Statuses = Statuses.Canceled,
+                        EditSeq = x.EditSeq,
+                        IsActive = x.IsActive
+                    }).ToList();
+                    var result = await orderService.ModifiedStatusAsync(statuses, default);
                     if (result.IsSuccess)
                     {
                         SnackbarService.Add(result.Data!, MudBlazor.Severity.Success);
@@ -140,7 +162,7 @@ namespace MiniShopApp.Pages.Orders
                 throw new Exception(ex.InnerException!.Message, ex);
             }
         }
-        async Task ConfirmPaymentCancel (long Id)
+        async Task ConfirmPaymentCancel (ViewTbOrders viewTbOrders)
         {
             try
             {
@@ -150,7 +172,11 @@ namespace MiniShopApp.Pages.Orders
                    "Yes", "No");
                 if (confirm == true)
                 {
-                    var result = await orderService.ModifiedStatusAsync(Id, Statuses.Canceled, default);
+                    orderStatus.Id = viewTbOrders.Id;
+                    orderStatus.Statuses = Statuses.Canceled;
+                    orderStatus.EditSeq = viewTbOrders.EditSeq;
+                    orderStatus.IsActive = viewTbOrders.IsActive;
+                    var result = await orderService.ModifiedStatusAsync(orderStatus, default);
                     if (result.IsSuccess)
                     {
                         SnackbarService.Add(result.Data!, MudBlazor.Severity.Success);
@@ -160,6 +186,7 @@ namespace MiniShopApp.Pages.Orders
                     }
                     SnackbarService.Add(result.ErrMessage, MudBlazor.Severity.Error);
                 }
+              
             }
             catch (Exception ex)
             {
