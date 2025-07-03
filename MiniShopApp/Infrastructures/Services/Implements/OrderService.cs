@@ -158,7 +158,7 @@ namespace MiniShopApp.Infrastructures.Services.Implements
                                 await _botClient.SendDocument(
                                       chatId: x.GroupId ?? groupId,
                                       document: reinputFile,
-                                      caption: "This your ordered Receipt!"
+                                      caption: "Ordered Receipt!"
                                       );
                             }
                         }
@@ -499,7 +499,7 @@ namespace MiniShopApp.Infrastructures.Services.Implements
                             await _botClient.SendDocument(
                               chatId: x.GroupId ?? groupId,
                               document: inputFile,
-                              caption: "This your ordered Receipt!"
+                              caption: "Ordered Receipt!"
                               );
 
                         }

@@ -4,7 +4,13 @@ namespace MiniShopApp.Data.TelegramStore
 {
     public class TelegramUserStore
     {
-        // Key: Telegram ChatId, Value: (optional) App UserId or other info
-        public static ConcurrentDictionary<long, long> TelegramUsers { get; } = new();
+            public long Id { get; set; }
+            public bool IsBot { get; set; }
+            public string? FirstName { get; set; }
+            public string? LastName { get; set; }
+            public string? Username { get; set; }
+            public string? LanguageCode { get; set; }
+            public bool IsPremium { get; set; }
+
     }
 }
