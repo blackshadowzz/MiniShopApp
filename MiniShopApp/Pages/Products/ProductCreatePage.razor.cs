@@ -1,6 +1,7 @@
 using DocumentFormat.OpenXml.Office2021.Excel.RichDataWebImage;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
+using Microsoft.IdentityModel.Tokens;
 using MiniShopApp.Data;
 using MiniShopApp.Infrastructures.Services.Interfaces;
 using MiniShopApp.Models.Items;
@@ -56,15 +57,21 @@ namespace MiniShopApp.Pages.Products
             try
             {
                 alert = null;
-                await HandleValidSubmit();
-                var result = await productService.CreateAsync(model);
-                if (string.IsNullOrEmpty(result))
+                var insertimg = await HandleValidSubmit();
+                if(insertimg!=false&&model.ImageUrl!=null)
                 {
-                    throw new Exception("Product creation failed.");
+                    var result = await productService.CreateAsync(model);
+                    if (string.IsNullOrEmpty(result))
+                    {
+                        throw new Exception("Product creation failed.");
+                    }
+                    alert = result + ": " + model.ProductName;
+                    model = new Product(); // Reset the model after successful creation
+                                           // Handle success, e.g., show a message or redirect
+                    return;
                 }
-                alert = result+ ": " + model.ProductName;
-                model = new Product(); // Reset the model after successful creation
-                // Handle success, e.g., show a message or redirect
+                Snackbar.Add("Please upload an image", Severity.Error);
+
             }
             catch (Exception ex)
             {

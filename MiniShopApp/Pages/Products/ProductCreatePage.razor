@@ -42,18 +42,62 @@
     </form>
 </div> *@
 <MudForm @ref="form">
-    <MudTextField @bind-Value="@model.ProductCode" Label="Product Code" />
-    <MudTextField @bind-Value="@model.ProductName" Label="Product Name" />
-    <MudTextField @bind-Value="@model.Description" Label="Description" />
-    <MudNumericField @bind-Value="@model.Price" Label="Price" TValue="double?" />
-    <MudNumericField @bind-Value="@model.SubPrice" Label="Subprice" TValue="double?" />
-    <MudSelect T="int?" @bind-Value="@model.CategoryId" Label="Select Category">
-        @foreach(var cat in categories)
-        {
-            <MudSelectItem Value="@cat.CategoryId">@cat.CategoryName</MudSelectItem>
-        }
-    </MudSelect>
-    <InputFile OnChange="HandleFileSelected" />
+    <MudGrid>
+        <MudItem xs="12" md="8">
+            <MudPaper Class="p-4">
+                <MudTextField @bind-Value="@model.ProductCode" Label="Product Code" />
+                <MudTextField @bind-Value="@model.ProductName" Label="Product Name" />
+                <MudTextField @bind-Value="@model.Description" Label="Description" />
+                <MudNumericField @bind-Value="@model.Price" Label="Price" TValue="double?" />
+                <MudNumericField @bind-Value="@model.SubPrice" Label="Subprice" TValue="double?" />
+                <MudSelect T="int?" @bind-Value="@model.CategoryId" Label="Select Category">
+                    @foreach (var cat in categories)
+                    {
+                        <MudSelectItem Value="@cat.CategoryId">@cat.CategoryName</MudSelectItem>
+                    }
+                </MudSelect>
+                
+                <MudFileUpload T="IBrowserFile" OnFilesChanged="@HandleFileSelected" ma accept=".jpg,.jpeg,.png" Class="mb-2">
+                    <ActivatorContent>
+                        <MudButton Variant="Variant.Filled"
+                                   Color="Color.Primary"
+                                   StartIcon="@Icons.Material.Filled.CloudUpload">
+                            Upload Files
+                        </MudButton>
+                    </ActivatorContent>
+                </MudFileUpload>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="12" md="4" Class="d-flex justify-center align-center">
+            <MudCard Style="max-width:400px" >
+                @if (!string.IsNullOrEmpty(imagePreviewUrl))
+                {
+                        <MudCardMedia Image="@imagePreviewUrl" Height="200"  />
+                        
+                    @* <img src="@imagePreviewUrl" width="200" alt="Preview" /> *@
+                }
+                <MudCardContent>
+                    <MudText Typo="Typo.body1">
+                        @if(isLoading)
+                        {
+                            <MudProgressCircular Indeterminate="true" Color="Color.Primary" />
+                        }
+                        else if (string.IsNullOrEmpty(imagePreviewUrl))
+                        {
+                            <span>No image selected</span>
+                        }
+                        else
+                        {
+                            <span>Image preview loaded</span>
+                        }
+
+                    </MudText>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+
+    </MudGrid>
+
 
 </MudForm>
 
@@ -67,12 +111,57 @@
 <p class="">Product created: @message</p> 
 @code{
     private IBrowserFile selectedFile;
-
+    private string imagePreviewUrl;
+    bool isLoading = false;
     private async Task HandleFileSelected(InputFileChangeEventArgs e)
     {
-        selectedFile = e.File;
+        
+
+        try
+        {
+            const int maxWidth = 1024;
+            const int maxHeight = 768;
+            await using var stream = e.File.OpenReadStream();
+            using var image = await SixLabors.ImageSharp.Image.LoadAsync(stream);
+
+            if (image.Width > maxWidth || image.Height > maxHeight)
+            {
+                Console.WriteLine("Image resolution too large.");
+                // Show error or prevent saving
+                SnackbarService.Add("Image resolution exceeds maximum allowed size.", Severity.Error);
+                return;
+            }
+            isLoading = true;
+
+            selectedFile = e.File;
+            // Preview: Convert to Base64 data URL
+            var buffer = new byte[selectedFile.Size];
+            await selectedFile.OpenReadStream().ReadAsync(buffer);
+
+            var ext = Path.GetExtension(selectedFile.Name).ToLowerInvariant();
+            var mimeType = ext switch
+            {
+                ".jpg" or ".jpeg" => "image/jpeg",
+                ".png" => "image/png",
+                _ => "application/octet-stream"
+            };
+
+            imagePreviewUrl = $"data:{mimeType};base64,{Convert.ToBase64String(buffer)}";
+            isLoading = false;
+        }catch (Exception ex)
+        {
+            isLoading = false;
+            Snackbar.Add($"Error: {ex.Message}", Severity.Error);
+            return;
+        }
+        finally
+        {
+            StateHasChanged();
+            isLoading = false;
+        }
+
     }
-    private async Task HandleValidSubmit()
+    private async Task<bool> HandleValidSubmit()
     {
         if (selectedFile is not null)
         {
@@ -87,7 +176,10 @@
 
             // Set relative URL for DB
             model.ImageUrl = $"images/products/{fileName}";
+            return true;
         }
+        Snackbar.Add("Please select a file.", Severity.Error);
+        return false;
 
         // Insert newProduct into the database here (e.g., via EF Core)
     }
