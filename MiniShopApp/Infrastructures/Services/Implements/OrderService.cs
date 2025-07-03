@@ -577,7 +577,7 @@ namespace MiniShopApp.Infrastructures.Services.Implements
                     {
                         return await Result.FailureAsync<string>(new ErrorResponse("Order not found!"));
                     }
-                    else if (result.EditSeq !=item.Id )
+                    else if (result.EditSeq !=item.EditSeq )
                     {
                         return await Result.FailureAsync<string>(new ErrorResponse("This Data already edited by others user, please refresh page to get Refresh data!"));
                     }
