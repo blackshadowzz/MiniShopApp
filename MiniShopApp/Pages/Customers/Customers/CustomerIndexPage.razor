@@ -3,12 +3,12 @@
 @layout MainLayout
 <PageTitle>Customers</PageTitle>
 
-<MudPaper Class="pa-4">
-    <MudDataGrid @ref="dataGrid" T="ViewUserCustomers" ServerData="ServerReload" Filterable="false">
+
+    <MudDataGrid @ref="dataGrid" T="ViewUserCustomers" Dense Hover ServerData="ServerReload" Loading="isLoading">
         <ToolBarContent>
             <MudText Typo="Typo.h6">Customer list</MudText>
             <MudSpacer />
-            <MudTextField T="string" ValueChanged="@(s => OnSearch(s))" Placeholder="Search" Adornment="Adornment.Start"
+            <MudTextField T="string" Immediate=true ValueChanged="@(s => OnSearch(s))"  Placeholder="Search" Adornment="Adornment.Start"
                           AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
         </ToolBarContent>
         <Columns>
@@ -31,7 +31,7 @@
             <MudDataGridPager T="ViewUserCustomers" />
         </PagerContent>
     </MudDataGrid>
-</MudPaper>
+
 
 @code {
     MudDataGrid<ViewUserCustomers> dataGrid;

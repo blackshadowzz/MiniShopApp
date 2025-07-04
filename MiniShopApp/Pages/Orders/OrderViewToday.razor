@@ -12,7 +12,7 @@
         <MudTabs Outlined="false">
             <MudTabPanel Text="Card" Icon="@Icons.Material.Filled.GridView">
                 <MudStack>
-                    <MudTextField T="string" ValueChanged="@(s => OnSearch(s))" Placeholder="Search" Variant=Variant.Text Adornment="Adornment.End"
+                    <MudTextField T="string" Immediate=true ValueChanged="@(s => OnSearch(s))" Placeholder="Search" Variant=Variant.Text Adornment="Adornment.End"
                                   AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="my-2"></MudTextField>
                 </MudStack>
                 <MudGrid>
@@ -86,7 +86,7 @@
             </MudTabPanel>
             <MudTabPanel Text="Grid" Icon="@Icons.Material.Filled.ListAlt" >
                 <MudStack>
-                    <MudTextField T="string" ValueChanged="@(s => OnSearch(s))" Placeholder="Search" Variant=Variant.Text Adornment="Adornment.End"
+                    <MudTextField T="string" Immediate=true ValueChanged="@(s => OnSearch(s))" Placeholder="Search" Variant=Variant.Text Adornment="Adornment.End"
                                   AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="my-2"></MudTextField>
                 </MudStack>
                 <DropdownActionOrder ExpandedAction="_expandedEdit"
@@ -221,12 +221,10 @@
     </MudTabPanel>
     <MudTabPanel Text="Yesterday" Icon="@Icons.Material.Filled.CalendarViewWeek" OnClick="GetOrderYesterday">
         <MudStack>
-            <MudTextField T="string" ValueChanged="@(s => OnSearch(s))" Placeholder="Search" Variant=Variant.Text Adornment="Adornment.End"
+            <MudTextField T="string" Immediate=true ValueChanged="@(s => OnSearch(s))" Placeholder="Search" Variant=Variant.Text Adornment="Adornment.End"
                           AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="my-2"></MudTextField>
         </MudStack>
-@*         <DropdownActionOrder ExpandedAction="_expandedEdit"
-                             ItemCount="@selectedYesterdayOrders.Count"
-                             ClickPrint="@(() => GenerateReceiptAsync(selectedYesterdayOrders))" /> *@
+
         <DropdownActionOrder ExpandedAction="_expandedEdit"
                              ItemCount="@selectedYesterdayOrders.Count"
                              DisabledPaid=false
@@ -373,7 +371,7 @@
     bool isLoading = false;
     private void OnExpandCollapseClick(TableRowClickEventArgs<ViewTbOrders> row)
     {
-        if (_expandedOrderId == row.Item.Id)
+        if (_expandedOrderId == row.Item!.Id)
             _expandedOrderId = null; // Collapse if already expanded
         else
             _expandedOrderId = row.Item.Id; // Expand this row
@@ -416,27 +414,14 @@
             if (!string.IsNullOrWhiteSpace(searchString))
             {
                 matches = element.CustomerId.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase)
-                    || (element.TableNumber != null && element.TableNumber.Contains(searchString, StringComparison.OrdinalIgnoreCase))
-                    || (element.LastName != null && element.LastName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
-                    || (element.Id.ToString() != null && element.Id.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase))
-                    || (element.FirstName != null && element.FirstName.Contains(searchString, StringComparison.OrdinalIgnoreCase));
+                   || (element.TableNumber != null && element.TableNumber.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                   || (element.LastName != null && element.LastName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                   || (element.CustomerType != null && element.CustomerType.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                   || (element.OrderCode != null && element.OrderCode.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                   || (element.OrderStatus != null && element.OrderStatus.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                   || (element.FirstName != null && element.FirstName.Contains(searchString, StringComparison.OrdinalIgnoreCase));
             }
-            // if (matches && startDate.HasValue)
-            // {
-            //     matches = element.CreatedDT.HasValue && element.CreatedDT.Value.Date >= startDate.Value.Date;
-            // }
-            // if (matches && endDate.HasValue)
-            // {
-            //     matches = element.CreatedDT.HasValue && element.CreatedDT.Value.Date <= endDate.Value.Date;
-            // }
-            // if (matches && selectedMonth.HasValue)
-            // {
-            //     matches = element.CreatedDT.HasValue && element.CreatedDT.Value.Month == selectedMonth.Value;
-            // }
-            // if (matches && selectedYear.HasValue)
-            // {
-            //     matches = element.CreatedDT.HasValue && element.CreatedDT.Value.Year == selectedYear.Value;
-            // }
+            
             return matches;
         }).ToArray();
         totalItems = data.Count();

@@ -7,7 +7,7 @@
 {
     <MudProgressLinear Color="Color.Primary" Indeterminate="true" />
 }
-<MudGrid>
+<MudGrid Justify="Justify.SpaceBetween" Style="width:auto">
     <!-- Scrollable item list -->
     <MudItem xs="12" sm="8">
         <MudStack Row Justify="Justify.SpaceBetween" StretchItems="StretchItems.All">
@@ -19,25 +19,23 @@
                        ValueChanged="@((e)=>OnCategoryChanged(e))"
                        OnClearButtonClick="OnGetSearchRefresh"
                        Clearable="true">
-                <MudSelectItem T="string" Value="@("Food")">Food</MudSelectItem>
-                <MudSelectItem T="string" Value="@("Drink")">Drink</MudSelectItem>
-               @*  @foreach (var state in viewCustomerTypes)
+                
+                @foreach (var state in categories)
                 {
-                    <MudSelectItem T="long" Value="state.Id">@state.TypeName</MudSelectItem>
-                } *@
+                    <MudSelectItem T="string" Value="state.CategoryName">@state.CategoryName</MudSelectItem>
+                }
             </MudSelect>
-            <div class="input-group mb-3">
-                <input type="text"
-                       class="form-control"
-                       @bind-value="_filter"
-                       @oninput="@((e) => OnSearch(e))"
-                       placeholder="Search here..."
-                       aria-describedby="button-addon2" />
-                <button class="btn btn-outline-secondary" @onclick="OnGetSearchRefresh" type="button" id="button-addon2"><i class="bi bi-search"></i></button>
-            </div>
+
+            <MudTextField Immediate="true"
+                          T="string"
+                          Label="Search product..."
+                          Variant="Variant.Text"
+                          Adornment="Adornment.End"
+                          ValueChanged="@((e) => OnSearch(e))"
+                          AdornmentIcon="@Icons.Material.Filled.Search" />
         </MudStack>
         
-        <div style="max-height: 80vh; overflow-y: auto;">
+        <div style="max-height: 80vh;width:auto; overflow-y: auto;">
             @if (LoadingProducts)
             {
                 <MudProgressLinear Color="Color.Primary" Indeterminate="true" />
@@ -89,10 +87,11 @@
     <!-- Sticky order summary -->
 
     <MudItem xs="12" sm="4">
-        <div style="position: sticky; top: 0;left:0;">
+        <div style="position: sticky; top: 0;left:0; height:auto">
             <MudStack Row Justify="Justify.FlexStart" Class="mb-2" StretchItems="StretchItems.All">
                 <MudStack StretchItems="StretchItems.All">
                     <MudSelect @bind-Value="Order.CustomerId"
+                                @bind-Value:after="@GetCustomer"
                                T="long"
                                Variant="Variant.Text"
                                Label="Customer "
@@ -111,9 +110,9 @@
 
             </MudStack>
 
-            <MudPaper Width="500px" Elevation="1" Class="p-1 mb-2">
+            <MudPaper Height="100%" Elevation="1" Class="p-1 mb-2">
 
-                <MudSimpleTable Dense=true FixedHeader="true" Style="height:300px;">
+                <MudSimpleTable Dense=true FixedHeader="true" Style="height:350px;">
                     <thead>
                         <tr>
                             <th style="width:8px">#</th>
@@ -155,8 +154,24 @@
                             <th>Total</th>
                             <th class="text-end"></th>
                             <th class="text-end"></th>
-                            <th class="text-end text-danger">@String.Format("${0:N2}", @orderDetails?.Sum(x => x.TotalPrice))</th>
+                            <th class="text-end text-danger">@orderDetails?.Sum(x => x.TotalPrice)?.ToString("C2")</th>
                         </tr>
+                        @* <tr class="table-active ">
+                            <th></th>
+                            <th>Discount</th>
+                            <th class="text-end"></th>
+                            <th class="text-end"></th>
+                            <th class="text-end text-danger">@customerType?.DiscountRate?.ToString("P0")</th>
+                        </tr>
+                        <tr class="table-active ">
+                            <th></th>
+                            <th>Total</th>
+                            <th class="text-end"></th>
+                            <th class="text-end"></th>
+                            <th class="text-end text-danger">
+                                @String.Format("${0:N2}", customerType?.DiscountRate * orderDetails?.Sum(x => x.TotalPrice) / 100)
+                            </th>
+                        </tr> *@
                         <tr>
                             <th></th>
                             <th></th>
@@ -186,7 +201,7 @@
                                     Lines="5" 
                                     AutoGrow="false" 
                                     Label="Notes"
-                                    
+                                    Variant="Variant.Outlined"
                                     @bind-Text="@Order.Notes"
                                   Placeholder="Leave a note here..." 
                                   Class="" />
@@ -237,11 +252,12 @@
             $"Name: {item?.ProductName} <br /> Price: {item?.Price?.ToString("c2")} <br /> Description: {item?.Description} <br /> ");
         StateHasChanged();
     }
-    async void OnCategoryChanged(string? text="")
+    async Task OnCategoryChanged(string? text="")
     {
         IEnumerable<ViewProductOrders> enumerable = _productsStore.Where(x => x.CategoryName!.Equals(text!));
         _products = enumerable.ToList();
         StateHasChanged();
+        await Task.CompletedTask;
     }
     protected async void RemoveProduct(int? proId)
     {
@@ -325,7 +341,7 @@
                 if (result == true)
                 {
                     IsLoading = true;
-                    
+                    var total = orderDetails.Sum(x => x.TotalPrice)-(orderDetails.Sum(x => x.TotalPrice) * custType?.DiscountRate / 100);
                     TbOrder order = new TbOrder
                         {
                             CustomerType=custType?.TypeName,
@@ -333,8 +349,8 @@
                             TableNumber = Order.TableNumber,
                             ItemCount = orderDetails.Count,
                             SubPrice = orderDetails.Sum(x => x.TotalPrice),
-                            DiscountPrice = Order.DiscountPrice,
-                            TotalPrice = orderDetails.Sum(x => x.TotalPrice),
+                            DiscountPrice = custType?.DiscountRate,
+                            TotalPrice = total,
                             Notes = Order.Notes,
                             CreatedDT = DateTime.Now,
                             TbOrderDetails = orderDetails,

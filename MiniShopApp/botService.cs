@@ -53,7 +53,6 @@ namespace MiniShopApp
             // Start receiving updates from Telegram with long polling
             var _reciverOptions = new ReceiverOptions
             {
-                //AllowedUpdates = new UpdateType[] { UpdateType.Message }
                 AllowedUpdates = Array.Empty<UpdateType>(), // receive all
                 DropPendingUpdates = false // don't skip old messages
             };
@@ -70,9 +69,7 @@ namespace MiniShopApp
             {
                 await Task.Delay(1000, stoppingToken);
             }
-
             await _botClient.LogOut();
-
         }
         protected async Task<string?> GetWebURLAsync()
         {
@@ -227,24 +224,83 @@ namespace MiniShopApp
             var command = parts?.FirstOrDefault();
             var modelId = parts?.Length > 1 ? parts[1] : null;
             var message = update.CallbackQuery?.Message;
+            var messageId = update.CallbackQuery?.Message?.MessageId;
             var chatType = message?.Chat?.Type;
-            var groupId = message?.Chat?.Id;
+            var chatId = message?.Chat.Id;
+            var fromUserId = update.CallbackQuery?.From?.Id;
+            var fromUserName = update.CallbackQuery?.From?.FirstName;
+            SystemLogs.UserLogPlainText($"\nUser {fromUserId} Name {fromUserName} used {command} in {chatId}\n");
 
-            if (groupId == null || (chatType != ChatType.Group && chatType != ChatType.Supergroup))
-                return;
 
-            async Task ExecuteOrNotifyAsync(string? id, Func<string, long, Task> action, string errorText)
+            if (chatType == ChatType.Group || chatType == ChatType.Supergroup)
             {
-                if (!string.IsNullOrWhiteSpace(id))
+                if (chatId != null)
                 {
-                    await action(id, groupId.Value);
+                    // Check if user is admin
+                    var chatMember = await _botClient.GetChatMember(chatId, fromUserId!.Value);
+                    if (chatMember.Status != ChatMemberStatus.Administrator &&
+                        chatMember.Status != ChatMemberStatus.Creator)
+                    {
+                        await _botClient.SendMessage(
+                            chatId: chatId,
+                            text: "🚫 You must be a group admin to perform this action.");
+                        return;
+                    }
                 }
-                else
+            }
+
+            // Local helper to reduce code duplication
+            async Task ExecuteOrNotifyAsync(string? id, Func<string, long, Task> action, string actionText)
+            {
+                if (chatId != null)
                 {
-                    await _botClient.SendMessage(
-                        chatId: groupId.Value,
-                        text: $"⚠️ Model ID is missing. Can't {errorText}.");
-                }
+                    if (!string.IsNullOrWhiteSpace(id) && messageId!=null)
+                    {
+                        await action(id, (long)chatId);
+                        // 🧼 Changed text inline buttons after successful action
+                        var updatedButtons = new List<List<InlineKeyboardButton>>
+                        {
+                            new()
+                            {
+                                command == "/cookconfirm"
+                                    ? InlineKeyboardButton.WithCallbackData("✅ Confirmed", "disabled")
+                                    : InlineKeyboardButton.WithCallbackData("Confirm Cook ✅", $"/cookconfirm:{modelId}"),
+
+                                command == "/cancelorder"
+                                    ? InlineKeyboardButton.WithCallbackData("❌ Cancelled", "disabled")
+                                    : InlineKeyboardButton.WithCallbackData("Cancel Order ❌", $"/cancelorder:{modelId}")
+                            },
+                            new()
+                            {
+                                command == "/paidconfirm"
+                                    ? InlineKeyboardButton.WithCallbackData("💵 Paid", "disabled")
+                                    : InlineKeyboardButton.WithCallbackData("Confirm Paid 💵", $"/paidconfirm:{modelId}")
+                            },
+                            new()
+                            {
+                                command == "/printreceipt"
+                                    ? InlineKeyboardButton.WithCallbackData("📄 Printed", "disabled")
+                                    : InlineKeyboardButton.WithCallbackData("Print Receipt(PDF)📄", $"/printreceipt:{modelId}")
+                            }
+                        };
+
+                        var replyMarkup = new InlineKeyboardMarkup(updatedButtons);
+                        await _botClient.EditMessageReplyMarkup(
+                            chatId: chatId,
+                            messageId: messageId.Value,
+                            replyMarkup: replyMarkup
+                        );
+                        if(update.CallbackQuery?.Id!=null)
+                            await _botClient.AnswerCallbackQuery(update.CallbackQuery.Id, "✅ Action completed");
+
+                    }
+                    else
+                    {
+                        await _botClient.SendMessage(
+                            chatId: chatId,
+                            text: $"⚠️ Model ID is missing. Can't {actionText}.");
+                    }
+                } 
             }
 
             var actions = new Dictionary<string, (Func<string, long, Task> action, string errorText)>
@@ -259,6 +315,120 @@ namespace MiniShopApp
             {
                 await ExecuteOrNotifyAsync(modelId, entry.action, entry.errorText);
             }
+            else
+            {
+                if(chatId != null)
+                    await _botClient.SendMessage(
+                            chatId: chatId,
+                            text: "❓ Unknown command.");
+            }
+        }
+        private async Task HandleUserCommandAsync(Update update)
+        {
+            var message = update.Message;
+            var chatId = message?.Chat.Id;
+
+            if (message is null || chatId is null || update.CallbackQuery != null)
+                return;
+
+            switch (message.Text)
+            {
+                case "/start":
+                    string? url = await GetWebURLAsync();
+                    string webURL = $"{url}/index?userid={chatId}";
+
+                    await _botClient.SetChatMenuButton(chatId.Value, new MenuButtonWebApp
+                    {
+                        Text = "Open App",
+                        WebApp = new WebAppInfo { Url = webURL }
+                    });
+
+                    await _botClient.SendMessage(chatId.Value,
+                        $"Welcome to our Mini App Online! {message.Chat.FirstName}\n\n" +
+                        $"Our Mini App is still in development. If you find any issues, please send feedback using /feedback.\n\nThanks for testing! (_._)",
+                        replyMarkup: InlineKeyboardButton.WithWebApp("Open App", webURL));
+
+                    break;
+
+                case "/help":
+                    await _botClient.SendMessage(chatId.Value,
+                        "📖 Help Menu\n\n" +
+                        "Available Commands:\n" +
+                        "/start - Start or refresh the bot.\n" +
+                        "/help - Get help.\n" +
+                        "/feedback - Send us feedback.\n" +
+                        "/about - About the project.\n",
+                        replyMarkup: InlineKeyboardButton.WithUrl("Contact us", "https://t.me/Mangry_off"));
+                    break;
+
+                case "/about":
+                    await _botClient.SendMessage(chatId.Value,
+                        "ℹ️ About Mini App\n\n" +
+                        "We’re developing a web-based Telegram Mini App for restaurants and food vendors. " +
+                        "Currently in testing, it supports menu browsing, placing orders, and more. " +
+                        "Bot URL: t.me/Miniorder_bot\nVersion: Testing\nRelease: Under development\n\nThank you!");
+                    break;
+
+                case "/feedback":
+                    await _botClient.SendMessage(chatId.Value,
+                        "📝 Please send your feedback to our support team.",
+                        replyMarkup: InlineKeyboardButton.WithUrl("Send us feedback", "https://t.me/Mangry_off"));
+                    break;
+
+                case "/setgroupid":
+                    if (message.Chat.Type is ChatType.Group or ChatType.Supergroup)
+                    {
+                        await HandleSetGroupIdAsync(chatId.Value, message);
+                    }
+                    else
+                    {
+                        await _botClient.SendMessage(chatId.Value, "⚠️ This command only works in groups.");
+                    }
+                    break;
+
+                default:
+                    if (message.Chat.Type is not ChatType.Group or ChatType.Supergroup)
+                    {
+                        await _botClient.SendMessage(chatId.Value, "❓ Unknown command. Use /help to see available options.");
+                    }
+                    break;
+            }
+        }
+        private async Task HandleSetGroupIdAsync(long groupId, Message message)
+        {
+            await using var context = await dbContext.CreateDbContextAsync();
+            try
+            {
+                var existing = await context.TbTelegramGroups.AsNoTracking().FirstOrDefaultAsync(x => x.GroupId == groupId);
+                if (existing != null)
+                {
+                    await _botClient.SendMessage(groupId, "⚠️ This group is already registered.");
+                    return;
+                }
+
+                var groupData = new TbTelegramGroup
+                {
+                    GroupId = groupId,
+                    GroupName = message.Chat.Title,
+                    TelegramUserId = message.From?.Id,
+                    Description = $"Group ID: {groupId}, Name: {message.Chat.Title}",
+                    IsActive = true
+                };
+
+                context.TbTelegramGroups.Add(groupData);
+                var saved = await context.SaveChangesAsync();
+
+                if (saved > 0)
+                {
+                    await _botClient.SendMessage(groupId, "✅ Group successfully registered!");
+                }
+            }
+            catch (Exception ex)
+            {
+                SystemLogs.UserLogPlainText($"Error While set Group: {ex.Message}");
+                throw new Exception(ex.Message);
+            }
+            
         }
 
         private async Task OnMessage(ITelegramBotClient telegramBot, Update update, CancellationToken cancellationToken)
@@ -270,129 +440,8 @@ namespace MiniShopApp
                     await HandleCallbackQueryAsync(update);
                     return;
                 }
-
-
-                if (update is { Message: { Text: "/start" }, CallbackQuery: null })
-                {
-                    string? url = await GetWebURLAsync();
-                    string? webURL = url + $"/index?userid={update.Message!.Chat.Id}";
-                    await _botClient.SetChatMenuButton(
-                             chatId: update.Message.Chat.Id,
-                             menuButton: new MenuButtonWebApp
-                             {
-                                 Text = "Open App",
-                                 WebApp = new WebAppInfo { Url = webURL }
-                             }
-                         );
-                    await _botClient.SendMessage(
-                        update.Message.Chat.Id,
-                        $"Welcome to our Mini App Online! {update.Message.Chat.FirstName}\n\n" +
-                        $"Our Mini App still developing while you testing if has some errors, please feedback to us by type or click command /feedback. \n" +
-                        $"\nThanks for testing! (_._) Click Open App",
-                        replyMarkup: new InlineKeyboardButton[]
-                            {
-                            InlineKeyboardButton.WithWebApp("Open App",webURL),
-                            });
-                }
-                else if (update.Message?.Text == "/help")
-                {
-                    await _botClient.SendMessage(update.Message.Chat.Id, "Please contact us for more informations.\n\n" +
-                        "Available  command: \n" +
-                        "/start - start bot or refresh bot.\n" +
-                        "/help - get help.\n" +
-                        "/feedback - send us feedback.\n" +
-                        "/about - about us.\n\n",
-                        replyMarkup: new InlineKeyboardButton[]
-                            {
-                            InlineKeyboardButton.WithUrl("Contact us","https://t.me/Mangry_off"),
-
-                            }
-
-
-                            );
-                }
-                else if (update.Message?.Text == "/about")
-                {
-                    await _botClient.SendMessage(update.Message.Chat.Id, "This is Mini App\n\n" +
-                        "We are developing a web application integrated with the Telegram Mini App platform, " +
-                        "designed to streamline online ordering for restaurants and food vendors. While currently in testing, the app already supports essential features like menu browsing and placing orders. " +
-                        "We’re actively refining performance and fixing minor issues to ensure a smooth and engaging experience for users within Telegram.\r\n\n" +
-                        "Our App:\n" +
-                        "Bot URL: t.me/Miniorder_bot\n" +
-                        "Version: Testing\n" +
-                        "Release: Under developing\n\n" +
-                        "Thank you!!!"
-                       
-                            );
-                }
-                else if (update.Message?.Text == "/feedback")
-                {
-                    await _botClient.SendMessage(update.Message.Chat.Id, "Please send your feedback to our support team.",
-                        replyMarkup: new InlineKeyboardButton[]
-                            {
-                                InlineKeyboardButton.WithUrl("Send us feedback", "https://t.me/Mangry_off"),
-                            }
-                            );
-                }
-                else if (update.Message?.Text == "/setgroupid")
-                {
-                    //this command working on group only
-                    if (update.Message.Chat.Type == ChatType.Group || update.Message.Chat.Type == ChatType.Supergroup)
-                    {
-                        long groupId = update.Message.Chat.Id;
-                        await using var context = await dbContext.CreateDbContextAsync();
-                        var result = await context.TbTelegramGroups.AsNoTracking().FirstOrDefaultAsync(x => x.GroupId == groupId);
-                        if (result != null)
-                        {
-                            await _botClient.SendMessage(
-                                chatId: groupId,
-                                text: $"This group already set!!!"
-                            );
-                            return;
-                        }
-                        var data = new TbTelegramGroup
-                        {
-                            GroupId = groupId,
-                            GroupName = update.Message.Chat.Title,
-                            TelegramUserId = update.Message.From?.Id,
-                            Description = $"This group's ID is: {groupId} Group Name: {update.Message.Chat.Title}",
-                            IsActive = true
-                        };
-                        context.TbTelegramGroups.Add(data);
-                        var row = await context.SaveChangesAsync();
-                        if (row > 0)
-                        {
-                            await _botClient.SendMessage(
-                                chatId: groupId,
-                                text: $"This group was set to system succeed!!!"
-                            );
-                        }
-                    }
-                    else
-                    {
-                        await _botClient.SendMessage(
-                            chatId: update.Message.Chat.Id,
-                            text: "This command only works in groups."
-                        );
-                    }
-                } else if (update.Message?.Text == "/paid")
-                {
-                    //delete all user data in bot and delete bot after user use command /paid
-                    //var chatId = update.Message.Chat.Id;
-                    //var messageId = update.Message.MessageId;
-                    //await _botClient.DeleteMessage(chatId,messageId);
-                }
-                else
-                {
-                    var chatId = update.Message?.Chat.Id;
-                    if (chatId != null)
-                    {
-                        await _botClient.SendMessage(chatId, $"Use command /help to see available command!");
-                    }
-                }
-                
+                await HandleUserCommandAsync(update);
                 await UserCustomerCreateAsync(update);
-
             }
             catch (Exception ex)
             {

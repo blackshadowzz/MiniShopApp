@@ -4,57 +4,98 @@
 @layout MainLayout
 <PageTitle>Customer Logs</PageTitle>
 
-<MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
+<MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true">
     <MudTabPanel Text="Customer logs" Icon="@Icons.Material.Filled.Api">
-        @if (IsLoading == true)
-        {
-            <div class="text-center">
-                <div class="spinner-border" role="status">
-                    <span class="visually-hidden">Loading...</span>
-                </div>
-            </div>
-        }
-        <div class="row">
-            <div class="col-md-12">
-                <div class="input-group mb-3">
-                    <input type="text" class="form-control" placeholder="Search logs..." />
-                    <button class="btn btn-outline-secondary">Search</button>
-                </div>
-                <table class="table table-hover table-striped-columns caption-top">
-                    <caption>Customer Logs</caption>
-                    <thead>
-                        <tr>
-                            <th>Customer ID</th>
-                            <th>Fullname</th>
-                            <th>Username</th>
-                            <th>Phone</th>
-                            <th>Login-Date</th>
-                            <th>Last-Login</th>
-                            <th>Details</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-                        @foreach (var log in userCustomers ?? default!)
-                        {
-                            <tr>
-                                <td>@log.CustomerId</td>
-                                <td>@log.FirstName @log.LastName</td>
-                                <td>@log.UserName</td>
-                                <td>@log.phoneNumber</td>
-                                <td>@log.loginDateTime</td>
-                                <td>@log.LastLoginDT</td>
-                                <td>
-                                </td>
-
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-
-            </div>
+       <MiniShopApp.Shared.DropdownActions.DropdownEdits 
+        ExpandedAction=_expandedEdit
+        ItemCount="selectCustomers.Count"
+       />
+        <MudTable ServerData="ServerReload"
+                  FixedHeader="@fixed_header"
+                  FixedFooter="@fixed_footer"
+                  Height="@(fixed_header || fixed_footer ? "500px" : "")"
+                  MultiSelection="true"
+                  T="ViewUserCustomers"
+                  Dense="true" Hover="true" @ref="table" Loading="isLoading"
+                  SelectOnRowClick=false
+                  SelectedItemsChanged="@(items => MultiSelect(items))">
+            <ToolBarContent>
+                <MudText Typo="Typo.h6">User customers</MudText>
+                <MudSpacer />
+                <MudTextField T="string" Immediate=true ValueChanged="@(s => OnSearch(s))" Placeholder="Search" Adornment="Adornment.Start"
+                              AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+            </ToolBarContent>
+            <HeaderContent>
+                <MudTh>
+                    <MudTableSortLabel SortLabel="Id" T="ViewUserCustomers">
+                        Id
+                    </MudTableSortLabel>
+                </MudTh>
+                <MudTh>
+                    <MudTableSortLabel SortLabel="FirstName" T="ViewUserCustomers">
+                        Customer
+                    </MudTableSortLabel>
+                </MudTh>
+                <MudTh>
+                    <MudTableSortLabel SortLabel="FirstName" T="ViewUserCustomers">
+                        Username
+                    </MudTableSortLabel>
+                </MudTh>
+                <MudTh>
+                    <MudTableSortLabel SortLabel="phoneNumber" T="ViewUserCustomers">
+                        Phone
+                    </MudTableSortLabel>
+                </MudTh>
+                <MudTh>
+                    <MudTableSortLabel SortLabel="loginDateTime" T="ViewUserCustomers">
+                        Login
+                    </MudTableSortLabel>
+                </MudTh>
+                <MudTh>
+                    <MudTableSortLabel SortLabel="LastLoginDT" T="ViewUserCustomers">
+                        Last
+                    </MudTableSortLabel>
+                </MudTh>
+                <MudTh>
+                    <MudTableSortLabel SortLabel="IsPremium" T="ViewUserCustomers">
+                        Premium
+                    </MudTableSortLabel>
+                </MudTh>
+                <MudTh>
+                    <MudTableSortLabel SortLabel="IsLocked" T="ViewUserCustomers">
+                        Locked
+                    </MudTableSortLabel>
+                </MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="CustomerId">@context.CustomerId</MudTd>
+                <MudTd DataLabel="FirstName">@(context.FirstName ?? @context.CustomerType)</MudTd>
+                <MudTd DataLabel="UserName">@(context.UserName)</MudTd>
+                <MudTd DataLabel="phoneNumber">@context.phoneNumber</MudTd>
+                <MudTd DataLabel="loginDateTime">@context.loginDateTime</MudTd>
+                <MudTd DataLabel="LastLoginDT">@context.LastLoginDT</MudTd>
+                <MudTd DataLabel="IsPremium">
+                    <MudCheckBox Color="Color.Primary" @bind-Value="context.IsPremium" ReadOnly/>
+                </MudTd>
+                <MudTd DataLabel="IsLocked">
+                    <MudCheckBox Color="Color.Primary" @bind-Value="context.IsLocked" ReadOnly/>
+                </MudTd>
+            </RowTemplate>
+            <NoRecordsContent>
+                <MudText>No matching records found</MudText>
+            </NoRecordsContent>
+            <LoadingContent>
+                <MudText>Loading...</MudText>
+            </LoadingContent>
            
-        </div>
+            <PagerContent>
+                <MudTablePager />
+            </PagerContent>
+        </MudTable>
+        <MudStack Row=true StretchItems="StretchItems.None">
+            <MudCheckBox @bind-Value="fixed_header" Color="Color.Primary">Fixed Header</MudCheckBox>
+            <MudCheckBox @bind-Value="fixed_footer" Color="Color.Primary">Fixed Footer</MudCheckBox>
+        </MudStack>
     </MudTabPanel>
     <MudTabPanel Text="Read Log" Icon="@Icons.Material.Filled.Info" OnClick="@(() => ReadUserLog())">
         
@@ -71,16 +112,15 @@
         <MudStack Justify="Justify.SpaceBetween">
             @if (IsLoading == true)
             {
-                <div class="text-center">
-                    <div class="spinner-border" role="status">
-                        <span class="visually-hidden">Loading...</span>
-                    </div>
-                </div>
+                <MudProgressLinear Color="Color.Primary" Indeterminate="true" />
+
             }
-            <div class="form-floating mt-3">
-                <textarea class="form-control" @bind="@messegeText" placeholder="Leave a message here..." id="floatingTextarea2" style="height: 100px"></textarea>
-                <label for="floatingTextarea2">Alert Text</label>
-            </div>
+            <MudTextField Lines="5" 
+                AutoGrow="false" 
+                Variant="Variant.Outlined"
+                T="string" @bind-Text="messegeText"
+                Placeholder="Leave a message here..."
+                Label="Alert Message"/>
             <MudButton Variant="Variant.Filled" 
             StartIcon="@Icons.Material.Filled.TaxiAlert" 
             Color="Color.Secondary"
@@ -97,4 +137,78 @@
 @code{
     string? messegeText = "";
     List<CustomerAlertMessege> alertMessege = [];
+
+    bool fixed_header = true;
+    bool fixed_footer = true;
+    bool _expandedEdit = false;
+    bool isLoading = false;
+    private int totalItems;
+    private string? searchString = null;
+    private IEnumerable<ViewUserCustomers> pagedData;
+    private MudTable<ViewUserCustomers> table;
+    private List<ViewUserCustomers> selectCustomers = new();
+
+    void MultiSelect(IEnumerable<ViewUserCustomers> items)
+    {
+        selectCustomers = items.ToList();
+        if (selectCustomers.Any())
+            _expandedEdit = true;
+        else
+            _expandedEdit = false;
+
+        StateHasChanged();
+    }
+    void clearData()
+    {
+        _expandedEdit = false;
+        table.ReloadServerData();
+        selectCustomers.Clear();
+    }
+    private void OnSearch(string text)
+    {
+        searchString = text;
+        table.ReloadServerData();
+    }
+    private async Task<TableData<ViewUserCustomers>> ServerReload(TableState state, CancellationToken token)
+    {
+        IEnumerable<ViewUserCustomers> data = userCustomers!;
+        await Task.Delay(300, token);
+        data = data.Where(element =>
+        {
+            bool matches = true;
+            if (!string.IsNullOrWhiteSpace(searchString))
+            {
+                matches = element.CustomerId.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase)
+                    || (element.CustomerType != null && element.CustomerType.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                    || (element.LastName != null && element.LastName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                    || (element.Id.ToString() != null && element.Id.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                    || (element.FirstName != null && element.FirstName.Contains(searchString, StringComparison.OrdinalIgnoreCase));
+            }
+           
+            return matches;
+        }).ToArray();
+        totalItems = data.Count();
+        switch (state.SortLabel)
+        {
+            case "Id":
+                data = data.OrderByDirection(state.SortDirection, o => o.Id);
+                break;
+            case "CustomerId":
+                data = data.OrderByDirection(state.SortDirection, o => o.CustomerId);
+                break;
+            case "TableNumber":
+                data = data.OrderByDirection(state.SortDirection, o => o.CustomerType);
+                break;
+            case "FirstName":
+                data = data.OrderByDirection(state.SortDirection, o => o.FirstName);
+                break;
+            case "TotalPrice":
+                data = data.OrderByDirection(state.SortDirection, o => o.IsLocked);
+                break;
+
+        }
+
+        pagedData = data.Skip(state.Page * state.PageSize).Take(state.PageSize).ToArray();
+        return new TableData<ViewUserCustomers>() { TotalItems = totalItems, Items = pagedData.OrderByDescending(x => x.Id) };
+    }
 }

@@ -38,7 +38,121 @@
                 return Result.Failure<string>(new ErrorResponse($"Print failed: {ex.Message}"));
             }
         }
-        
+        //public byte[] CreateOrderReceiptPdf(ViewTbOrders order)
+        //{
+        //    try
+        //    {
+        //        QuestPDF.Settings.License = LicenseType.Community;
+        //        var document = Document.Create(container =>
+        //        {
+        //            container.Page(page =>
+        //            {
+        //                page.ContinuousSize(80, Unit.Millimetre);
+        //                page.Margin(5);
+
+        //                // HEADER
+        //                page.Header().Column(header =>
+        //                {
+        //                    header.Item().AlignCenter().Image("wwwroot/images/MiniLogo.jpg").FitHeight().FitWidth();
+        //                    header.Item().AlignCenter().Text("MINI APP ORDER").FontSize(13).Bold();
+        //                    header.Item().AlignCenter().Text("Order Receipt").FontSize(10).Italic();
+        //                    header.Item().AlignCenter().Text("Sample order receipt").FontSize(8).FontColor(Colors.Grey.Medium);
+        //                    header.Item().PaddingVertical(2).LineHorizontal(1);
+        //                });
+
+        //                // BODY
+        //                page.Content().Column(col =>
+        //                {
+        //                    string customer = string.IsNullOrEmpty(order.FirstName + order.LastName)
+        //                        ? order.CustomerId.ToString()
+        //                        : $"{order.FirstName} {order.LastName}";
+
+        //                    col.Item().Text($"Order #: {order.OrderCode ?? order.Id.ToString()}").FontSize(10);
+        //                    col.Item().Text($"Customer: {customer}").FontSize(10);
+        //                    col.Item().Text($"Date: {order.CreatedDT?.ToString("dd/MMM/yyyy hh:mm tt")}").FontSize(10);
+        //                    col.Item().Text($"Table: {order.TableNumber}").FontSize(10);
+        //                    col.Item().PaddingVertical(4).LineHorizontal(1);
+
+        //                    col.Item().Table(table =>
+        //                    {
+        //                        table.ColumnsDefinition(columns =>
+        //                        {
+        //                            columns.ConstantColumn(10);  // #
+        //                            columns.RelativeColumn();    // Item
+        //                            columns.ConstantColumn(20);  // Qty
+        //                            columns.ConstantColumn(25);  // Price
+        //                            columns.ConstantColumn(30);  // Total
+        //                        });
+
+        //                        // Table Header
+        //                        table.Header(header =>
+        //                        {
+        //                            header.Cell().Element(CellStyle).Text("#").Bold().FontSize(9);
+        //                            header.Cell().Element(CellStyle).Text("Item").Bold().FontSize(9);
+        //                            header.Cell().Element(CellStyle).Text("Qty").Bold().FontSize(9);
+        //                            header.Cell().Element(CellStyle).Text("Price").Bold().FontSize(9);
+        //                            header.Cell().Element(CellStyle).Text("Total").Bold().FontSize(9);
+        //                        });
+
+        //                        // Order Items
+        //                        if (order.TbOrderDetails != null)
+        //                        {
+        //                            foreach (var detail in order.TbOrderDetails)
+        //                            {
+        //                                table.Cell().Element(CellStyle).Text($"{order.TbOrderDetails.IndexOf(detail) + 1}").FontSize(8);
+        //                                table.Cell().Element(CellStyle).Text(detail.ItemName).FontSize(8);
+        //                                table.Cell().Element(CellStyle).Text(detail.Quantity?.ToString() ?? "").FontSize(8).AlignRight();
+        //                                table.Cell().Element(CellStyle).Text(detail.Price?.ToString("c2") ?? "").FontSize(8).AlignRight();
+        //                                table.Cell().Element(CellStyle).Text(detail.TotalPrice?.ToString("c2") ?? "").FontSize(8).AlignRight();
+        //                            }
+        //                        }
+
+        //                        // Totals
+        //                        table.Footer(footer =>
+        //                        {
+        //                            footer.Cell().ColumnSpan(4).AlignRight().Text("Sub Total:").FontSize(10).Bold();
+        //                            footer.Cell().AlignRight().Text(order.TotalPrice?.ToString("c2") ?? "")
+        //                                  .FontSize(10).Bold().FontColor(Colors.Red.Medium);
+
+        //                            footer.Cell().ColumnSpan(4).AlignRight().Text("Discount (%):").FontSize(10).Bold();
+        //                            footer.Cell().AlignRight().Text(order.DiscountPrice?.ToString("0.##") ?? "0")
+        //                                  .FontSize(10).Bold().FontColor(Colors.Red.Medium);
+
+        //                            footer.Cell().ColumnSpan(4).AlignRight().Text("Total:").FontSize(11).Bold();
+        //                            footer.Cell().AlignRight().Text(order.TotalPrice?.ToString("c2") ?? "")
+        //                                  .FontSize(11).Bold().FontColor(Colors.Red.Darken1);
+        //                        });
+        //                    });
+
+        //                    col.Item().PaddingVertical(5).LineHorizontal(1);
+        //                });
+
+        //                // FOOTER
+        //                page.Footer().Column(footer =>
+        //                {
+        //                    footer.Item().AlignCenter().Text("Thank you for your order!").FontSize(9);
+        //                    footer.Item().AlignCenter().Text("See you next time.").FontSize(9);
+        //                });
+        //            });
+        //        });
+
+        //        return document.GeneratePdf();
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw new Exception(ex.Message);
+        //    }
+        //}
+
+        //static IContainer CellStyle(IContainer container)
+        //{
+        //    return container
+        //        .PaddingVertical(2)
+        //        .PaddingHorizontal(2)
+        //        .BorderBottom(1)
+        //        .BorderColor(Colors.Grey.Lighten2);
+        //}
+
         public byte[] CreateOrderReceiptPdf(ViewTbOrders order)
         {
             try
@@ -49,16 +163,16 @@
                     container.Page(page =>
                     {
                         page.ContinuousSize(80, Unit.Millimetre); // 80mm width, auto height
-                        page.MarginTop(5);                                   
+                        page.MarginTop(5);
                         page.Margin(5);
 
                         page.Header().Column(row =>
                         {
-                            
-                            row.Item().Text($"\nMINI APP ORDER").FontSize(13).Bold().AlignCenter();
+
+                            row.Item().Text($"\nMINI ORDER APP").FontSize(13).Bold().AlignCenter();
                             row.Item().Text($"Sample order receipt\n").FontSize(8).AlignCenter();
                             //var path=
-                            row.Item().AlignCenter().Width(30).Height(30).Image("wwwroot/images/MiniLogo.jpg").FitWidth();
+                            row.Item().AlignCenter().Width(40).Height(40).Image("wwwroot/images/MiniLogo.jpg").FitWidth();
                             row.Item().Text($"Order Receipt\n").FontSize(12).Bold().AlignCenter();
                         });
                         page.Content().Column(col =>
@@ -68,7 +182,7 @@
                                 customer = order.CustomerId.ToString();
                             else
                                 customer = order.FirstName + " " + order.LastName;
-                            col.Item().Text($"Ordered #: {order.OrderCode??order.Id.ToString()}").FontSize(10);
+                            col.Item().Text($"Ordered #: {order.OrderCode ?? order.Id.ToString()}").FontSize(10);
                             col.Item().Text($"Customer: {customer} ").FontSize(10);
                             col.Item().Text($"Date: {order.CreatedDT?.ToString("dd/MMM/yy hh:mm tt")}").FontSize(10);
 
@@ -148,7 +262,7 @@
             {
                 throw new Exception(ex.Message);
             }
-           
+
         }
         static IContainer CellStyle(IContainer container)
         {

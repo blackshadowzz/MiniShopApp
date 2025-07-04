@@ -16,6 +16,7 @@
         T="ViewTbOrders" 
         MultiSelection=true 
         Dense="true" 
+        
         Hover="true"
         Context="context"
               FixedHeader=fixed_header
@@ -29,7 +30,7 @@
     <ToolBarContent>
         <MudText Typo="Typo.h6">Order Summary</MudText>
         <MudSpacer />
-        <MudTextField T="string" ValueChanged="@(s=>OnSearch(s))" Placeholder="Search" Adornment="Adornment.Start"
+        <MudTextField T="string" Immediate=true ValueChanged="@(s=>OnSearch(s))" Placeholder="Search" Adornment="Adornment.Start"
                       AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
         <MudSpacer />
         <MudStack Row=true Justify="Justify.FlexEnd" AlignItems="AlignItems.Center">
@@ -243,7 +244,9 @@
                 matches = element.CustomerId.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase)
                     || (element.TableNumber != null && element.TableNumber.Contains(searchString, StringComparison.OrdinalIgnoreCase))
                     || (element.LastName != null && element.LastName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
-                    || (element.Id.ToString() != null && element.Id.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                    || (element.CustomerType != null && element.CustomerType.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                    || (element.OrderCode != null && element.OrderCode.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                    || (element.OrderStatus != null && element.OrderStatus.Contains(searchString, StringComparison.OrdinalIgnoreCase))
                     || (element.FirstName != null && element.FirstName.Contains(searchString, StringComparison.OrdinalIgnoreCase));
             }
             if (matches && startDate.HasValue)

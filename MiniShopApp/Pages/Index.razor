@@ -2,10 +2,7 @@
 @using MiniShopApp.Data.TelegramStore
 @rendermode InteractiveServer
 @layout EmptyLayout
-
-
 <PageTitle>Index</PageTitle>
-@* <p>Id @userId</p> *@
 <div class="">
     @if (userId>0 && userId!=null)
     {
@@ -15,7 +12,6 @@
             <p>This is a simple application to demonstrate basic features.</p>
             <p>Use the navigation menu to explore the app.</p>
             <p class="mt-3">Check out the</p>
-            @* <NavLink class="btn btn-secondary mb-2 w-100" href="@($"/order/ordering/{userId}")">Check Order</NavLink> *@
             <MudButton FullWidth=true 
                 Variant=Variant.Outlined 
                 Color="Color.Primary" 
@@ -40,8 +36,6 @@
             </div>
         </div>
     }
-    @* <MudTextField @bind-Value="userId" Label="User ID" Variant="Variant.Outlined" Class="mb-2" />"
-    <MudButton OnClick="onCheckOrder" hr>Check Order</MudButton> *@
 </div>
 @if (isLoading == true)
 {

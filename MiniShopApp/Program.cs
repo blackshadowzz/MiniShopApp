@@ -25,7 +25,7 @@ using (var context = dbContextFactory.CreateDbContext())
 {
     try
     {
-        var tokenEntity = context.TbTelegramBotTokens.AsNoTracking().FirstOrDefault();
+        var tokenEntity = context.TbTelegramBotTokens.AsNoTracking().OrderByDescending(x=>x.Id).FirstOrDefault();
         if (tokenEntity != null)
         {
             if (string.IsNullOrEmpty(tokenEntity.BotToken))

@@ -15,7 +15,7 @@ namespace MiniShopApp.Models.Customers
         public DateTime? loginDateTime { get; set; }
         public DateTime? LastLoginDT { get; set; }
 
-        //Ad-on fieds
+        //Ad-on fields
         public string? EmailAddress { get; set; }
         public string? Address { get; set; }
         public double? Latitude { get; set; }
@@ -35,7 +35,7 @@ namespace MiniShopApp.Models.Customers
         public DateTime? loginDateTime { get; set; }
         public DateTime? LastLoginDT { get; set; }
 
-        //Ad-on fieds
+        //Ad-on fields
         public string? EmailAddress { get; set; }
         public string? Address { get; set; }
         public double? Latitude { get; set; }

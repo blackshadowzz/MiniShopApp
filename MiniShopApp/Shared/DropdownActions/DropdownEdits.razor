@@ -1,37 +1,32 @@
-﻿<MudCollapse Expanded="ExpandedAction">
-
-    <MudStack Row Justify="Justify.FlexStart" AlignItems=AlignItems.Center Class="py-2 bg-info-subtle" Spacing="3">
-
+﻿<MudCollapse Expanded="ExpandedAction" Class="bg-info">
+    <MudStack Row Justify="Justify.FlexStart" AlignItems="AlignItems.Center" Class="py-2" Spacing="3">
         <MudText Typo="Typo.subtitle2" Class="text-center px-2">@ItemCount selected</MudText>
         <div style="border-left:2px solid #ccc; height:40px; margin:0 10px;"></div>
+
         <MudMenu Label="Edit" Variant="Variant.Text" EndIcon="@Icons.Material.Filled.KeyboardArrowDown">
-            <MudMenuItem Icon="@Icons.Material.Outlined.Details" OnClick="OnClickPrint" Label="Details" />
-            <MudMenuItem Disabled Icon="@Icons.Material.Outlined.Edit" OnClick="OnClickModify" Label="Modify" />
-            <MudMenuItem Disabled Icon="@Icons.Material.Outlined.Delete" OnClick="OnClickDelete" Label="Delete" />
+            @foreach (var action in MenuActions)
+            {
+                <MudMenuItem Icon="@action.Icon" OnClick="@(() => action.Callback.InvokeAsync(null))" Label="@action.Label" />
+            }
         </MudMenu>
     </MudStack>
 </MudCollapse>
 
+
 @code {
-    [Parameter] public bool ExpandedAction { get; set; } = false;
+    [Parameter] public bool ExpandedAction { get; set; }
     [Parameter] public int? ItemCount { get; set; }
-    [Parameter] public EventCallback ClickPrint{ get; set; }
-    [Parameter] public EventCallback ClickModify{ get; set; }
-    [Parameter] public EventCallback ClickDelete{ get; set; }
-    async Task OnClickPrint()
+
+    [Parameter] public EventCallback ClickPrint { get; set; }
+    [Parameter] public EventCallback ClickModify { get; set; }
+    [Parameter] public EventCallback ClickDelete { get; set; }
+
+    private record ActionItem(string Label, string Icon, EventCallback Callback);
+
+    private IEnumerable<ActionItem> MenuActions => new[]
     {
-        if (ClickPrint.HasDelegate)
-            await ClickPrint.InvokeAsync();
-    }
-    async Task OnClickModify()
-    {
-        if (ClickModify.HasDelegate)
-            await ClickModify.InvokeAsync();
-    }
-    async Task OnClickDelete()
-    {
-        if (ClickDelete.HasDelegate)
-            await ClickDelete.InvokeAsync();
-    }
-    
+        new ActionItem("Details", Icons.Material.Outlined.Details, ClickPrint),
+        new ActionItem("Modify",  Icons.Material.Outlined.Edit, ClickModify),
+        new ActionItem("Delete",  Icons.Material.Outlined.Delete, ClickDelete)
+    };
 }

@@ -84,18 +84,20 @@ namespace MiniShopApp.Infrastructures.Services.Implements
                     await _botClient.SendMessage(
                             chatId: customerId, // Replace with your chat ID
 
-                            text: $"Your ordering created successful!\n" +
-                            $"Here details and summary of your ordered\n" +
-                            $"\nOrder details:\n{detailsText}" +
-                            $"\n\nOrder summary:\n" +
-                            $"\nTable No:\t {model.TableNumber}\n" +
-                            $"\nItem count:\t {model.ItemCount}\n" +
-                            $"\nTotal price:\t {model.TotalPrice?.ToString("c2")}\n" +
-                            $"\nNotes:\t {model.Notes}" +
-                            $"\n" +
+                            text: $"🎉 Your order has been placed successfully\n\n" +
+                                    $"🧾 Order Details:\n" +
+                                    $"{detailsText}\n\n" +
 
-                            $"\nThank you for ordering! please enjoy.",
-                            parseMode: ParseMode.Html,
+                                    $"📋 Order Summary:\n" +
+                                    $"• 🍽️ Table: *{model.TableNumber}*\n" +
+                                    $"• 📦 Items: {model.ItemCount}\n" +
+                                    $"• 💵 Subtotal: *{model.SubPrice?.ToString("C2") ?? "$0.00"}*\n" +
+                                    $"• 🔻 Discount: *{model.DiscountPrice?.ToString("P0") ?? "0%"}*\n" +
+                                    $"• 💰 Total: *{model.TotalPrice?.ToString("C2") ?? "$0.00"}*\n\n" +
+                                    $"• 📝 Notes: {(string.IsNullOrWhiteSpace(model.Notes) ? "—" : model.Notes)}\n\n" +
+
+                                    $"🙏 Thank you for your order! Please enjoy.",
+                            parseMode:ParseMode.Markdown,
                              replyMarkup: new InlineKeyboardButton[]
                                 {
                             InlineKeyboardButton.WithWebApp("Open App",webURL),
@@ -155,32 +157,30 @@ namespace MiniShopApp.Infrastructures.Services.Implements
                         foreach (var x in groups)
                         {
                             long groupId = -1002895453976;
-                            
+
                             await _botClient.SendMessage(
-                                    chatId: x.GroupId ?? groupId, // Replace with your chat ID
+                                chatId: x.GroupId ?? groupId,
+                                text:
+                                $"🍽️ *New Order Created!*\n\n" +
+                                $"👤 *By:* {user?.FirstName ?? "Unknown"}\n" +
+                                $"🆔 *Order #:* {model.OrderCode}\n" +
+                                $"📅 *Time:* {DateTime.Now:dd MMM yyyy - HH:mm}\n\n" +
 
-                                     text: $"({user?.FirstName}) created order successful!\n" +
-                                    $"Here details and summary of ordered\n" +
-                                    $"\nOrder details:\n{detailsText}" +
-                                    $"\n\nOrder summary:\n" +
-                                    $"\nTable No:\t {model.TableNumber}\n" +
-                                    $"\nItem count:\t {model.ItemCount} \n" +
-                                    $"\nTotal price:\t {model.TotalPrice?.ToString("c2")} \n" +
-                                    $"\nNotes:\t {model.Notes}" +
-                                    $"\n"
-                                ,
-                                     replyMarkup: inlineButtons
+                                $"🧾 *Order Details:*\n" +
+                                $"{detailsText}\n\n" +
 
-                                );
-                            //await using (var restream = new MemoryStream(pdfReceipt)) // 🔁 create a fresh stream per loop
-                            //{
-                            //    var reinputFile = new InputFileStream(restream, $"Ordered_Receipt_OR{mapModel.OrderCode}.pdf");
-                            //    await _botClient.SendDocument(
-                            //          chatId: x.GroupId ?? groupId,
-                            //          document: reinputFile,
-                            //          caption: "Ordered Receipt!"
-                            //          );
-                            //}
+                                 $"📋 *Summary:*\n" +
+                                $"• 🍽️ Table: *{model.TableNumber}*\n" +
+                                $"• 📦 Items: {model.ItemCount}\n" +
+                                $"• 💵 Subtotal: *{model.SubPrice?.ToString("C2") ?? "$0.00"}*\n" +
+                                $"• 🔻 Discount: *{model.DiscountPrice?.ToString("P0") ?? "0%"}*\n" +
+                                $"• 💰 Total: *{model.TotalPrice?.ToString("C2") ?? "$0.00"}*\n\n" +
+
+                                $"📝 *Notes:*\n" +
+                                $"{(string.IsNullOrWhiteSpace(model.Notes) ? "_No additional notes._" : $"{model.Notes}")}",
+                                parseMode: ParseMode.Markdown,
+                                replyMarkup: inlineButtons
+                            );
                         }
 
                     }
@@ -481,12 +481,6 @@ namespace MiniShopApp.Infrastructures.Services.Implements
                         $"- {d.ItemName} {d.Quantity} x {d.Price?.ToString("c2")} =\t{d.TotalPrice?.ToString("c2")}"
                     ));
 
-                    //Create receipt file send to bot
-                    //var mapModel = model.Adapt<ViewTbOrders>();
-                    //mapModel.FirstName = "General";
-                    //var pdfReceipt = pdfService.CreateOrderReceiptPdf(mapModel);
-                    
-
                     //sending order to telegram group
                     var groups = await context.TbTelegramGroups
                         .Where(x => x.IsActive == true)
@@ -520,37 +514,30 @@ namespace MiniShopApp.Infrastructures.Services.Implements
                         foreach (var x in groups)
                         {
                             long groupId = -1002895453976;
-                            
-                            
 
                             await _botClient.SendMessage(
-                                    chatId: x.GroupId ?? groupId, // Replace with your chat ID
+                                chatId: x.GroupId ?? groupId,
+                                text:
+                                $"🍽️ *New Order Created!*\n\n" +
+                                $"👤 *By:* {model.CustomerType?? "Unknown"}\n" +
+                                $"🆔 *Order #:* {model.OrderCode}\n" +
+                                $"📅 *Time:* {DateTime.Now:dd MMM yyyy - HH:mm}\n\n" +
 
-                                    text: $"(General) created order successful!\n" +
-                                    $"Here details and summary of ordered\n" +
-                                    $"\nOrder details:\n{detailsText}" +
-                                    $"\n\nOrder summary:\n" +
-                                    $"\nTable No:\t {model.TableNumber}\n" +
-                                    $"\nItem count:\t {model.ItemCount} \n" +
-                                    $"\nTotal price:\t {model.TotalPrice?.ToString("c2")} \n" +
-                                    $"\nNotes:\t {model.Notes}" +
-                                    $"\n",
-                                    replyMarkup: inlineButtons
-                                
+                                $"🧾 *Order Details:*\n" +
+                                $"{detailsText}\n\n" +
 
-                                );
-                            //using var stream = new MemoryStream(pdfReceipt);
-                            //var inputFile = new InputFileStream
-                            //    (
-                            //        stream,
-                            //        $"Ordered__Receipt_OR{mapModel.OrderCode}_.pdf"
-                            //    );
-                            //await _botClient.SendDocument(
-                            //  chatId: x.GroupId ?? groupId,
-                            //  document: inputFile,
-                            //  caption: "Ordered Receipt!"
-                            //  );
+                                $"📋 *Summary:*\n" +
+                                $"• 🍽️ Table: *{model.TableNumber}*\n" +
+                                $"• 📦 Items: {model.ItemCount}\n" +
+                                $"• 💵 Subtotal: *{model.SubPrice?.ToString("C2") ?? "$0.00"}*\n" +
+                                $"• 🔻 Discount: *{model.DiscountPrice?.ToString("P0") ?? "0%"}*\n" +
+                                $"• 💰 Total: *{model.TotalPrice?.ToString("C2") ?? "$0.00"}*\n\n" +
 
+                                $"📝 *Notes:*\n" +
+                                $"{(string.IsNullOrWhiteSpace(model.Notes) ? "_No additional notes._" : $"{model.Notes}")}",
+                                parseMode: ParseMode.Markdown,
+                                replyMarkup: inlineButtons
+                            );
                         }
 
                     }

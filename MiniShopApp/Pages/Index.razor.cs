@@ -69,8 +69,8 @@ namespace MiniShopApp.Pages
                         $"Phone: {user.Data?.phoneNumber}, " +
                         $"Start App Dated: {DateTime.Now}\n";
                    SystemLogs.UserLogPlainText(userInfo);
-                }
-                SystemLogs.UserLogPlainText($"Error Get User: {user.ErrMessage}\n");
+                }else
+                    SystemLogs.UserLogPlainText($"Error Get User: {user.ErrMessage}\n");
 
             }
             catch (Exception ex)

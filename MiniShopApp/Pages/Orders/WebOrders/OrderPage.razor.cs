@@ -9,14 +9,17 @@ namespace MiniShopApp.Pages.Orders.WebOrders
     public partial class OrderPage(IOrderService orderService,
         IProductService productService,
         ICustomerTypeService customerTypeService,
-        ITableListService tableListService
+        ITableListService tableListService,
+        ICategoryListService categoryListService
         )
     {
 
         protected List<ViewProductOrders> _products = [];
         protected List<ViewProductOrders> _productsStore = [];
         protected List<TbOrderDetails> orderDetails= [];
+        protected List<Category> categories= [];
         protected List<ViewCustomerType> viewCustomerTypes = [];
+        protected ViewCustomerType? customerType = new();
         protected OrderCreateModel Order = new OrderCreateModel();
         private string? _filter = null;
         [Parameter] public long? userId { get; set; } = null;
@@ -30,6 +33,7 @@ namespace MiniShopApp.Pages.Orders.WebOrders
             _products = _productsStore;
             await GetCustomers();
             await GetTables();
+            await GetCategory();
             var type=viewCustomerTypes.FirstOrDefault();
             if(type is not null)
             {
@@ -39,6 +43,28 @@ namespace MiniShopApp.Pages.Orders.WebOrders
             LoadingProducts = false;
 
             await base.OnInitializedAsync();
+        }
+        async Task GetCustomer()
+        {
+            customerType=viewCustomerTypes.Where(x=>x.Id==Order.CustomerId).First();
+            await Task.CompletedTask;
+        }
+        async Task GetCategory()
+        {
+            try
+            {
+                var results = await categoryListService.GetAllAsync();
+                if (results.Any())
+                {
+                    categories = results.ToList();
+                }
+                else
+                    categories = [];
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error filtering products: {ex.Message}");
+            }
         }
         protected async Task GetTables()
         {
@@ -52,9 +78,9 @@ namespace MiniShopApp.Pages.Orders.WebOrders
             }
             catch (Exception ex)
             {
-                SnackbarService.Add("Error fetching products: " + ex.Message, MudBlazor.Severity.Error);
+                SnackbarService.Add("Error fetching table: " + ex.Message, MudBlazor.Severity.Error);
 
-                throw new Exception($"Error filtering products: {ex.Message}");
+                throw new Exception($"Error filtering table: {ex.Message}");
             }
         }
         protected async Task GetCustomers()
@@ -214,11 +240,11 @@ namespace MiniShopApp.Pages.Orders.WebOrders
                 Console.WriteLine($"Error adding product: {ex.Message}");
             }
         }
-        protected async Task OnSearch(ChangeEventArgs e)
+        protected async Task OnSearch(string? e)
         {
             try
             {
-                _filter = e.Value?.ToString();
+                _filter = e;
                 var products = await productService.GetOrderAllAsync(_filter);
                 if (products.IsSuccess)
                 {
