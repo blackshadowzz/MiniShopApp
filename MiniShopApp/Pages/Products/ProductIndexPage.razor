@@ -1,54 +1,79 @@
 ﻿@page "/products"
 @using MiniShopApp.Components.Layout
+@using MiniShopApp.Models.Items
 @layout MainLayout
 
 @rendermode InteractiveServer
 <PageTitle>Products</PageTitle>
-<div>
-    <div class="d-flex justify-content-center">
-        <NavLink class="btn btn-primary" href="/products/create">Create Product</NavLink>
 
-    </div>
-    <table class="table caption-top table-bordered table-hover table-responsive">
-        
-        <caption>List of Products</caption>
-        <thead class="">
-            <tr>
-                <th scope="col">#</th>
-                <th scope="col">Product Name</th>
-                <th scope="col">Price</th>
-                <th scope="col">SubPrice</th>
-                <th scope="col">Category</th>
-                <th scope="col">Active</th>
-                <th scope="col">Image</th>
-                <th scope="col">Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var list in _products)
-            {
-                <tr>
-                    <th scope="row">@list?.ProductCode</th>
-                    <td>@list?.ProductName</td>
-                    <td>@list?.Price</td>
-                    <td>@list?.SubPrice</td>
-                    <td>@list?.CategoryId</td>
-                    <td>@list?.IsActive</td>
-                    <td>@list?.ImageUrl</td>
-                    <td>
+<MudTable ServerData="ServerReload" @ref="table" Dense="true" Hover="true">
+    <ToolBarContent>
+        <MudTextField T="string" ValueChanged="@(s=>OnSearch(s))" Placeholder="Search" 
+        Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium"
+        Class=""></MudTextField>
+    </ToolBarContent>
+    <HeaderContent>
 
-                    </td>
-                </tr>
-            }
-            
-            
-        </tbody>
-    </table>
-   
-        
-        
-    
-   
-</div>
+    </HeaderContent>
+    <RowTemplate>
+
+    </RowTemplate>
+    <NoRecordsContent>
+        <MudText>Loading....</MudText>
+    </NoRecordsContent>
+    <PagerContent>
+        <MudTablePager/>
+    </PagerContent>
+</MudTable>
+@code{
+    private IEnumerable<Product> pageData;
+    private MudTable<Product> table;
+    private int totalItems;
+    private string searchString = null;
+    private async Task<TableData<Product>> ServerReload(TableState state,CancellationToken token)
+    {
+        IEnumerable<Product> _data = await productService.GetAllAsync();
+        await Task.Delay(1000); // Simulate a delay for loading data
+        _data = _data.Where(x =>
+        {
+            if(string.IsNullOrEmpty(searchString))
+                return true;
+            if(x.ProductCode.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                return true;
+            if (x.ProductName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                return true;
+            return false;
+
+
+        }).ToArray();
+        totalItems = _data.Count();
+        switch (state.SortLabel)
+        {
+            case "ProductCode":
+                _data = state.SortDirection == SortDirection.Ascending ? 
+                    _data.OrderBy(x => x.ProductCode) : 
+                    _data.OrderByDescending(x => x.ProductCode);
+                break;
+            case "ProductName":
+                _data = state.SortDirection == SortDirection.Ascending ? 
+                    _data.OrderBy(x => x.ProductName) : 
+                _data.OrderByDescending(x => x.ProductName);
+                break;
+        }
+        pageData = _data.Skip(state.Page * state.PageSize).Take(state.PageSize).ToArray();
+        return new TableData<Product>() 
+        {
+            TotalItems = totalItems,
+            Items = pageData
+        };
+
+
+    }
+    private void OnSearch(string text)
+    {
+        searchString = text;
+        table.ReloadServerData();
+    }
+}
 
 
