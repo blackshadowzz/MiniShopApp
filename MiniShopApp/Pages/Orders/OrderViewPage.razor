@@ -57,6 +57,7 @@
                         <MudSelectItem T="int?" Value="@m">@mon</MudSelectItem>
                     }
                 </MudSelect>
+                
                 <MudSelect T="int?" @bind-Value="selectedYear" Label="Year" Style="width:110px" Margin="Margin.Dense" Class="">
                     <MudSelectItem T="int?" Value="null">All</MudSelectItem>
                     @foreach (var y in yearsList)
@@ -90,12 +91,12 @@
                 </MudTableSortLabel>
             </MudTh>
             <MudTh>
-                <MudTableSortLabel SortLabel="Id" T="ViewTbOrders">
-                    Customer Id
+                <MudTableSortLabel SortLabel="OrderCode" T="ViewTbOrders">
+                    Order #
                 </MudTableSortLabel>
             </MudTh>
             <MudTh>
-                <MudTableSortLabel SortLabel="Id" T="ViewTbOrders">
+                <MudTableSortLabel SortLabel="FirstName" T="ViewTbOrders">
                     Customer
                 </MudTableSortLabel>
                 </MudTh>
@@ -104,14 +105,14 @@
             <MudTh>Price</MudTh>
             <MudTh>Discount</MudTh>
             <MudTh>
-                <MudTableSortLabel SortLabel="Id" T="ViewTbOrders">
+                <MudTableSortLabel SortLabel="TotalPrice" T="ViewTbOrders">
                     Total
                 </MudTableSortLabel>
             </MudTh>
         </HeaderContent>
         <RowTemplate>
-            <MudTd @key="context.Id" DataLabel="Order ID"><MudIcon Icon="@Icons.Material.Filled.ArrowDropDown" /> @context.CreatedDT?.ToString("dd/MMM/yy")</MudTd>
-            <MudTd DataLabel="CustomerId">@context.CustomerId</MudTd>
+            <MudTd @key="context.Id" DataLabel="Id"><MudIcon Icon="@Icons.Material.Filled.ArrowDropDown" /> @context.CreatedDT?.ToString("dd/MMM/yy")</MudTd>
+            <MudTd DataLabel="OrderCode">@context.OrderCode</MudTd>
             <MudTd DataLabel="FirstName">@(context.FirstName ?? context.CustomerType)</MudTd>
             <MudTd DataLabel="TableNumber">@context.TableNumber</MudTd>
             <MudTd DataLabel="ItemCount">@context.ItemCount</MudTd>

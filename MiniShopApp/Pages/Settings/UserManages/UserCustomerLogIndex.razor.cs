@@ -1,3 +1,4 @@
+using Helpers.InformationLogs;
 using MiniShopApp.Infrastructures.Services.Interfaces;
 using MiniShopApp.Models.Customers;
 
@@ -49,17 +50,8 @@ namespace MiniShopApp.Pages.Settings.UserManages
         }
         protected  async Task ReadUserLog()
         {
-            var wwwrootPath = Path.Combine(AppContext.BaseDirectory, "wwwroot");
-            var logFilePath = Path.Combine(wwwrootPath, "UserLog.txt");
-
-            if (File.Exists(logFilePath))
-            {
-                UserLogContent = File.ReadAllText(logFilePath);
-            }
-            else
-            {
-                UserLogContent = "No log file found.";
-            }
+            UserLogContent= SystemLogs.ReadLog("UserLog.txt");
+            await Task.CompletedTask;
         }
         protected async Task CreateAlert()
         {

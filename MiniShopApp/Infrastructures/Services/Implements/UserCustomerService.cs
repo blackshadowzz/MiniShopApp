@@ -1,4 +1,5 @@
 ﻿using Helpers.Responses;
+using Mapster;
 using Microsoft.EntityFrameworkCore;
 using MiniShopApp.Data;
 using MiniShopApp.Data.TelegramStore;
@@ -136,6 +137,50 @@ namespace MiniShopApp.Infrastructures.Services.Implements
             {
                 logger.LogError(ex, "Error retrieving user customers with filter: {Filter}", filter);
                 return Result.Failure<IEnumerable<ViewUserCustomers>>(ErrorResponse.ServerError(ex.Message));
+            }
+        }
+
+        public async Task<Result<ViewUserCustomers>> GetByIdAsync(long? Id, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                logger.LogInformation("Retrieving user customers with filter: {Filter}", Id);
+                await using var context = contextFactory.CreateDbContext();
+                var result = await context.TbUserCustomers.AsNoTracking().FirstOrDefaultAsync(x=>x.Id==Id);
+                if (result == null)
+                {
+                    return Result.Failure<ViewUserCustomers>(new ErrorResponse("User not found!"));
+
+                }
+                var userCustomer=result.Adapt<ViewUserCustomers>();
+                return Result.Success<ViewUserCustomers>(userCustomer);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error retrieving user customers with filter: {Filter}", Id);
+                return Result.Failure<ViewUserCustomers>(ErrorResponse.ServerError(ex.Message));
+            }
+        }
+
+        public async Task<Result<ViewUserCustomers>> GetUserByIdAsync(long? userCustomerId, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                logger.LogInformation("Retrieving user customers with filter: {Filter}", userCustomerId);
+                await using var context = contextFactory.CreateDbContext();
+                var result = await context.TbUserCustomers.AsNoTracking().FirstOrDefaultAsync(x => x.CustomerId == userCustomerId);
+                if (result == null)
+                {
+                    return Result.Failure<ViewUserCustomers>(new ErrorResponse("User not found!"));
+
+                }
+                var userCustomer = result.Adapt<ViewUserCustomers>();
+                return Result.Success<ViewUserCustomers>(userCustomer);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error retrieving user customers with filter: {Filter}", userCustomerId);
+                return Result.Failure<ViewUserCustomers>(ErrorResponse.ServerError(ex.Message));
             }
         }
     }

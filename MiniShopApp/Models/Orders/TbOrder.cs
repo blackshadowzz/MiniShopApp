@@ -91,6 +91,7 @@ namespace MiniShopApp.Models.Orders
     {
         None = 0,
         Pending,
+        Cooked,
         Canceled,
         Paid
 
@@ -98,6 +99,8 @@ namespace MiniShopApp.Models.Orders
     public class OrderStatusDto
     {
         public long Id { get; set; }
+        public long? UserId { get; set; }
+        public long? CustomerId { get; set; }
         public bool? IsActive { get; set; }
         public int? EditSeq {  get; set; }
         public Statuses? Statuses { get; set; }

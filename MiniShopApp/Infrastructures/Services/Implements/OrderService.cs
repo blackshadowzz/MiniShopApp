@@ -115,7 +115,7 @@ namespace MiniShopApp.Infrastructures.Services.Implements
                     // Send to customer
                     await using (var stream = new MemoryStream(pdfReceipt))
                     {
-                        var inputFile = new InputFileStream(stream, $"Ordered_Receipt_OR{mapModel.OrderCode}.pdf");
+                        var inputFile = new InputFileStream(stream, $"Ordered_Receipt_{mapModel.OrderCode}.pdf");
                         await _botClient.SendDocument(
                         chatId: customerId,
                         document: inputFile,
@@ -132,7 +132,26 @@ namespace MiniShopApp.Infrastructures.Services.Implements
                         .ToListAsync();
                     if (groups.Count > 0)
                     {
-                        
+                        var modelId = model.Id.ToString();
+                        var inlineButtons = new InlineKeyboardMarkup(new[]
+                        {
+                            new[]
+                            {
+                                InlineKeyboardButton.WithCallbackData("Confirm Cook ✅", $"/cookconfirm:{modelId}"),
+                                InlineKeyboardButton.WithCallbackData("Cancel Order ❌", $"/cancelorder:{modelId}")
+
+                            },
+                            new[]
+                            {
+                                InlineKeyboardButton.WithCallbackData("Confirm Paid 💵", $"/paidconfirm:{modelId}")
+                            },
+                            new[]
+                            {
+                                InlineKeyboardButton.WithCallbackData("Print Receipt(PDF)📄", $"/printreceipt:{modelId}")
+
+                            }
+
+                        });
                         foreach (var x in groups)
                         {
                             long groupId = -1002895453976;
@@ -149,18 +168,19 @@ namespace MiniShopApp.Infrastructures.Services.Implements
                                     $"\nTotal price:\t {model.TotalPrice?.ToString("c2")} \n" +
                                     $"\nNotes:\t {model.Notes}" +
                                     $"\n"
-                                // You can specify entities if needed
+                                ,
+                                     replyMarkup: inlineButtons
 
                                 );
-                            await using (var restream = new MemoryStream(pdfReceipt)) // 🔁 create a fresh stream per loop
-                            {
-                                var reinputFile = new InputFileStream(restream, $"Ordered_Receipt_OR{mapModel.OrderCode}.pdf");
-                                await _botClient.SendDocument(
-                                      chatId: x.GroupId ?? groupId,
-                                      document: reinputFile,
-                                      caption: "Ordered Receipt!"
-                                      );
-                            }
+                            //await using (var restream = new MemoryStream(pdfReceipt)) // 🔁 create a fresh stream per loop
+                            //{
+                            //    var reinputFile = new InputFileStream(restream, $"Ordered_Receipt_OR{mapModel.OrderCode}.pdf");
+                            //    await _botClient.SendDocument(
+                            //          chatId: x.GroupId ?? groupId,
+                            //          document: reinputFile,
+                            //          caption: "Ordered Receipt!"
+                            //          );
+                            //}
                         }
 
                     }
@@ -462,9 +482,9 @@ namespace MiniShopApp.Infrastructures.Services.Implements
                     ));
 
                     //Create receipt file send to bot
-                    var mapModel = model.Adapt<ViewTbOrders>();
-                    mapModel.FirstName = "General";
-                    var pdfReceipt = pdfService.CreateOrderReceiptPdf(mapModel);
+                    //var mapModel = model.Adapt<ViewTbOrders>();
+                    //mapModel.FirstName = "General";
+                    //var pdfReceipt = pdfService.CreateOrderReceiptPdf(mapModel);
                     
 
                     //sending order to telegram group
@@ -474,10 +494,35 @@ namespace MiniShopApp.Infrastructures.Services.Implements
                         .ToListAsync();
                     if (groups.Count > 0)
                     {
-                        foreach(var x in groups)
+                        var modelId = model.Id.ToString();
+                        var inlineButtons = new InlineKeyboardMarkup(new[]
+                        {
+                            new[]
+                            {
+                                InlineKeyboardButton.WithCallbackData("Confirm Cook ✅", $"/cookconfirm:{modelId}"),
+                                InlineKeyboardButton.WithCallbackData("Cancel Order ❌", $"/cancelorder:{modelId}")
+
+                            },
+                            new[]
+                            {
+                                InlineKeyboardButton.WithCallbackData("Confirm Paid 💵", $"/paidconfirm:{modelId}")
+                            },
+                            new[]
+                            {
+                                InlineKeyboardButton.WithCallbackData("Print Receipt(PDF)📄", $"/printreceipt:{modelId}")
+
+                            }
+
+                        });
+                        
+
+
+                        foreach (var x in groups)
                         {
                             long groupId = -1002895453976;
                             
+                            
+
                             await _botClient.SendMessage(
                                     chatId: x.GroupId ?? groupId, // Replace with your chat ID
 
@@ -489,21 +534,22 @@ namespace MiniShopApp.Infrastructures.Services.Implements
                                     $"\nItem count:\t {model.ItemCount} \n" +
                                     $"\nTotal price:\t {model.TotalPrice?.ToString("c2")} \n" +
                                     $"\nNotes:\t {model.Notes}" +
-                                    $"\n"
-                                // You can specify entities if needed
+                                    $"\n",
+                                    replyMarkup: inlineButtons
+                                
 
                                 );
-                            using var stream = new MemoryStream(pdfReceipt);
-                            var inputFile = new InputFileStream
-                                (
-                                    stream,
-                                    $"Ordered__Receipt_OR{mapModel.OrderCode}_.pdf"
-                                );
-                            await _botClient.SendDocument(
-                              chatId: x.GroupId ?? groupId,
-                              document: inputFile,
-                              caption: "Ordered Receipt!"
-                              );
+                            //using var stream = new MemoryStream(pdfReceipt);
+                            //var inputFile = new InputFileStream
+                            //    (
+                            //        stream,
+                            //        $"Ordered__Receipt_OR{mapModel.OrderCode}_.pdf"
+                            //    );
+                            //await _botClient.SendDocument(
+                            //  chatId: x.GroupId ?? groupId,
+                            //  document: inputFile,
+                            //  caption: "Ordered Receipt!"
+                            //  );
 
                         }
 

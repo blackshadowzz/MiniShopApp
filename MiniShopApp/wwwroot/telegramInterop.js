@@ -18,3 +18,21 @@ window.telegramUserInfo = {
         return Telegram.WebApp.initDataUnsafe;
     }
 };
+
+window.getLocation = function () {
+    if ("geolocation" in navigator) {
+        navigator.geolocation.getCurrentPosition(
+            function (position) {
+                DotNet.invokeMethodAsync("MiniShopApp", "ReceiveLocation",
+                    position.coords.latitude,
+                    position.coords.longitude
+                );
+            },
+            function (error) {
+                if (error.code === error.PERMISSION_DENIED) {
+                    alert("To continue, please enable location on your device.");
+                }
+            }
+        );
+    }
+};
