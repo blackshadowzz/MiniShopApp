@@ -50,6 +50,25 @@ namespace MiniShopApp.Infrastructures.Services.Implements
                 throw new Exception("Error creating product", ex);
             }
         }
+        public async Task<string> UpdateAsync(Product model)
+        {
+            try
+            {
+                await using var dbContext = _context.CreateDbContext();
+                dbContext.TbProducts.Update(model);
+                await dbContext.SaveChangesAsync();
+                return "Product updated successfully";  
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error updating product", ex);
+            }
+        }
+
+        public Task<string> DeleteAsync(int id)
+        {
+            throw new NotImplementedException();
+        }
 
         public async Task<IEnumerable<Product>> GetAllAsync(string? filter = null)
         {
@@ -109,5 +128,13 @@ namespace MiniShopApp.Infrastructures.Services.Implements
                 return Result.Failure<IEnumerable<ViewProductOrders>>(ErrorResponse.ServerError(ex.Message));
             }
         }
+
+        public async Task<Product> GetProductById(int id)
+        {
+            using var context = _context.CreateDbContext();
+            return await context.TbProducts.FindAsync(id) ?? default!;
+        }
+
+        
     }
 }

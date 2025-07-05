@@ -20,13 +20,17 @@ namespace MiniShopApp.Pages.Products
             try
             {
                 var products = await productService.GetAllAsync(_filter);
-                _products = products.ToList();
+                pageData = products.ToList();
             }
             catch (Exception ex)
             {
                throw new Exception($"Error initializing ProductIndexPage: {ex.Message}");
             }
             await base.OnInitializedAsync();
+        }
+        private async Task SendUpdate(int id)
+        {
+            
         }
     }
 }

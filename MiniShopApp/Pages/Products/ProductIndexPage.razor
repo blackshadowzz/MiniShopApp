@@ -1,6 +1,7 @@
 ﻿@page "/products"
 @using MiniShopApp.Components.Layout
 @using MiniShopApp.Models.Items
+@using System.Globalization
 @layout MainLayout
 
 @rendermode InteractiveServer
@@ -8,15 +9,43 @@
 
 <MudTable ServerData="ServerReload" @ref="table" Dense="true" Hover="true">
     <ToolBarContent>
-        <MudTextField T="string" ValueChanged="@(s=>OnSearch(s))" Placeholder="Search" 
-        Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium"
+        <MudButton Href="/products/create" Variant="Variant.Filled" Color="Color.Primary">Create Product</MudButton>
+        <MudSpacer />
+        <MudTextField T="string" ValueChanged="@(s => OnSearch(s))" Placeholder="Search"
+                      Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium"
         Class=""></MudTextField>
     </ToolBarContent>
     <HeaderContent>
+        <MudTh>Nr</MudTh>
+        <MudTh><MudTableSortLabel SortLabel="ProductCode" T="Product">Product Code</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="ProductName" T="Product">Product Name</MudTableSortLabel></MudTh>
+        <MudTh>Category</MudTh>
+        <MudTh>Price</MudTh>
+        <MudTh>Subprice</MudTh>
+        <MudTh>Image Url</MudTh>
+        <MudTh>Image Prev</MudTh>
+        <MudTh>Action</MudTh>
+        
 
     </HeaderContent>
     <RowTemplate>
-
+        <MudTd>@context.Id</MudTd>
+        <MudTd DataLabel="ProductCode">@context.ProductCode</MudTd>
+        <MudTd DataLabel="ProductName">@context.ProductName</MudTd>
+        <MudTd>@context.CategoryId</MudTd>
+        <MudTd>@context.Price?.ToString("C",new CultureInfo("en-Us"))</MudTd>
+        <MudTd>@context.SubPrice?.ToString("C", new CultureInfo("en-Us"))</MudTd>
+        <MudTd>@context.ImageUrl</MudTd>
+        <MudTd>
+            <MudImage Src="@context.ImageUrl" Height="100"/>
+        </MudTd>
+        <MudTd>
+            <MudMenu Icon="@Icons.Material.Filled.MoreVert">
+                <MudMenuItem Href="@($"/products/create/{context.Id}")">Edit</MudMenuItem>
+                <MudMenuItem>Detail</MudMenuItem>
+                <MudMenuItem>Delete</MudMenuItem>
+            </MudMenu>
+        </MudTd>
     </RowTemplate>
     <NoRecordsContent>
         <MudText>Loading....</MudText>
