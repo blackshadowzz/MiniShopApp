@@ -1,13 +1,12 @@
 ﻿@page "/"
 @using MiniShopApp.Data.TelegramStore
-@rendermode InteractiveServer
 @layout MainLayout
 @inject IJSRuntime JS
 
 <PageTitle>Home</PageTitle>
 <div class="text-center my-4">
     <img src="/images/minilogo.jpg" alt="MiniShopApp Logo" class="img-fluid" style="max-width: 200px;" />
-    <h1 class="mb-4">Welcome @user?.FirstName to Mini Order!</h1>
+    <h1 class="mb-4">Welcome to Mini Order!</h1>
     <p>This is a simple Blazor application to demonstrate basic features.</p>
     <p>Use the navigation menu to explore the app.</p>
     <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@ToOrder" Class="mt-3">
@@ -34,20 +33,20 @@
         NavigationManager.NavigateTo("/page/orders/create");
     }
 
-    TelegramUserStore? user;
+    // TelegramUserStore? user;
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            var initData = await JS.InvokeAsync<InitDataUnsafe>("telegramUserInfo.getInitDataUnsafe");
-            user = initData?.User;
-            StateHasChanged();
-        }
-    }
+    // protected override async Task OnAfterRenderAsync(bool firstRender)
+    // {
+    //     if (firstRender)
+    //     {
+    //         var initData = await JS.InvokeAsync<InitDataUnsafe>("telegramUserInfo.getInitDataUnsafe");
+    //         user = initData?.User;
+    //         StateHasChanged();
+    //     }
+    // }
 
-    public class InitDataUnsafe
-    {
-        public TelegramUserStore? User { get; set; }
-    }
+    // public class InitDataUnsafe
+    // {
+    //     public TelegramUserStore? User { get; set; }
+    // }
 }

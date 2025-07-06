@@ -17,7 +17,7 @@
     [Parameter] public bool ExpandedAction { get; set; }
     [Parameter] public int? ItemCount { get; set; }
 
-    [Parameter] public EventCallback ClickPrint { get; set; }
+    [Parameter] public EventCallback ClickDetails { get; set; }
     [Parameter] public EventCallback ClickModify { get; set; }
     [Parameter] public EventCallback ClickDelete { get; set; }
 
@@ -25,7 +25,7 @@
 
     private IEnumerable<ActionItem> MenuActions => new[]
     {
-        new ActionItem("Details", Icons.Material.Outlined.Details, ClickPrint),
+        new ActionItem("Details", Icons.Material.Outlined.Details, ClickDetails),
         new ActionItem("Modify",  Icons.Material.Outlined.Edit, ClickModify),
         new ActionItem("Delete",  Icons.Material.Outlined.Delete, ClickDelete)
     };

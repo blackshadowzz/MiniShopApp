@@ -25,11 +25,11 @@ namespace MiniShopApp.Pages.Orders
 
         protected override async Task OnInitializedAsync()
         {
-           GetDate(); 
+           GetData(); 
             await base.OnInitializedAsync();
         }
 
-        protected async void GetDate()
+        protected async void GetData()
         {
             try
             {
@@ -89,7 +89,7 @@ namespace MiniShopApp.Pages.Orders
                         ItemCount = orderDetails.Count,
                         SubPrice = orderDetails.Sum(x => x.TotalPrice),
                         DiscountPrice = Order.DiscountPrice,
-                        TotalPrice = orderDetails.Sum(x => x.TotalPrice),
+                        TotalPrice = orderDetails.Sum(x => x.TotalPrice)-(orderDetails.Sum(x => x.TotalPrice)*Order.DiscountPrice/100),
                         Notes = Order.Notes,
                         CreatedDT = DateTime.Now,
                         TbOrderDetails = orderDetails,

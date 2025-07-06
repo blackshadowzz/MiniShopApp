@@ -8,6 +8,8 @@
     <UseWindowsForms>true</UseWindowsForms>-->
 
     <ImplicitUsings>enable</ImplicitUsings>
+
+    <UserSecretsId>8d327571-ede0-46c5-a0cc-d2c407dc97a8</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
@@ -20,14 +22,20 @@
   <ItemGroup>
     <PackageReference Include="ClosedXML" Version="0.105.0" />
     <PackageReference Include="Mapster" Version="7.4.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="9.0.5" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.5" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="9.0.5" />
     <!--<PackageReference Include="System.Drawing.Common" Version="7.0.0" />-->
 
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.5" />
+
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.5" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.5">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="9.0.0" />
     <PackageReference Include="MudBlazor" Version="8.8.0" />
     <PackageReference Include="QuestPDF" Version="2025.5.1" />
     <PackageReference Include="SixLabors.ImageSharp" Version="3.1.10" />
@@ -35,11 +43,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Domain\Domain.csproj" />
     <ProjectReference Include="..\Helpers\Helpers.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Models\Transactions\" />
+    <Folder Include="Pages\Users\" />
     <Folder Include="Pages\Transactions\" />
   </ItemGroup>
 

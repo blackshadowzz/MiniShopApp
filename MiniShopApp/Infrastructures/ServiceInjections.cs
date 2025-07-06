@@ -1,7 +1,13 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Domain.IdentityModel;
+using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using MiniShopApp.Components.Account;
 using MiniShopApp.Data;
+using MiniShopApp.Data.TelegramStore;
+using MiniShopApp.Infrastructures.Services;
 using MiniShopApp.Infrastructures.Services.Implements;
 using MiniShopApp.Infrastructures.Services.Interfaces;
 using MiniShopApp.Shared.AdditionalServices;
@@ -20,7 +26,13 @@ namespace MiniShopApp.Infrastructures
                 options.ConfigureWarnings(w => w.Ignore(RelationalEventId.MigrationsUserTransactionWarning));
 
                 options.UseSqlServer(configuration.GetConnectionString("MyConnection"));
+            
             });
+            services.AddTransient<DatabaseSeeders>();
+            
+            services.AddScoped<LoadingTrackerService>();
+
+
             // Additional services can be added here
             services.AddMudServices(config =>
             {
@@ -43,6 +55,7 @@ namespace MiniShopApp.Infrastructures
             services.TryAddTransient<ITelegramBotServices, TelegramBotServices>();
             services.TryAddTransient<ICustomerTypeService, CustomerTypeService>();
             services.AddScoped<PdfService>();
+            services.AddScoped<UserState>();
             return services;
         }
     }

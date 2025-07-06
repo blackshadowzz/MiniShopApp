@@ -107,7 +107,6 @@ namespace MiniShopApp.Pages.Orders
         //        if (result.Success && result.Value!=null)
         //        {
         //            customerId = result.Value;
-        //            StateHasChanged();// Convert to readable data (already a string in this case)
         //        }
         //        else
         //        {
@@ -120,8 +119,9 @@ namespace MiniShopApp.Pages.Orders
         //    {
         //        //SnackbarService.Add("Error 1: "+ex.Message, MudBlazor.Severity.Error);
         //        throw new Exception($"Get local data: {ex.Message}");
-                
+
         //    }
+        //StateHasChanged(); // Notify the component to re-render with the loaded data
         //}
         protected void DescreasProduct(int productId)
         {
@@ -294,8 +294,8 @@ namespace MiniShopApp.Pages.Orders
                         order.CustomerId = long.Parse(customerId);
                         order.ItemCount = orderDetails.Count;
                         order.SubPrice = orderDetails.Sum(od => od.TotalPrice);
-                        order.DiscountPrice = 0;
-                        order.TotalPrice = order.SubPrice - order.DiscountPrice;
+                        order.DiscountPrice = order.DiscountPrice??0;
+                        order.TotalPrice = order.SubPrice -(order.SubPrice*order.DiscountPrice/100);
 
                         order.CreatedDT = DateTime.Now;
                         order.TbOrderDetails = orderDetails;

@@ -1,11 +1,13 @@
-﻿@inherits LayoutComponentBase
+﻿@using Microsoft.AspNetCore.Components.Authorization
+@using MiniShopApp.Infrastructures.Services
+@using MiniShopApp.Shared.AdditionalServices
+@inherits LayoutComponentBase
 @attribute [StreamRendering(false)]
-@* Required *@
-<MudThemeProvider @ref="_mudThemeProvider" @bind-IsDarkMode="_isDarkMode" Theme="_theme"/>
+@* @implements IDisposable *@
+@* @inject LoadingTrackerService trackerService *@
+<MudThemeProvider @ref="_mudThemeProvider" @bind-IsDarkMode="_isDarkMode" Theme="_theme" />
 <MudPopoverProvider />
-@* Needed for dialogs *@
 <MudDialogProvider />
-@* Needed for snackbars *@
 <MudSnackbarProvider />
 
 
@@ -21,23 +23,25 @@
                              Icon="@Icons.Material.Outlined.LightMode"
                              Color="@Color.Info"
                              ToggledIcon="@Icons.Material.Outlined.DarkMode"
-                             ToggledColor="@Color.Success"
-                              >
-           
-                          </MudToggleIconButton>
-
-        <MudMenu>
-            <ActivatorContent>
-                <MudAvatar>
-                    <MudImage Src="images/MiniLogo.jpg" />
-                </MudAvatar>
-            </ActivatorContent>
-            <ChildContent>
-                <MudMenuItem Label="Profile" />
-                <MudMenuItem Label="My account" />
-                <MudMenuItem Label="Logout" />
-            </ChildContent>
-        </MudMenu>
+                             ToggledColor="@Color.Success">
+        </MudToggleIconButton>
+        <AuthorizeView>
+            <Authorized>
+                <MudMenu>
+                    <ActivatorContent>
+                        <MudAvatar Icon="@Icons.Material.Filled.AccountCircle" />
+                    </ActivatorContent>
+                    <ChildContent>
+                        <MudMenuItem Href="/profile">Profile</MudMenuItem>
+                        <MudMenuItem Href="/account/logout">Logout</MudMenuItem>
+                    </ChildContent>
+                </MudMenu>
+            </Authorized>
+            <NotAuthorized>
+                <MudButton Href="/account/login" Color="Color.Primary" Variant="Variant.Filled">Login</MudButton>
+                <MudButton Href="/account/register" Color="Color.Secondary" Variant="Variant.Outlined" Class="ml-2">Register</MudButton>
+            </NotAuthorized>
+        </AuthorizeView>
     </MudAppBar>
     <MudDrawer @bind-Open="@_drawerOpen" ClipMode="DrawerClipMode.Docked" Elevation="1" Variant="@DrawerVariant.Responsive">
         <MudDrawerHeader>
@@ -75,10 +79,7 @@
             </MudNavMenu>
     </MudDrawer>
     <MudMainContent Class="mt-3">
-        <div class="container-fluid">
             @Body
-        </div>
-
     </MudMainContent>
 </MudLayout>
 @code {
@@ -92,6 +93,43 @@
     private bool _isDarkMode=false;
     private MudThemeProvider? _mudThemeProvider;
     private MudBlazor.MudTheme _theme = new MudBlazor.MudTheme(); // Initialize the required theme
+    private string? currentUrl;
+    private bool isLoading;
+
+    // protected override void OnInitialized()
+    // {
+    //     currentUrl = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
+
+    //     NavigationManager.LocationChanged += OnLocationChanged;
+
+    //     trackerService.OnLoadingChanged += state =>
+    //     {
+    //         isLoading = state;
+
+    //         InvokeAsync(StateHasChanged);
+    //     };
+    // }
+
+    // private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    // {
+
+    //     currentUrl = NavigationManager.ToBaseRelativePath(e.Location);
+
+    //     StateHasChanged();
+    // }
+
+   
+    // public void Dispose()
+    // {
+    //     NavigationManager.LocationChanged -= OnLocationChanged;
+
+    //     trackerService.OnLoadingChanged -= state =>
+    //     {
+    //         isLoading = state;
+
+    //         InvokeAsync(StateHasChanged);
+    //     };
+    // }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -109,5 +147,6 @@
         }
     }
 }
+
 
 

@@ -11,6 +11,5 @@ namespace MiniShopApp.Data.TelegramStore
             public string? Username { get; set; }
             public string? LanguageCode { get; set; }
             public bool IsPremium { get; set; }
-
     }
 }

@@ -22,7 +22,6 @@ using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using Update = Telegram.Bot.Types.Update;
 
 namespace MiniShopApp
@@ -229,7 +228,7 @@ namespace MiniShopApp
             var chatId = message?.Chat.Id;
             var fromUserId = update.CallbackQuery?.From?.Id;
             var fromUserName = update.CallbackQuery?.From?.FirstName;
-            SystemLogs.UserLogPlainText($"\nUser {fromUserId} Name {fromUserName} used {command} in {chatId}\n");
+            SystemLogs.UserLogPlainText($"\nUser: {fromUserId} Name: {fromUserName} used: {command} in {chatId} Name: {message?.Chat.Title} Dated: {DateTime.Now.ToLocalTime()}\n");
 
 
             if (chatType == ChatType.Group || chatType == ChatType.Supergroup)
@@ -387,10 +386,10 @@ namespace MiniShopApp
                     break;
 
                 default:
-                    if (message.Chat.Type is not ChatType.Group or ChatType.Supergroup)
-                    {
-                        await _botClient.SendMessage(chatId.Value, "❓ Unknown command. Use /help to see available options.");
-                    }
+                    //if (message.Chat.Type is not ChatType.Group or ChatType.Supergroup)
+                    //{
+                    //    await _botClient.SendMessage(chatId.Value, "❓ Unknown command. Use /help to see available options.");
+                    //}
                     break;
             }
         }

@@ -1,0 +1,124 @@
+﻿@page "/account/login"
+
+@using System.ComponentModel.DataAnnotations
+@using Domain.IdentityModel
+@using Microsoft.AspNetCore.Authentication
+@using Microsoft.AspNetCore.Identity
+@attribute [AllowAnonymous]
+@layout ManageLayout
+
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> _userManager
+@inject ILogger<Login> Logger
+@inject NavigationManager NavigationManager
+@inject IdentityRedirectManager RedirectManager
+@inject IHttpContextAccessor HttpContextAccessor
+
+<PageTitle>Log in</PageTitle>
+<MudStack AlignItems="AlignItems.Center" Spacing="3" Justify="Justify.Center">
+    
+    <MudPaper Class="pa-4 mt-4 align-content-center" Elevation="2" Style="max-width: 400px; width: 100%;">
+        <MudStack Spacing="3" AlignItems="AlignItems.Center">
+            <MudText Typo="Typo.h6" Align="Align.Center">Welcome to Mini App</MudText>
+            <MudImage Src="/images/MiniLogo.jpg" Alt="Logo" Class="mx-auto" Style="max-width: 120px; max-height: 120px;" />
+            <MudText Typo="Typo.subtitle1" Align="Align.Center">Please log in to continue.</MudText>
+        </MudStack>
+       
+        <StatusMessage Message="@errorMessage" />
+        <EditForm Model="Input" OnValidSubmit="LoginUser">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <MudTextField Label="Email " @bind-Value="Input.Email" For="@(() => Input.Email)"
+                          Required="true" RequiredError="Email is required"
+                          Variant="Variant.Outlined"
+                          Placeholder="Email or username"
+                          Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Email" />
+
+            <MudTextField Label="Password " @bind-Value="Input.Password" For="@(() => Input.Password)"
+                          InputType="InputType.Password"
+                          Placeholder="Password"
+                          Required="true" RequiredError="Password is required"
+                          Variant="Variant.Outlined"
+                          Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Lock" />
+
+            <MudCheckBox T="bool" @bind-Checked="Input.RememberMe" Label="Remember me" />
+
+            <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Outlined" Class="mb-5" Color="Color.Primary" FullWidth="true">
+                Log In
+            </MudButton>
+        </EditForm>
+        </MudPaper>
+</MudStack>
+
+
+@code {
+    private string? errorMessage;
+
+    [CascadingParameter]
+    private HttpContext HttpContext { get; set; } = default!;
+
+    [SupplyParameterFromForm]
+    private UserRequest Input { get; set; } = new();
+
+    [SupplyParameterFromQuery]
+    private string? ReturnUrl { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var context = HttpContextAccessor.HttpContext;
+        if (context != null && HttpMethods.IsGet(context.Request.Method))
+        {
+            await context.SignOutAsync(IdentityConstants.ExternalScheme);
+        }
+    }
+
+    public async Task LoginUser()
+    {
+        try
+        {
+            var loginUser = await _userManager.FindByEmailAsync(Input.Email);
+
+            loginUser ??= await _userManager.FindByNameAsync(Input.Email);
+
+            if (loginUser is null)
+            {
+                errorMessage = $"Error:{Input.Email} is not register yet.";
+                return;
+            }
+
+            if (loginUser.IsActive == false)
+            {
+
+                errorMessage = $"Error:User is already deactive....";
+
+                return;
+            }
+
+            var checkedPassword = await _userManager.CheckPasswordAsync(loginUser, Input.Password);
+
+            if (!checkedPassword)
+            {
+                errorMessage = $"Error:Invalid Password...!";
+
+                return;
+            }
+            var result = await SignInManager.PasswordSignInAsync(loginUser, Input.Password, Input.RememberMe, lockoutOnFailure: false);
+            if (result.Succeeded)
+            {
+                Logger.LogInformation("User logged in.");
+                RedirectManager.RedirectTo(ReturnUrl);
+            }
+            else
+            {
+                errorMessage = "Error: Invalid login attempt.";
+            }
+        }catch (Exception ex)
+        {
+            Logger.LogError(ex, "An error occurred during login.");
+            errorMessage = ex.Message;
+            return;
+        }
+    
+    }
+}
