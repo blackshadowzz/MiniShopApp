@@ -50,8 +50,9 @@
         </EditForm>
         </MudPaper>
 </MudStack>
-
-
+<input @bind="Input.Email" />
+<input @bind="Input.Password" />
+<button @onclick="LoginUser">Login</button>
 @code {
     private string? errorMessage;
 
