@@ -21,11 +21,22 @@
 
     protected override void OnInitialized()
     {
-        messageFromCookie = HttpContext.Request.Cookies[IdentityRedirectManager.StatusCookieName];
+        var context = HttpContextAccessor.HttpContext;
 
-        if (messageFromCookie is not null)
+        if (context is not null)
         {
-            HttpContext.Response.Cookies.Delete(IdentityRedirectManager.StatusCookieName);
+            messageFromCookie = context.Request.Cookies[IdentityRedirectManager.StatusCookieName];
+
+            if (messageFromCookie is not null)
+            {
+                context.Response.Cookies.Delete(IdentityRedirectManager.StatusCookieName);
+            }
         }
+        // messageFromCookie = HttpContext.Request.Cookies[IdentityRedirectManager.StatusCookieName];
+
+        // if (messageFromCookie is not null)
+        // {
+        //     HttpContext.Response.Cookies.Delete(IdentityRedirectManager.StatusCookieName);
+        // }
     }
 }

@@ -10,7 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Telegram.Bot.Types;
 
-namespace MiniShopApp.Pages.Orders
+namespace MiniShopApp.Pages.Orders.ViewOrders
 {
     public partial class OrderViewToday(IOrderService orderService)
     {
@@ -290,7 +290,7 @@ namespace MiniShopApp.Pages.Orders
 
         private string BuildReceiptHtml(IEnumerable<ViewTbOrders> orders)
         {
-            var html = new System.Text.StringBuilder();
+            var html = new StringBuilder();
             html.AppendLine("<html><head><meta charset='UTF-8'><title>Receipt</title>");
             html.AppendLine("<style>");
             html.AppendLine("body { font-family: Arial, sans-serif; }");

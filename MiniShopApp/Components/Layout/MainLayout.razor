@@ -2,14 +2,14 @@
 @using MiniShopApp.Infrastructures.Services
 @using MiniShopApp.Shared.AdditionalServices
 @inherits LayoutComponentBase
-@attribute [StreamRendering(false)]
+@* @attribute [StreamRendering(false)] *@
 @* @implements IDisposable *@
 @* @inject LoadingTrackerService trackerService *@
 <MudThemeProvider @ref="_mudThemeProvider" @bind-IsDarkMode="_isDarkMode" Theme="_theme" />
 <MudPopoverProvider />
 <MudDialogProvider />
 <MudSnackbarProvider />
-
+@inject AuthenticationStateProvider authenticationState
 
 
 <MudLayout>
@@ -32,7 +32,7 @@
                         <MudAvatar Icon="@Icons.Material.Filled.AccountCircle" />
                     </ActivatorContent>
                     <ChildContent>
-                        <MudMenuItem Href="/profile">Profile</MudMenuItem>
+                        <MudMenuItem Href="/profile">Profile @context.User.Identity.Name</MudMenuItem>
                         <MudMenuItem Href="/account/logout">Logout</MudMenuItem>
                     </ChildContent>
                 </MudMenu>
@@ -85,7 +85,7 @@
 @code {
     bool _drawerOpen = true;
     bool IsExpanded = false;
-
+    
     void DrawerToggle()
     {
         _drawerOpen = !_drawerOpen;

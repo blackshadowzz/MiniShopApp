@@ -6,20 +6,13 @@ using MiniShopApp.Models.Orders;
 using MiniShopApp.Shared;
 using MudBlazor;
 
-namespace MiniShopApp.Pages.Orders
+namespace MiniShopApp.Pages.Orders.TelegramOrders
 {
-    public partial class OrderCreatePage
+    public partial class OrderCreatePage(IOrderService orderService)
     {
         [Inject]
         protected ProtectedLocalStorage localStorage { get; set; } = default!;
-        private readonly IOrderService orderService;
-
-        public OrderCreatePage(IOrderService orderService)
-        {
-            this.orderService = orderService;
-
-            // Constructor logic if needed
-        }
+        private readonly IOrderService orderService = orderService;
         public OrderCreateModel Order = new OrderCreateModel();
         public List<TbOrderDetails>? orderDetails = [];
 
@@ -59,7 +52,7 @@ namespace MiniShopApp.Pages.Orders
                 IsLoading= true;
                 if (Order.TableNumber == null)
                 {
-                    SnackbarService.Add("Please enter a valid table number.", MudBlazor.Severity.Warning);
+                    SnackbarService.Add("Please enter a valid table number.", Severity.Warning);
                     IsLoading = false;
 
                     // NotificationService.Notify(Radzen.NotificationSeverity.Error, "Invalid Table Number", "Please enter a valid table number.");
@@ -69,7 +62,7 @@ namespace MiniShopApp.Pages.Orders
                 {
                     IsLoading = false;
 
-                    SnackbarService.Add("Please back to add at least one item to the order.", MudBlazor.Severity.Warning);
+                    SnackbarService.Add("Please back to add at least one item to the order.", Severity.Warning);
                     return;
                 }
                 var result = await DialogService.ShowMessageBox(
@@ -89,7 +82,7 @@ namespace MiniShopApp.Pages.Orders
                         ItemCount = orderDetails.Count,
                         SubPrice = orderDetails.Sum(x => x.TotalPrice),
                         DiscountPrice = Order.DiscountPrice,
-                        TotalPrice = orderDetails.Sum(x => x.TotalPrice)-(orderDetails.Sum(x => x.TotalPrice)*Order.DiscountPrice/100),
+                        TotalPrice = orderDetails.Sum(x => x.TotalPrice)-orderDetails.Sum(x => x.TotalPrice)*Order.DiscountPrice/100,
                         Notes = Order.Notes,
                         CreatedDT = DateTime.Now,
                         TbOrderDetails = orderDetails,
@@ -102,7 +95,7 @@ namespace MiniShopApp.Pages.Orders
                         orderDetails!.Clear();
                         Order = new OrderCreateModel(); // Reset the order model
                         await localStorage.SetAsync("orderToCreate", Order);
-                        SnackbarService.Add("Your order has been successfully created.", MudBlazor.Severity.Success);
+                        SnackbarService.Add("Your order has been successfully created.", Severity.Success);
                         IsLoading = false;
 
                         NavigationManager.NavigateTo($"/order/ordering/{userId}");
@@ -125,7 +118,7 @@ namespace MiniShopApp.Pages.Orders
 
                 // Handle any exceptions that occur during form submission
                 Console.WriteLine($"Error during form submission: {ex.Message}");
-                SnackbarService.Add("An error occurred while creating the order. Please try again." + ex.InnerException!.Message, MudBlazor.Severity.Error);
+                SnackbarService.Add("An error occurred while creating the order. Please try again." + ex.InnerException!.Message, Severity.Error);
                 return;
             }
            

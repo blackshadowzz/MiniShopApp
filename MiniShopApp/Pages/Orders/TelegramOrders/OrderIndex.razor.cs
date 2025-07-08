@@ -9,7 +9,7 @@ using MiniShopApp.Models.Items;
 using MiniShopApp.Models.Orders;
 using Telegram.Bot.Types;
 
-namespace MiniShopApp.Pages.Orders
+namespace MiniShopApp.Pages.Orders.TelegramOrders
 {
     public partial class OrderIndex
     {
@@ -295,7 +295,7 @@ namespace MiniShopApp.Pages.Orders
                         order.ItemCount = orderDetails.Count;
                         order.SubPrice = orderDetails.Sum(od => od.TotalPrice);
                         order.DiscountPrice = order.DiscountPrice??0;
-                        order.TotalPrice = order.SubPrice -(order.SubPrice*order.DiscountPrice/100);
+                        order.TotalPrice = order.SubPrice -order.SubPrice*order.DiscountPrice/100;
 
                         order.CreatedDT = DateTime.Now;
                         order.TbOrderDetails = orderDetails;

@@ -3,17 +3,17 @@
 @using System.ComponentModel.DataAnnotations
 @using Domain.IdentityModel
 @using Microsoft.AspNetCore.Authentication
+@using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Identity
-@attribute [AllowAnonymous]
+@using MiniShopApp.Infrastructures.Services.Interfaces
+@* @attribute [AllowAnonymous] *@
 @layout ManageLayout
-
-@inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> _userManager
 @inject ILogger<Login> Logger
 @inject NavigationManager NavigationManager
-@inject IdentityRedirectManager RedirectManager
 @inject IHttpContextAccessor HttpContextAccessor
-
+@inject AuthenticationStateProvider AuthProvider
+@inject IUserService AuthService
 <PageTitle>Log in</PageTitle>
 <MudStack AlignItems="AlignItems.Center" Spacing="3" Justify="Justify.Center">
     
@@ -23,9 +23,13 @@
             <MudImage Src="/images/MiniLogo.jpg" Alt="Logo" Class="mx-auto" Style="max-width: 120px; max-height: 120px;" />
             <MudText Typo="Typo.subtitle1" Align="Align.Center">Please log in to continue.</MudText>
         </MudStack>
-       
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <MudAlert Severity="Severity.Error" Class="my-2">
+                @errorMessage
+            </MudAlert>
+        }
 @*         <StatusMessage Message="@errorMessage" /> *@
-        <form method="post" @onsubmit="HandleLogin">
 
             <MudTextField Label="Email " @bind-Value="Input.Email"
                           Required="true" RequiredError="Email is required"
@@ -42,89 +46,63 @@
 
             <MudCheckBox T="bool" @bind-Checked="Input.RememberMe" Label="Remember me" />
 
-            <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Outlined" Class="mb-5" Color="Color.Primary" FullWidth="true">
+        <MudButton ButtonType="ButtonType.Button" OnClick="LoginUser" Variant="Variant.Outlined" Class="mb-5" Color="Color.Primary" FullWidth="true">
                 Log In
             </MudButton>
-        </form>
         </MudPaper>
+  
+
+
 </MudStack>
-<p>@errorMessage</p>
-<form method="post" @onsubmit="LoginUser">
-        <input @bind="Input.Email" class="form-control" placeholder="Email"/>
-        <input @bind="Input.Password" class="form-control" placeholder="Password" />
-    <button type="submit">Login</button>
-</form>
+
 @code {
     private string? errorMessage;
 
     [CascadingParameter]
     private HttpContext HttpContext { get; set; } = default!;
-
     // [SupplyParameterFromForm]
     private UserRequest Input { get; set; } = new();
 
     [SupplyParameterFromQuery]
     private string? ReturnUrl { get; set; }
-
+    private string? messageFromCookie;
     protected override async Task OnInitializedAsync()
     {
         var context = HttpContextAccessor.HttpContext;
-        if (context != null && HttpMethods.IsGet(context.Request.Method))
+
+        if (context is not null)
         {
-            await context.SignOutAsync(IdentityConstants.ExternalScheme);
+            messageFromCookie = context.Request.Cookies[IdentityRedirectManager.StatusCookieName];
+
+            if (messageFromCookie is not null)
+            {
+                context.Response.Cookies.Delete(IdentityRedirectManager.StatusCookieName);
+            }
         }
+        // var context = HttpContextAccessor.HttpContext;
+        // if (context != null && HttpMethods.IsGet(context.Request.Method))
+        // {
+        //     await context.SignOutAsync(IdentityConstants.ExternalScheme);
+        // }
         // if (HttpMethods.IsGet(HttpContext.Request.Method))
         // {
         //     // Clear the existing external cookie to ensure a clean login process
         //     await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
         // }
-    }
-    private async Task HandleLogin()
-    {
-        var url = $"/Account/LogInHandle?email={Input.Email}&password={Input.Password}&rememberMe={Input.RememberMe}&returnUrl={ReturnUrl ?? "/"}";
-        NavigationManager.NavigateTo(url, forceLoad: true); // Full page reload to Razor Page
-        await Task.CompletedTask; // Ensure the method is async
+        await base.OnInitializedAsync();
     }
     public async Task LoginUser()
     {
         try
         {
-            var loginUser = await _userManager.FindByEmailAsync(Input.Email);
-
-            loginUser ??= await _userManager.FindByNameAsync(Input.Email);
-
-            if (loginUser is null)
+            var (success, error) = await AuthService.LoginAsync(Input);
+            if (!success)
             {
-                errorMessage = $"Error:{Input.Email} is not register yet.";
+                errorMessage = $"Error: {error}";
                 return;
             }
 
-            if (loginUser.IsActive == false)
-            {
-
-                errorMessage = $"Error:User is already deactive....";
-
-                return;
-            }
-
-            var checkedPassword = await _userManager.CheckPasswordAsync(loginUser, Input.Password);
-
-            if (!checkedPassword)
-            {
-                errorMessage = $"Error:Invalid Password...!";
-
-                return;
-            }
-            var result = await SignInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
-            if (result.Succeeded)
-            {
-                Logger.LogInformation("User logged in.");
-                RedirectManager.RedirectTo("/");
-            }
-            else
-            {
-                errorMessage = "Error: Invalid login attempt.";
-            }
+            NavigationManager.NavigateTo("/");
         }catch (Exception ex)
         {
             Logger.LogError(ex, "An error occurred during login.");

@@ -8,7 +8,7 @@ using QuestPDF.Infrastructure;
 using System.IO;
 using Microsoft.AspNetCore.Components;
 
-namespace MiniShopApp.Pages.Orders
+namespace MiniShopApp.Pages.Orders.ViewOrders
 {
     public partial class OrderViewPage(IOrderService orderService)
     {
@@ -79,7 +79,7 @@ namespace MiniShopApp.Pages.Orders
         private async void ExportToPdf()
         {
             // Set QuestPDF license type to Community before using QuestPDF
-            QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
+            QuestPDF.Settings.License = LicenseType.Community;
             var filteredOrders = GetFilteredOrders();
             var stream = new MemoryStream();
             var document = Document.Create(container =>
@@ -139,7 +139,7 @@ namespace MiniShopApp.Pages.Orders
                 if (!string.IsNullOrWhiteSpace(searchString))
                 {
                     matches = element.CustomerId.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase)
-                        || (element.TableNumber != null && element.TableNumber.Contains(searchString, StringComparison.OrdinalIgnoreCase));
+                        || element.TableNumber != null && element.TableNumber.Contains(searchString, StringComparison.OrdinalIgnoreCase);
                 }
                 if (matches && startDate.HasValue)
                 {

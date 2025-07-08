@@ -1,5 +1,6 @@
 using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
 using Domain.IdentityModel;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -12,6 +13,8 @@ using MiniShopApp.Data;
 using MiniShopApp.Data.TelegramStore;
 using MiniShopApp.Infrastructures;
 using MiniShopApp.Infrastructures.Services;
+using MiniShopApp.Infrastructures.Services.Implements;
+using MiniShopApp.Infrastructures.Services.Interfaces;
 using MiniShopApp.Models.Settings;
 using MudBlazor.Services;
 using Telegram.Bot;
@@ -24,16 +27,27 @@ var defaultedToken = builder.Configuration["BotTokenTest"];
 builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<IdentityUserAccessor>();
 builder.Services.AddScoped<IdentityRedirectManager>();
-builder.Services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuthenticationStateProvider>();
+
+//Use SessionAuthProvider for session-based authentication
+//builder.Services.AddDistributedMemoryCache();
+//builder.Services.AddSession(options =>
+//{
+//    options.IdleTimeout = TimeSpan.FromDays(5);
+//    options.Cookie.HttpOnly = true;
+//    options.Cookie.IsEssential = true;
+//});
+
+//builder.Services.AddScoped<AuthenticationStateProvider, SessionAuthProvider>();
+builder.Services.AddScoped<AuthenticationStateProvider, CookieAuthStateProvider>();
+//builder.Services.AddAuthorizationCore();
 
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultScheme = IdentityConstants.ApplicationScheme;
     options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
-    //options.DefaultAuthenticateScheme = IdentityConstants.ApplicationScheme;
-    //options.DefaultChallengeScheme = IdentityConstants.ApplicationScheme;
 })
     .AddIdentityCookies();
+builder.Services.AddScoped<IUserService, UserService>();
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
@@ -41,9 +55,16 @@ builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.Requ
     .AddEntityFrameworkStores<AppDbContext>()
     .AddRoles<ApplicationRole>()
     .AddEntityFrameworkStores<AppDbContext>()
-    .AddRoleManager<RoleManager<ApplicationRole>>()
-    .AddSignInManager()
-    .AddDefaultTokenProviders();
+    .AddRoleManager<RoleManager<ApplicationRole>>();
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.ExpireTimeSpan = TimeSpan.FromDays(5);
+    options.SlidingExpiration = true;
+    //options.Cookie.HT = true;
+    options.Cookie.IsEssential = true;
+
+});
+
 // Add any services in AddInfraServices class 
 builder.Services.AddInfraServices(builder.Configuration);
 
@@ -84,7 +105,6 @@ using (var context = dbContextFactory.CreateDbContext())
 builder.Services.AddSingleton<ITelegramBotClient>(new TelegramBotClient(token!));
 builder.Services.AddHostedService<botService>();
 //builder.Services.AddAuthentication();
-//builder.Services.AddAuthorization();
 builder.Services.AddRazorPages();
 builder.Services.AddMudServices();
 builder.Services.AddRazorComponents()
@@ -107,7 +127,8 @@ else
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
     app.UseHsts();
 }
-
+//app.UseSession();
+//app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseHttpsRedirection();
