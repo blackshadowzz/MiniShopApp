@@ -14,22 +14,18 @@
     [Parameter]
     public string? Message { get; set; }
 
-   
+    [CascadingParameter]
+    private HttpContext HttpContext { get; set; } = default!;
 
     private string? DisplayMessage => Message ?? messageFromCookie;
 
     protected override void OnInitialized()
     {
-        var context = HttpContextAccessor.HttpContext;
+        messageFromCookie = HttpContext.Request.Cookies[IdentityRedirectManager.StatusCookieName];
 
-        if (context is not null)
+        if (messageFromCookie is not null)
         {
-            messageFromCookie = context.Request.Cookies[IdentityRedirectManager.StatusCookieName];
-
-            if (messageFromCookie is not null)
-            {
-                context.Response.Cookies.Delete(IdentityRedirectManager.StatusCookieName);
-            }
+            HttpContext.Response.Cookies.Delete(IdentityRedirectManager.StatusCookieName);
         }
     }
 }

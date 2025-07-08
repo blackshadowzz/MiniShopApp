@@ -83,14 +83,15 @@ using (var context = dbContextFactory.CreateDbContext())
 }
 builder.Services.AddSingleton<ITelegramBotClient>(new TelegramBotClient(token!));
 builder.Services.AddHostedService<botService>();
-builder.Services.AddHttpContextAccessor();
-builder.Services.AddAuthentication();
-builder.Services.AddAuthorization();
+//builder.Services.AddAuthentication();
+//builder.Services.AddAuthorization();
 builder.Services.AddRazorPages();
 builder.Services.AddMudServices();
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
-builder.Services.AddHttpClient();
+//builder.Services.AddHttpClient();
+builder.Services.AddHttpContextAccessor();
+
 var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {

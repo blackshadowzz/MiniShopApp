@@ -10,7 +10,6 @@ namespace Domain.IdentityModel
     public sealed class UserRequest
     {
         [Required]
-        [EmailAddress]
         public string Email { get; set; } = "";
 
         [Required]
