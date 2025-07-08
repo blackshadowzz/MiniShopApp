@@ -54,7 +54,7 @@ namespace MiniShopApp.Infrastructures.Services.Implements
                 {
                     query = query.Where(x => x.TypeName != null && x.TypeName.Contains(filter));
                 }
-                var result = await query.Select(x => x.ToViewCustomerType()).ToListAsync();
+                var result = await query.Select(x => x.ToViewCustomerType()).AsNoTracking().ToListAsync();
                 return Result<IEnumerable<ViewCustomerType>>.Success(result.AsEnumerable());
             }
             catch (Exception ex)
