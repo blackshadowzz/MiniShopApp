@@ -11,7 +11,7 @@
     <ToolBarContent>
         <MudButton Href="/products/create" Variant="Variant.Filled" Color="Color.Primary">Create Product</MudButton>
         <MudSpacer />
-        <MudTextField T="string" ValueChanged="@(s => OnSearch(s))" Placeholder="Search"
+        <MudTextField Immediate="true" T="string" ValueChanged="@(s => OnSearch(s))" Placeholder="Search"
                       Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium"
         Class=""></MudTextField>
     </ToolBarContent>
@@ -48,7 +48,7 @@
         </MudTd>
     </RowTemplate>
     <NoRecordsContent>
-        <MudText>Loading....</MudText>
+        <MudText>No Data</MudText>
     </NoRecordsContent>
     <PagerContent>
         <MudTablePager/>

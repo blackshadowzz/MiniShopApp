@@ -65,9 +65,22 @@ namespace MiniShopApp.Infrastructures.Services.Implements
             }
         }
 
-        public Task<string> DeleteAsync(int id)
+        public async Task<Result<string>> DeleteAsync(int id)
         {
-            throw new NotImplementedException();
+            try
+            {
+                await using var dbContext = _context.CreateDbContext();
+                var getEntry = await dbContext.TbProducts.FindAsync(id);
+                getEntry.EditSeq++;
+                getEntry.IsActive = false; // Soft delete
+                dbContext.TbProducts.Update(getEntry);
+                await dbContext.SaveChangesAsync();
+                return Result.Success<string>("Product deleted successfully");
+            }
+            catch (Exception ex)
+            {return Result.Failure<string>(ErrorResponse.ServerError(ex.Message));
+                throw new Exception("Error deleting product", ex);
+            }
         }
 
         public async Task<IEnumerable<Product>> GetAllAsync(string? filter = null)

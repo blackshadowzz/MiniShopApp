@@ -11,6 +11,6 @@ namespace MiniShopApp.Infrastructures.Services.Interfaces
         public Task<Result<IEnumerable<ViewProductOrders>>> GetOrderAllAsync(string? filter=null);
         public Task<string> CreateAsync(Product model);
         public Task<string> UpdateAsync(Product model);
-        public Task<string> DeleteAsync(int id);
+        public Task<Result<string>> DeleteAsync(int id);
     }
 }
