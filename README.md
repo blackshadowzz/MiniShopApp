@@ -18,3 +18,6 @@ Our goal is to provide a seamless and efficient ordering experience, allowing us
 - Currently in testing phase
 <br/>
 - Focused on performance improvements and bug fixes
+<br/>
+<br/>
+Test Bot: https://t.me/Miniorder_bot
