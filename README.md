@@ -16,6 +16,5 @@ Our goal is to provide a seamless and efficient ordering experience, allowing us
  - Integrated with Telegram Mini App platform
 ><br/>
 - Currently in testing phase
-
-<br/>
+><br/>
 - Focused on performance improvements and bug fixes
